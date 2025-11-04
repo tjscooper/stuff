@@ -1,359 +1,99 @@
-// ==================== GAINZ QUEST PROGRAM DATA ====================
+// ==================== QUEST PROGRAM GENERATOR ====================
+// Generates quest program from templates (loaded from quest-data.js)
 
-const questProgram = {
-    1: {
-        title: "LEVEL 1",
-        subtitle: "7 QUESTS TO COMPLETE THIS LEVEL",
-        description: "Welcome, warrior! Begin your epic journey to ultimate fitness.",
-        quests: [
-            {
-                questNumber: "1.1",
-                name: "CHEST & TRICEPS BATTLE",
-                objective: "Defeat chest and tricep enemies",
-                difficulty: 2,
+function generateQuestProgram() {
+    const program = {};
+
+    for (let level = 1; level <= 24; level++) {
+        const phase = Math.floor((level - 1) / 4);
+        const intensity = phase < 2 ? "Moderate" : phase < 4 ? "Heavy" : "Maximum";
+        const difficultyMod = Math.min(Math.floor(level / 5), 2);
+
+        program[level] = {
+            title: `LEVEL ${level}`,
+            subtitle: "7 QUESTS TO COMPLETE THIS LEVEL",
+            description: level % 4 === 0
+                ? "Recovery level - restore your HP and prepare for the next challenge!"
+                : level === 1
+                    ? "Welcome, warrior! Begin your epic journey to ultimate fitness."
+                    : `${intensity} intensity training - push your limits and grow stronger!`,
+            quests: []
+        };
+
+        // Generate 7 quests for this level
+        for (let questIdx = 0; questIdx < 7; questIdx++) {
+            const templateId = questMapping[level][questIdx];
+            const template = workoutTemplates[templateId];
+            const questNumber = `${level}.${questIdx + 1}`;
+
+            // Check for user customizations
+            const customTemplate = getCustomTemplate(templateId);
+            const activeTemplate = customTemplate || template;
+
+            const quest = {
+                questNumber: questNumber,
+                templateId: templateId, // Store template ID for editing
+                name: activeTemplate.name,
+                objective: activeTemplate.objective,
+                difficulty: activeTemplate.difficulty + difficultyMod,
                 xpReward: 1,
-                preparation: {
-                    time: "5-8 min",
-                    activities: [
-                        "Light cardio warmup: 5 minutes",
-                        "Arm circles: 10 forward, 10 backward",
-                        "Push-up to downward dog: 8 reps"
-                    ]
-                },
-                battleSequence: [
-                    { name: "Push-ups", specs: "3 sets × 8-12 reps (Modify on knees if needed)" },
-                    { name: "Incline Dumbbell Press", specs: "3 sets × 10-12 reps" },
-                    { name: "Chest Flyes", specs: "3 sets × 12-15 reps" },
-                    { name: "Tricep Dips", specs: "3 sets × 8-12 reps" },
-                    { name: "Overhead Tricep Extension", specs: "3 sets × 10-12 reps" },
-                    { name: "Diamond Push-ups", specs: "2 sets × 5-8 reps" }
-                ],
-                recovery: {
-                    time: "5 min",
-                    activities: [
-                        "Chest doorway stretch: 30 sec each arm",
-                        "Tricep overhead stretch: 30 sec each arm"
-                    ]
-                },
-                restTimer: "60-90 seconds between sets"
-            },
-            {
-                questNumber: "1.2",
-                name: "BACK & BICEPS BATTLE",
-                objective: "Conquer back and bicep challenges",
-                difficulty: 2,
-                xpReward: 1,
-                preparation: {
-                    time: "5-8 min",
-                    activities: [
-                        "Light cardio warmup: 5 minutes",
-                        "Arm swings: 10 each direction",
-                        "Cat-cow stretches: 8 reps"
-                    ]
-                },
-                battleSequence: [
-                    { name: "Bent-over Dumbbell Rows", specs: "3 sets × 10-12 reps" },
-                    { name: "Lat Pulldowns (or Assisted Pull-ups)", specs: "3 sets × 8-12 reps" },
-                    { name: "Single-arm Dumbbell Rows", specs: "3 sets × 10 reps each arm" },
-                    { name: "Bicep Curls", specs: "3 sets × 12-15 reps" },
-                    { name: "Hammer Curls", specs: "3 sets × 10-12 reps" },
-                    { name: "Face Pulls", specs: "3 sets × 15 reps" }
-                ],
-                recovery: {
-                    time: "5 min",
-                    activities: [
-                        "Upper trap stretch: 30 sec each side",
-                        "Cross-body shoulder stretch: 30 sec each arm",
-                        "Child's pose: 60 seconds"
-                    ]
-                },
-                restTimer: "60-90 seconds between sets"
-            },
-            {
-                questNumber: "1.3",
-                name: "SHOULDERS & LEGS RAID",
-                objective: "Dominate shoulders and leg territory",
-                difficulty: 3,
-                xpReward: 1,
-                preparation: {
-                    time: "8-10 min",
-                    activities: [
-                        "Light cardio warmup: 5 minutes",
-                        "Leg swings: 10 each direction, each leg",
-                        "Arm circles: 10 each direction",
-                        "Bodyweight squats: 10 reps"
-                    ]
-                },
-                battleSequence: [
-                    { name: "Goblet Squats", specs: "3 sets × 12-15 reps" },
-                    { name: "Overhead Press", specs: "3 sets × 10-12 reps" },
-                    { name: "Walking Lunges", specs: "3 sets × 10 reps each leg" },
-                    { name: "Lateral Raises", specs: "3 sets × 12-15 reps" },
-                    { name: "Romanian Deadlifts", specs: "3 sets × 10-12 reps" },
-                    { name: "Front Raises", specs: "3 sets × 10-12 reps" },
-                    { name: "Calf Raises", specs: "3 sets × 15-20 reps" }
-                ],
-                recovery: {
-                    time: "5 min",
-                    activities: [
-                        "Quad stretch: 30 sec each leg",
-                        "Hamstring stretch: 30 sec each leg",
-                        "Shoulder rolls and arm stretches"
-                    ]
-                },
-                restTimer: "60-90 seconds between sets"
-            },
-            {
-                questNumber: "1.4",
-                name: "CHEST & BICEPS STRIKE",
-                objective: "Second strike on chest and biceps",
-                difficulty: 2,
-                xpReward: 1,
-                preparation: {
-                    time: "5-8 min",
-                    activities: [
-                        "Light cardio warmup: 5 minutes",
-                        "Arm circles and shoulder rolls",
-                        "Light push-ups: 5-8 reps"
-                    ]
-                },
-                battleSequence: [
-                    { name: "Dumbbell Bench Press", specs: "3 sets × 10-12 reps" },
-                    { name: "Incline Push-ups", specs: "3 sets × 10-15 reps" },
-                    { name: "Concentration Curls", specs: "3 sets × 10-12 reps each arm" },
-                    { name: "Chest Press Machine (or Push-ups)", specs: "3 sets × 12-15 reps" },
-                    { name: "21s Bicep Curls", specs: "2 sets (7 bottom + 7 top + 7 full)" },
-                    { name: "Pec Deck (or Chest Flyes)", specs: "3 sets × 12-15 reps" }
-                ],
-                recovery: {
-                    time: "5 min",
-                    activities: [
-                        "Chest stretches in doorway",
-                        "Bicep stretches against wall"
-                    ]
-                },
-                restTimer: "60-90 seconds between sets"
-            },
-            {
-                questNumber: "1.5",
-                name: "FULL BODY CIRCUIT GAUNTLET",
-                objective: "Survive the ultimate circuit challenge",
-                difficulty: 4,
-                xpReward: 1,
-                preparation: {
-                    time: "5 min",
-                    activities: [
-                        "Dynamic movements: high knees, butt kickers, arm swings"
-                    ]
-                },
-                battleSequence: [
-                    { name: "CIRCUIT (3-4 rounds)", specs: "45s work / 15s rest each:" },
-                    { name: "Burpees", specs: "Modified if needed" },
-                    { name: "Mountain Climbers", specs: "Keep core tight" },
-                    { name: "Jump Squats", specs: "Land softly" },
-                    { name: "Push-ups", specs: "Any variation" },
-                    { name: "Plank Hold", specs: "Strong position" },
-                    { name: "Jumping Jacks", specs: "Full body movement" },
-                    { name: "Alternating Lunges", specs: "Controlled movement" },
-                    { name: "High Knees", specs: "Running in place" }
-                ],
-                recovery: {
-                    time: "8-10 min",
-                    activities: [
-                        "Full body stretching routine"
-                    ]
-                },
-                restTimer: "1-2 minutes between rounds"
-            },
-            {
-                questNumber: "1.6",
-                name: "RECOVERY MISSION",
-                objective: "Active recovery to restore HP",
-                difficulty: 1,
-                xpReward: 1,
-                type: "recovery",
-                options: [
-                    "30-45 minute brisk walk outdoors",
-                    "Light bike ride (20-30 minutes)",
-                    "Swimming (20-30 minutes)",
-                    "Recreational sports (light intensity)",
-                    "Easy hiking"
-                ],
-                notes: [
-                    "Keep heart rate in Zone 1-2 (conversational pace)",
-                    "Focus on movement and recovery",
-                    "Enjoy the activity - this restores HP!"
-                ]
-            },
-            {
-                questNumber: "1.7",
-                name: "OPTIONAL ZEN MODE",
-                objective: "Flexibility and mindfulness training",
-                difficulty: 1,
-                xpReward: 1,
-                type: "zen",
-                options: [
-                    "YOGA SESSION (30-45 min): Gentle flow or restorative yoga",
-                    "LEISURELY WALK (30-60 min): Nature walk or neighborhood stroll",
-                    "REST DAY: Complete rest with light stretching (10-15 min)"
-                ],
-                notes: [
-                    "Focus on flexibility and relaxation",
-                    "Meditation or breathing exercises welcome",
-                    "This quest restores mental HP!"
-                ]
+                type: activeTemplate.type
+            };
+
+            if (activeTemplate.type === 'recovery' || activeTemplate.type === 'zen') {
+                quest.options = activeTemplate.options;
+                quest.notes = activeTemplate.notes;
+            } else {
+                quest.preparation = activeTemplate.preparation;
+                quest.recovery = activeTemplate.recovery;
+                quest.restTimer = activeTemplate.restTimer;
+
+                // Convert exercises from template format to display format
+                quest.battleSequence = activeTemplate.exercises.map(ex => {
+                    const exerciseData = exerciseLibrary[ex.id];
+                    const sets = ex.sets + (level > 12 ? 1 : 0); // Add 1 set after level 12
+                    const name = exerciseData ? exerciseData.name : ex.id;
+                    const notes = ex.notes ? ` (${ex.notes})` : '';
+
+                    return {
+                        id: ex.id,
+                        name: name,
+                        specs: `${sets} sets × ${ex.reps} reps${notes}`,
+                        bodyweight: exerciseData ? exerciseData.bodyweight : false
+                    };
+                });
             }
-        ],
-        strategyGuide: {
-            intensity: "Start at 6-7/10 difficulty",
-            hpManagement: "7-9 hours sleep for recovery",
-            powerUps: "Stay hydrated throughout quests",
-            focus: "Master movement patterns this level"
+
+            program[level].quests.push(quest);
         }
-    }
-};
 
-// Generate levels 2-24 with progressive difficulty
-for (let level = 2; level <= 24; level++) {
-    const phase = Math.floor((level - 1) / 4);
-    const intensity = phase < 2 ? "Moderate" : phase < 4 ? "Heavy" : "Maximum";
-    const sets = Math.min(3 + phase, 5);
-    const difficulty = Math.min(2 + Math.floor(level / 5), 5);
-
-    questProgram[level] = {
-        title: `LEVEL ${level}`,
-        subtitle: "7 QUESTS TO COMPLETE THIS LEVEL",
-        description: level % 4 === 0
-            ? "Recovery level - restore your HP and prepare for the next challenge!"
-            : `${intensity} intensity training - push your limits and grow stronger!`,
-        quests: [
-            {
-                questNumber: `${level}.1`,
-                name: "CHEST & TRICEPS ASSAULT",
-                objective: "Conquer chest and tricep challenges",
-                difficulty: difficulty,
-                xpReward: 1,
-                preparation: { time: "5-8 min", activities: ["Cardio warmup: 5 minutes", "Dynamic stretches"] },
-                battleSequence: [
-                    { name: "Push-ups (Weighted if able)", specs: `${sets} sets × 10-12 reps` },
-                    { name: "Bench Press", specs: `${sets} sets × 8-10 reps` },
-                    { name: "Chest Flyes", specs: `${sets} sets × 12 reps` },
-                    { name: "Tricep Dips", specs: `${sets} sets × 10-12 reps` },
-                    { name: "Overhead Extension", specs: `${sets} sets × 10 reps` }
-                ],
-                recovery: { time: "5 min", activities: ["Upper body stretches"] },
-                restTimer: "60-90 seconds between sets"
-            },
-            {
-                questNumber: `${level}.2`,
-                name: "BACK & BICEPS CAMPAIGN",
-                objective: "Dominate back and bicep territory",
-                difficulty: difficulty,
-                xpReward: 1,
-                preparation: { time: "5-8 min", activities: ["Light cardio", "Arm swings and stretches"] },
-                battleSequence: [
-                    { name: "Pull-ups/Assisted", specs: `${sets} sets × 8-10 reps` },
-                    { name: "Bent-over Rows", specs: `${sets} sets × 10-12 reps` },
-                    { name: "Single-arm Rows", specs: `${sets} sets × 10 reps each` },
-                    { name: "Bicep Curls", specs: `${sets} sets × 12 reps` },
-                    { name: "Hammer Curls", specs: `${sets} sets × 10 reps` }
-                ],
-                recovery: { time: "5 min", activities: ["Back and arm stretches"] },
-                restTimer: "60-90 seconds between sets"
-            },
-            {
-                questNumber: `${level}.3`,
-                name: "SHOULDERS & LEGS CONQUEST",
-                objective: "Ultimate lower body and shoulder power",
-                difficulty: difficulty + 1,
-                xpReward: 1,
-                preparation: { time: "8-10 min", activities: ["Dynamic warmup", "Leg swings", "Arm circles"] },
-                battleSequence: [
-                    { name: "Squats", specs: `${sets} sets × 10-12 reps` },
-                    { name: "Overhead Press", specs: `${sets} sets × 8-10 reps` },
-                    { name: "Walking Lunges", specs: `${sets} sets × 12 reps each leg` },
-                    { name: "Lateral Raises", specs: `${sets} sets × 12-15 reps` },
-                    { name: "Romanian Deadlifts", specs: `${sets} sets × 10 reps` },
-                    { name: "Calf Raises", specs: `${sets} sets × 15-20 reps` }
-                ],
-                recovery: { time: "5 min", activities: ["Lower body and shoulder stretches"] },
-                restTimer: "90-120 seconds between sets"
-            },
-            {
-                questNumber: `${level}.4`,
-                name: "TOTAL UPPER BODY WAR",
-                objective: "All-out upper body destruction",
-                difficulty: difficulty,
-                xpReward: 1,
-                preparation: { time: "5-8 min", activities: ["Warmup", "Mobility work"] },
-                battleSequence: [
-                    { name: "Dumbbell Bench Press", specs: `${sets} sets × 10 reps` },
-                    { name: "Seated Rows", specs: `${sets} sets × 10-12 reps` },
-                    { name: "Arnold Press", specs: `${sets} sets × 8-10 reps` },
-                    { name: "Concentration Curls", specs: `${sets} sets × 10 reps each` },
-                    { name: "Skull Crushers", specs: `${sets} sets × 10 reps` }
-                ],
-                recovery: { time: "5 min", activities: ["Upper body stretches"] },
-                restTimer: "60-90 seconds between sets"
-            },
-            {
-                questNumber: `${level}.5`,
-                name: "CIRCUIT GAUNTLET CHALLENGE",
-                objective: "Survive the brutal circuit challenge",
-                difficulty: difficulty + 1,
-                xpReward: 1,
-                preparation: { time: "5 min", activities: ["Full body dynamic warmup"] },
-                battleSequence: [
-                    { name: "CIRCUIT (3-4 rounds)", specs: "45s work / 15s rest:" },
-                    { name: "Burpees", specs: "Maximum effort" },
-                    { name: "Mountain Climbers", specs: "Fast pace" },
-                    { name: "Jump Squats", specs: "Explosive power" },
-                    { name: "Push-ups", specs: "Good form" },
-                    { name: "Plank Hold", specs: "Solid core" },
-                    { name: "High Knees", specs: "Sprint pace" }
-                ],
-                recovery: { time: "10 min", activities: ["Full cooldown and stretching"] },
-                restTimer: "2 minutes between rounds"
-            },
-            {
-                questNumber: `${level}.6`,
-                name: "RECOVERY MISSION",
-                objective: "Active recovery to restore HP",
-                difficulty: 1,
-                xpReward: 1,
-                type: "recovery",
-                options: [
-                    "30-45 minute walk/light jog",
-                    "Swimming or cycling (easy pace)",
-                    "Recreational activity",
-                    "Light yoga or stretching"
-                ],
-                notes: ["Low intensity", "Focus on recovery", "Stay active but don't push hard"]
-            },
-            {
-                questNumber: `${level}.7`,
-                name: "ZEN MODE BONUS QUEST",
-                objective: "Mental and physical flexibility",
-                difficulty: 1,
-                xpReward: 1,
-                type: "zen",
-                options: [
-                    "Yoga session (30-45 min)",
-                    "Meditation and stretching",
-                    "Leisurely walk in nature",
-                    "Complete rest day"
-                ],
-                notes: ["Optional but recommended", "Restore mental HP", "Prepare for next level"]
-            }
-        ],
-        strategyGuide: {
+        // Strategy guide
+        program[level].strategyGuide = {
             intensity: level % 4 === 0 ? "Light recovery - 4-5/10" : `${intensity} - ${7 + Math.floor(level/4)}/10`,
             hpManagement: "7-9 hours sleep required",
             powerUps: "Hydration and nutrition critical",
             focus: level % 4 === 0 ? "Recovery and form refinement" : "Progressive overload"
-        }
-    };
+        };
+    }
+
+    return program;
 }
+
+// Helper to get custom template from localStorage
+function getCustomTemplate(templateId) {
+    const customizations = JSON.parse(localStorage.getItem('workoutCustomizations') || '{}');
+    return customizations[templateId];
+}
+
+// Helper to save custom template
+function saveCustomTemplate(templateId, customTemplate) {
+    const customizations = JSON.parse(localStorage.getItem('workoutCustomizations') || '{}');
+    customizations[templateId] = customTemplate;
+    localStorage.setItem('workoutCustomizations', JSON.stringify(customizations));
+}
+
+// Generate the program
+const questProgram = generateQuestProgram();
 
 // ==================== ACHIEVEMENTS SYSTEM ====================
 
@@ -676,7 +416,7 @@ class GainzQuest {
 
                 if (numSets > 0) {
                     // Only add weight tracking if not a bodyweight exercise
-                    if (!this.isBodyweightExercise(ex.name)) {
+                    if (!ex.bodyweight) {
                         const currentWeight = this.getExerciseWeight(ex.name);
 
                         weightHTML = `
