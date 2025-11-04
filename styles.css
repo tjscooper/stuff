@@ -962,6 +962,72 @@ header h1 {
     font-weight: bold;
 }
 
+.weight-graph {
+    background: rgba(99, 102, 241, 0.2);
+    border-color: var(--primary-color);
+}
+
+.weight-graph:hover {
+    background: var(--primary-color);
+}
+
+/* Weight Graph Modal */
+.graph-modal-content {
+    max-width: 900px;
+    width: 95%;
+}
+
+.graph-container {
+    background: var(--bg-color);
+    border-radius: 12px;
+    padding: 20px;
+    margin: 20px 0;
+    border: 2px solid var(--border-color);
+}
+
+#weight-graph {
+    width: 100%;
+    height: 300px;
+    display: block;
+}
+
+.graph-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 15px;
+    margin-top: 20px;
+}
+
+.stat-item {
+    background: rgba(99, 102, 241, 0.1);
+    border: 2px solid var(--primary-color);
+    border-radius: 12px;
+    padding: 15px;
+    text-align: center;
+}
+
+.stat-item .stat-label {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    margin-bottom: 8px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.stat-item .stat-value {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: var(--primary-color);
+}
+
+.stat-item .stat-value.positive {
+    color: var(--success-color);
+}
+
+.stat-item .stat-value.negative {
+    color: var(--danger-color);
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
     header h1 {

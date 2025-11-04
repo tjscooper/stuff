@@ -387,8 +387,10 @@ class GainzQuest {
         this.timerRemaining = 90;
         this.timerRunning = false;
 
-        // Weight tracking - stores weight per exercise name
+        // Weight tracking - stores current weight per exercise name
         this.exerciseWeights = {};
+        // Weight history - stores array of {level, weight} for each exercise
+        this.weightHistory = {};
 
         this.loadState();
         this.init();
@@ -411,7 +413,8 @@ class GainzQuest {
             completedQuests: Array.from(this.completedQuests),
             unlockedAchievements: Array.from(this.unlockedAchievements),
             lastQuestDate: this.lastQuestDate,
-            exerciseWeights: this.exerciseWeights
+            exerciseWeights: this.exerciseWeights,
+            weightHistory: this.weightHistory
         };
         localStorage.setItem('gainzQuestState', JSON.stringify(state));
     }
@@ -427,6 +430,7 @@ class GainzQuest {
             this.unlockedAchievements = new Set(state.unlockedAchievements || []);
             this.lastQuestDate = state.lastQuestDate;
             this.exerciseWeights = state.exerciseWeights || {};
+            this.weightHistory = state.weightHistory || {};
 
             this.updateStreak();
         }
@@ -673,6 +677,7 @@ class GainzQuest {
                                     <span class="weight-unit">lbs</span>
                                 </div>
                                 <button class="weight-btn weight-plus" data-exercise="${ex.name}">+</button>
+                                <button class="weight-btn weight-graph" data-exercise="${ex.name}" title="View progression graph">📈</button>
                             </div>
                         </div>
                     `;
@@ -745,6 +750,14 @@ class GainzQuest {
                         this.changeWeight(exerciseName, 2.5);
                     });
                 });
+
+                document.querySelectorAll('.weight-graph').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        const exerciseName = e.target.dataset.exercise;
+                        this.showWeightGraph(exerciseName);
+                    });
+                });
             }, 0);
         }
 
@@ -785,6 +798,30 @@ class GainzQuest {
             const exerciseName = input.dataset.exercise;
             const weight = parseFloat(input.textContent);
             this.exerciseWeights[exerciseName] = weight;
+
+            // Record in history for this level
+            if (!this.weightHistory[exerciseName]) {
+                this.weightHistory[exerciseName] = [];
+            }
+
+            // Check if we already have an entry for this level
+            const existingEntry = this.weightHistory[exerciseName].find(
+                entry => entry.level === this.currentLevel
+            );
+
+            if (existingEntry) {
+                // Update existing entry
+                existingEntry.weight = weight;
+            } else {
+                // Add new entry
+                this.weightHistory[exerciseName].push({
+                    level: this.currentLevel,
+                    weight: weight
+                });
+            }
+
+            // Sort by level
+            this.weightHistory[exerciseName].sort((a, b) => a.level - b.level);
         });
         this.saveState();
     }
@@ -801,6 +838,169 @@ class GainzQuest {
         }
 
         this.saveState();
+    }
+
+    // ==================== WEIGHT GRAPH ====================
+
+    showWeightGraph(exerciseName) {
+        const history = this.weightHistory[exerciseName] || [];
+
+        if (history.length === 0) {
+            alert('No weight history yet for this exercise. Complete a workout first!');
+            return;
+        }
+
+        document.getElementById('graph-title').textContent = `📈 ${exerciseName} Progression`;
+        document.getElementById('graph-modal').classList.add('active');
+
+        // Draw the graph
+        setTimeout(() => this.drawWeightGraph(exerciseName, history), 100);
+    }
+
+    drawWeightGraph(exerciseName, history) {
+        const canvas = document.getElementById('weight-graph');
+        const ctx = canvas.getContext('2d');
+
+        // Set canvas size
+        canvas.width = canvas.offsetWidth;
+        canvas.height = 300;
+
+        const width = canvas.width;
+        const height = canvas.height;
+        const padding = 60;
+
+        // Clear canvas
+        ctx.clearRect(0, 0, width, height);
+
+        // Calculate scales
+        const weights = history.map(h => h.weight);
+        const minWeight = Math.max(0, Math.floor(Math.min(...weights) / 10) * 10 - 10);
+        const maxWeight = Math.ceil(Math.max(...weights) / 10) * 10 + 10;
+        const levels = history.map(h => h.level);
+        const minLevel = Math.min(...levels);
+        const maxLevel = Math.max(...levels, minLevel + 1); // At least 2 levels spread
+
+        // Helper functions
+        const getX = (level) => padding + ((level - minLevel) / (maxLevel - minLevel)) * (width - padding * 2);
+        const getY = (weight) => height - padding - ((weight - minWeight) / (maxWeight - minWeight)) * (height - padding * 2);
+
+        // Draw grid
+        ctx.strokeStyle = '#334155';
+        ctx.lineWidth = 1;
+        ctx.setLineDash([5, 5]);
+
+        // Horizontal grid lines (weight)
+        const weightStep = (maxWeight - minWeight) / 5;
+        for (let i = 0; i <= 5; i++) {
+            const weight = minWeight + i * weightStep;
+            const y = getY(weight);
+
+            ctx.beginPath();
+            ctx.moveTo(padding, y);
+            ctx.lineTo(width - padding, y);
+            ctx.stroke();
+
+            // Weight labels
+            ctx.fillStyle = '#94a3b8';
+            ctx.font = '12px Arial';
+            ctx.textAlign = 'right';
+            ctx.fillText(weight.toFixed(0) + ' lbs', padding - 10, y + 4);
+        }
+
+        // Vertical grid lines (levels)
+        const levelStep = Math.max(1, Math.floor((maxLevel - minLevel) / 6));
+        for (let level = minLevel; level <= maxLevel; level += levelStep) {
+            const x = getX(level);
+
+            ctx.beginPath();
+            ctx.moveTo(x, padding);
+            ctx.lineTo(x, height - padding);
+            ctx.stroke();
+
+            // Level labels
+            ctx.fillStyle = '#94a3b8';
+            ctx.font = '12px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText('L' + level, x, height - padding + 20);
+        }
+
+        // Draw line
+        ctx.setLineDash([]);
+        ctx.strokeStyle = '#ec4899';
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+
+        history.forEach((point, index) => {
+            const x = getX(point.level);
+            const y = getY(point.weight);
+
+            if (index === 0) {
+                ctx.moveTo(x, y);
+            } else {
+                ctx.lineTo(x, y);
+            }
+        });
+
+        ctx.stroke();
+
+        // Draw points
+        history.forEach(point => {
+            const x = getX(point.level);
+            const y = getY(point.weight);
+
+            // Outer glow
+            ctx.fillStyle = 'rgba(236, 72, 153, 0.3)';
+            ctx.beginPath();
+            ctx.arc(x, y, 8, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Point
+            ctx.fillStyle = '#ec4899';
+            ctx.beginPath();
+            ctx.arc(x, y, 5, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Weight label on point
+            ctx.fillStyle = '#f1f5f9';
+            ctx.font = 'bold 11px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText(point.weight + ' lbs', x, y - 15);
+        });
+
+        // Update stats
+        this.updateGraphStats(exerciseName, history, minWeight, maxWeight);
+    }
+
+    updateGraphStats(exerciseName, history, minWeight, maxWeight) {
+        const statsDiv = document.getElementById('graph-stats');
+
+        const currentWeight = history[history.length - 1].weight;
+        const startWeight = history[0].weight;
+        const totalGain = currentWeight - startWeight;
+        const percentGain = startWeight > 0 ? ((totalGain / startWeight) * 100).toFixed(1) : 0;
+
+        statsDiv.innerHTML = `
+            <div class="stat-item">
+                <div class="stat-label">Current</div>
+                <div class="stat-value">${currentWeight} lbs</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-label">Starting</div>
+                <div class="stat-value">${startWeight} lbs</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-label">Total Gain</div>
+                <div class="stat-value ${totalGain >= 0 ? 'positive' : 'negative'}">${totalGain >= 0 ? '+' : ''}${totalGain} lbs (${percentGain}%)</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-label">Data Points</div>
+                <div class="stat-value">${history.length} levels</div>
+            </div>
+        `;
+    }
+
+    closeGraphModal() {
+        document.getElementById('graph-modal').classList.remove('active');
     }
 
     // ==================== TIMER FUNCTIONS ====================
@@ -972,6 +1172,14 @@ class GainzQuest {
         });
 
         document.getElementById('close-level-up').addEventListener('click', () => this.closeLevelUpNotification());
+
+        // Graph modal listeners
+        document.getElementById('close-graph').addEventListener('click', () => this.closeGraphModal());
+        document.getElementById('graph-modal').addEventListener('click', (e) => {
+            if (e.target.id === 'graph-modal') {
+                this.closeGraphModal();
+            }
+        });
 
         // Timer event listeners
         document.getElementById('timer-start').addEventListener('click', () => {
