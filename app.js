@@ -1099,8 +1099,11 @@ class GainzQuest {
     }
 
     logBodyWeight() {
+        console.log('logBodyWeight called');
         const input = document.getElementById('weight-input');
+        console.log('Input element:', input);
         const weight = parseFloat(input.value);
+        console.log('Weight value:', weight);
 
         if (!weight || weight < 50 || weight > 500) {
             alert('Please enter a valid weight between 50 and 500 lbs');
@@ -1467,21 +1470,44 @@ class GainzQuest {
         });
 
         // Body weight tracking listeners
-        document.getElementById('log-weight-btn').addEventListener('click', () => this.logBodyWeight());
-        document.getElementById('view-weight-history-btn').addEventListener('click', () => this.showBodyWeightHistory());
-        document.getElementById('close-body-weight').addEventListener('click', () => this.closeBodyWeightModal());
-        document.getElementById('body-weight-modal').addEventListener('click', (e) => {
-            if (e.target.id === 'body-weight-modal') {
-                this.closeBodyWeightModal();
-            }
-        });
+        console.log('Setting up body weight listeners...');
+        const logBtn = document.getElementById('log-weight-btn');
+        console.log('Log button element:', logBtn);
+        if (logBtn) {
+            logBtn.addEventListener('click', () => {
+                console.log('Log button clicked!');
+                this.logBodyWeight();
+            });
+        }
+
+        const historyBtn = document.getElementById('view-weight-history-btn');
+        if (historyBtn) {
+            historyBtn.addEventListener('click', () => this.showBodyWeightHistory());
+        }
+
+        const closeBtn = document.getElementById('close-body-weight');
+        if (closeBtn) {
+            closeBtn.addEventListener('click', () => this.closeBodyWeightModal());
+        }
+
+        const modal = document.getElementById('body-weight-modal');
+        if (modal) {
+            modal.addEventListener('click', (e) => {
+                if (e.target.id === 'body-weight-modal') {
+                    this.closeBodyWeightModal();
+                }
+            });
+        }
 
         // Allow Enter key to log weight
-        document.getElementById('weight-input').addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                this.logBodyWeight();
-            }
-        });
+        const weightInput = document.getElementById('weight-input');
+        if (weightInput) {
+            weightInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    this.logBodyWeight();
+                }
+            });
+        }
 
         // Timer event listeners
         document.getElementById('timer-start').addEventListener('click', () => {
