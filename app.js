@@ -1,245 +1,385 @@
-// ==================== WORKOUT PROGRAM DATA ====================
+// ==================== GAINZ QUEST PROGRAM DATA ====================
 
-const workoutProgram = {
+const questProgram = {
     1: {
-        title: "Week 1: Foundation Building",
-        description: "Welcome to your fitness journey! This week focuses on establishing proper form and building a solid foundation.",
-        days: [
-            { type: "Full Body", exercises: [
-                { name: "Push-ups", specs: "3 sets of 8-10 reps" },
-                { name: "Bodyweight Squats", specs: "3 sets of 12-15 reps" },
-                { name: "Plank", specs: "3 sets of 20-30 seconds" },
-                { name: "Walking Lunges", specs: "3 sets of 10 reps per leg" }
-            ]},
-            { type: "Cardio", exercises: [
-                { name: "Brisk Walking", specs: "20 minutes" },
-                { name: "Jumping Jacks", specs: "3 sets of 30 seconds" },
-                { name: "High Knees", specs: "3 sets of 30 seconds" }
-            ]},
-            { type: "rest" },
-            { type: "Upper Body", exercises: [
-                { name: "Incline Push-ups", specs: "3 sets of 10 reps" },
-                { name: "Dumbbell Rows", specs: "3 sets of 10 reps per arm" },
-                { name: "Shoulder Taps", specs: "3 sets of 20 taps" },
-                { name: "Bicep Curls", specs: "3 sets of 12 reps" }
-            ]},
-            { type: "Core", exercises: [
-                { name: "Crunches", specs: "3 sets of 15 reps" },
-                { name: "Russian Twists", specs: "3 sets of 20 reps" },
-                { name: "Dead Bug", specs: "3 sets of 10 reps per side" },
-                { name: "Mountain Climbers", specs: "3 sets of 30 seconds" }
-            ]},
-            { type: "Lower Body", exercises: [
-                { name: "Goblet Squats", specs: "3 sets of 12 reps" },
-                { name: "Romanian Deadlifts", specs: "3 sets of 10 reps" },
-                { name: "Calf Raises", specs: "3 sets of 15 reps" },
-                { name: "Glute Bridges", specs: "3 sets of 15 reps" }
-            ]},
-            { type: "rest" }
-        ]
-    },
-    2: {
-        title: "Week 2: Building Momentum",
-        description: "Great start! This week we increase the volume slightly and continue perfecting form.",
-        days: [
-            { type: "Full Body", exercises: [
-                { name: "Push-ups", specs: "3 sets of 10-12 reps" },
-                { name: "Bodyweight Squats", specs: "3 sets of 15-18 reps" },
-                { name: "Plank", specs: "3 sets of 30-40 seconds" },
-                { name: "Walking Lunges", specs: "3 sets of 12 reps per leg" }
-            ]},
-            { type: "Cardio", exercises: [
-                { name: "Jogging/Running", specs: "20 minutes" },
-                { name: "Burpees", specs: "3 sets of 8 reps" },
-                { name: "Jump Rope", specs: "3 sets of 45 seconds" }
-            ]},
-            { type: "rest" },
-            { type: "Upper Body", exercises: [
-                { name: "Standard Push-ups", specs: "3 sets of 10-12 reps" },
-                { name: "Bent Over Rows", specs: "3 sets of 12 reps" },
-                { name: "Pike Push-ups", specs: "3 sets of 8 reps" },
-                { name: "Hammer Curls", specs: "3 sets of 12 reps" }
-            ]},
-            { type: "Core", exercises: [
-                { name: "Bicycle Crunches", specs: "3 sets of 20 reps" },
-                { name: "Plank to Down Dog", specs: "3 sets of 10 reps" },
-                { name: "Leg Raises", specs: "3 sets of 10 reps" },
-                { name: "Side Plank", specs: "3 sets of 20 seconds per side" }
-            ]},
-            { type: "Lower Body", exercises: [
-                { name: "Bulgarian Split Squats", specs: "3 sets of 10 reps per leg" },
-                { name: "Single Leg Deadlifts", specs: "3 sets of 10 reps per leg" },
-                { name: "Jump Squats", specs: "3 sets of 10 reps" },
-                { name: "Hip Thrusts", specs: "3 sets of 15 reps" }
-            ]},
-            { type: "rest" }
-        ]
-    },
-    3: {
-        title: "Week 3: Strength Development",
-        description: "Your body is adapting! Time to challenge yourself with increased intensity.",
-        days: [
-            { type: "Full Body Power", exercises: [
-                { name: "Push-ups", specs: "4 sets of 10-12 reps" },
-                { name: "Jump Squats", specs: "4 sets of 12 reps" },
-                { name: "Plank Variations", specs: "4 sets of 40 seconds" },
-                { name: "Reverse Lunges", specs: "4 sets of 12 reps per leg" }
-            ]},
-            { type: "HIIT Cardio", exercises: [
-                { name: "Sprint Intervals", specs: "30s sprint / 30s rest × 10" },
-                { name: "Burpees", specs: "4 sets of 10 reps" },
-                { name: "Mountain Climbers", specs: "4 sets of 45 seconds" }
-            ]},
-            { type: "rest" },
-            { type: "Upper Body Strength", exercises: [
-                { name: "Decline Push-ups", specs: "4 sets of 10 reps" },
-                { name: "Pull-ups/Assisted", specs: "4 sets of 6-8 reps" },
-                { name: "Overhead Press", specs: "4 sets of 10 reps" },
-                { name: "Diamond Push-ups", specs: "3 sets of 8 reps" }
-            ]},
-            { type: "Core Strength", exercises: [
-                { name: "Weighted Crunches", specs: "4 sets of 15 reps" },
-                { name: "Plank with Arm Lift", specs: "3 sets of 10 reps per side" },
-                { name: "V-ups", specs: "3 sets of 12 reps" },
-                { name: "Windshield Wipers", specs: "3 sets of 10 reps" }
-            ]},
-            { type: "Lower Body Power", exercises: [
-                { name: "Barbell Squats", specs: "4 sets of 10 reps" },
-                { name: "Deadlifts", specs: "4 sets of 8 reps" },
-                { name: "Box Jumps", specs: "4 sets of 10 reps" },
-                { name: "Walking Lunges", specs: "3 sets of 15 reps per leg" }
-            ]},
-            { type: "rest" }
-        ]
-    },
-    4: {
-        title: "Week 4: Recovery & Adaptation",
-        description: "Deload week! Let your body recover while maintaining movement. Quality over quantity.",
-        days: [
-            { type: "Light Full Body", exercises: [
-                { name: "Push-ups", specs: "3 sets of 8 reps (easy pace)" },
-                { name: "Bodyweight Squats", specs: "3 sets of 12 reps" },
-                { name: "Plank", specs: "3 sets of 30 seconds" },
-                { name: "Yoga Flow", specs: "10 minutes" }
-            ]},
-            { type: "Active Recovery", exercises: [
-                { name: "Walking", specs: "30 minutes" },
-                { name: "Stretching", specs: "15 minutes" },
-                { name: "Foam Rolling", specs: "10 minutes" }
-            ]},
-            { type: "rest" },
-            { type: "Light Upper", exercises: [
-                { name: "Incline Push-ups", specs: "3 sets of 10 reps" },
-                { name: "Light Rows", specs: "3 sets of 12 reps" },
-                { name: "Shoulder Mobility", specs: "10 minutes" },
-                { name: "Band Pull-aparts", specs: "3 sets of 15 reps" }
-            ]},
-            { type: "Yoga/Stretching", exercises: [
-                { name: "Yoga Flow", specs: "30 minutes" },
-                { name: "Deep Stretching", specs: "15 minutes" },
-                { name: "Breathing Exercises", specs: "10 minutes" }
-            ]},
-            { type: "Light Lower", exercises: [
-                { name: "Goblet Squats", specs: "3 sets of 10 reps (light)" },
-                { name: "Glute Bridges", specs: "3 sets of 12 reps" },
-                { name: "Leg Swings", specs: "3 sets of 15 per leg" },
-                { name: "Calf Stretches", specs: "5 minutes" }
-            ]},
-            { type: "rest" }
-        ]
+        title: "LEVEL 1",
+        subtitle: "7 QUESTS TO COMPLETE THIS LEVEL",
+        description: "Welcome, warrior! Begin your epic journey to ultimate fitness.",
+        quests: [
+            {
+                questNumber: "1.1",
+                name: "CHEST & TRICEPS BATTLE",
+                objective: "Defeat chest and tricep enemies",
+                difficulty: 2,
+                xpReward: 1,
+                preparation: {
+                    time: "5-8 min",
+                    activities: [
+                        "Light cardio warmup: 5 minutes",
+                        "Arm circles: 10 forward, 10 backward",
+                        "Push-up to downward dog: 8 reps"
+                    ]
+                },
+                battleSequence: [
+                    { name: "Push-ups", specs: "3 sets × 8-12 reps (Modify on knees if needed)" },
+                    { name: "Incline Dumbbell Press", specs: "3 sets × 10-12 reps" },
+                    { name: "Chest Flyes", specs: "3 sets × 12-15 reps" },
+                    { name: "Tricep Dips", specs: "3 sets × 8-12 reps" },
+                    { name: "Overhead Tricep Extension", specs: "3 sets × 10-12 reps" },
+                    { name: "Diamond Push-ups", specs: "2 sets × 5-8 reps" }
+                ],
+                recovery: {
+                    time: "5 min",
+                    activities: [
+                        "Chest doorway stretch: 30 sec each arm",
+                        "Tricep overhead stretch: 30 sec each arm"
+                    ]
+                },
+                restTimer: "60-90 seconds between sets"
+            },
+            {
+                questNumber: "1.2",
+                name: "BACK & BICEPS BATTLE",
+                objective: "Conquer back and bicep challenges",
+                difficulty: 2,
+                xpReward: 1,
+                preparation: {
+                    time: "5-8 min",
+                    activities: [
+                        "Light cardio warmup: 5 minutes",
+                        "Arm swings: 10 each direction",
+                        "Cat-cow stretches: 8 reps"
+                    ]
+                },
+                battleSequence: [
+                    { name: "Bent-over Dumbbell Rows", specs: "3 sets × 10-12 reps" },
+                    { name: "Lat Pulldowns (or Assisted Pull-ups)", specs: "3 sets × 8-12 reps" },
+                    { name: "Single-arm Dumbbell Rows", specs: "3 sets × 10 reps each arm" },
+                    { name: "Bicep Curls", specs: "3 sets × 12-15 reps" },
+                    { name: "Hammer Curls", specs: "3 sets × 10-12 reps" },
+                    { name: "Face Pulls", specs: "3 sets × 15 reps" }
+                ],
+                recovery: {
+                    time: "5 min",
+                    activities: [
+                        "Upper trap stretch: 30 sec each side",
+                        "Cross-body shoulder stretch: 30 sec each arm",
+                        "Child's pose: 60 seconds"
+                    ]
+                },
+                restTimer: "60-90 seconds between sets"
+            },
+            {
+                questNumber: "1.3",
+                name: "SHOULDERS & LEGS RAID",
+                objective: "Dominate shoulders and leg territory",
+                difficulty: 3,
+                xpReward: 1,
+                preparation: {
+                    time: "8-10 min",
+                    activities: [
+                        "Light cardio warmup: 5 minutes",
+                        "Leg swings: 10 each direction, each leg",
+                        "Arm circles: 10 each direction",
+                        "Bodyweight squats: 10 reps"
+                    ]
+                },
+                battleSequence: [
+                    { name: "Goblet Squats", specs: "3 sets × 12-15 reps" },
+                    { name: "Overhead Press", specs: "3 sets × 10-12 reps" },
+                    { name: "Walking Lunges", specs: "3 sets × 10 reps each leg" },
+                    { name: "Lateral Raises", specs: "3 sets × 12-15 reps" },
+                    { name: "Romanian Deadlifts", specs: "3 sets × 10-12 reps" },
+                    { name: "Front Raises", specs: "3 sets × 10-12 reps" },
+                    { name: "Calf Raises", specs: "3 sets × 15-20 reps" }
+                ],
+                recovery: {
+                    time: "5 min",
+                    activities: [
+                        "Quad stretch: 30 sec each leg",
+                        "Hamstring stretch: 30 sec each leg",
+                        "Shoulder rolls and arm stretches"
+                    ]
+                },
+                restTimer: "60-90 seconds between sets"
+            },
+            {
+                questNumber: "1.4",
+                name: "CHEST & BICEPS STRIKE",
+                objective: "Second strike on chest and biceps",
+                difficulty: 2,
+                xpReward: 1,
+                preparation: {
+                    time: "5-8 min",
+                    activities: [
+                        "Light cardio warmup: 5 minutes",
+                        "Arm circles and shoulder rolls",
+                        "Light push-ups: 5-8 reps"
+                    ]
+                },
+                battleSequence: [
+                    { name: "Dumbbell Bench Press", specs: "3 sets × 10-12 reps" },
+                    { name: "Incline Push-ups", specs: "3 sets × 10-15 reps" },
+                    { name: "Concentration Curls", specs: "3 sets × 10-12 reps each arm" },
+                    { name: "Chest Press Machine (or Push-ups)", specs: "3 sets × 12-15 reps" },
+                    { name: "21s Bicep Curls", specs: "2 sets (7 bottom + 7 top + 7 full)" },
+                    { name: "Pec Deck (or Chest Flyes)", specs: "3 sets × 12-15 reps" }
+                ],
+                recovery: {
+                    time: "5 min",
+                    activities: [
+                        "Chest stretches in doorway",
+                        "Bicep stretches against wall"
+                    ]
+                },
+                restTimer: "60-90 seconds between sets"
+            },
+            {
+                questNumber: "1.5",
+                name: "FULL BODY CIRCUIT GAUNTLET",
+                objective: "Survive the ultimate circuit challenge",
+                difficulty: 4,
+                xpReward: 1,
+                preparation: {
+                    time: "5 min",
+                    activities: [
+                        "Dynamic movements: high knees, butt kickers, arm swings"
+                    ]
+                },
+                battleSequence: [
+                    { name: "CIRCUIT (3-4 rounds)", specs: "45s work / 15s rest each:" },
+                    { name: "Burpees", specs: "Modified if needed" },
+                    { name: "Mountain Climbers", specs: "Keep core tight" },
+                    { name: "Jump Squats", specs: "Land softly" },
+                    { name: "Push-ups", specs: "Any variation" },
+                    { name: "Plank Hold", specs: "Strong position" },
+                    { name: "Jumping Jacks", specs: "Full body movement" },
+                    { name: "Alternating Lunges", specs: "Controlled movement" },
+                    { name: "High Knees", specs: "Running in place" }
+                ],
+                recovery: {
+                    time: "8-10 min",
+                    activities: [
+                        "Full body stretching routine"
+                    ]
+                },
+                restTimer: "1-2 minutes between rounds"
+            },
+            {
+                questNumber: "1.6",
+                name: "RECOVERY MISSION",
+                objective: "Active recovery to restore HP",
+                difficulty: 1,
+                xpReward: 1,
+                type: "recovery",
+                options: [
+                    "30-45 minute brisk walk outdoors",
+                    "Light bike ride (20-30 minutes)",
+                    "Swimming (20-30 minutes)",
+                    "Recreational sports (light intensity)",
+                    "Easy hiking"
+                ],
+                notes: [
+                    "Keep heart rate in Zone 1-2 (conversational pace)",
+                    "Focus on movement and recovery",
+                    "Enjoy the activity - this restores HP!"
+                ]
+            },
+            {
+                questNumber: "1.7",
+                name: "OPTIONAL ZEN MODE",
+                objective: "Flexibility and mindfulness training",
+                difficulty: 1,
+                xpReward: 1,
+                type: "zen",
+                options: [
+                    "YOGA SESSION (30-45 min): Gentle flow or restorative yoga",
+                    "LEISURELY WALK (30-60 min): Nature walk or neighborhood stroll",
+                    "REST DAY: Complete rest with light stretching (10-15 min)"
+                ],
+                notes: [
+                    "Focus on flexibility and relaxation",
+                    "Meditation or breathing exercises welcome",
+                    "This quest restores mental HP!"
+                ]
+            }
+        ],
+        strategyGuide: {
+            intensity: "Start at 6-7/10 difficulty",
+            hpManagement: "7-9 hours sleep for recovery",
+            powerUps: "Stay hydrated throughout quests",
+            focus: "Master movement patterns this level"
+        }
     }
 };
 
-// Generate weeks 5-24 with progressive difficulty
-for (let week = 5; week <= 24; week++) {
-    const phase = Math.floor((week - 1) / 4);
-    const weekInPhase = ((week - 1) % 4) + 1;
-    const isDeloadWeek = weekInPhase === 4;
+// Generate levels 2-24 with progressive difficulty
+for (let level = 2; level <= 24; level++) {
+    const phase = Math.floor((level - 1) / 4);
+    const intensity = phase < 2 ? "Moderate" : phase < 4 ? "Heavy" : "Maximum";
+    const sets = Math.min(3 + phase, 5);
+    const difficulty = Math.min(2 + Math.floor(level / 5), 5);
 
-    let title, description;
-
-    if (isDeloadWeek) {
-        title = `Week ${week}: Recovery Week`;
-        description = "Active recovery week to allow your body to adapt and grow stronger.";
-    } else if (phase < 3) {
-        title = `Week ${week}: Hypertrophy Phase`;
-        description = "Building muscle mass with moderate weight and higher volume.";
-    } else if (phase < 5) {
-        title = `Week ${week}: Strength Phase`;
-        description = "Increasing strength with heavier weights and lower reps.";
-    } else {
-        title = `Week ${week}: Power & Conditioning`;
-        description = "Advanced training combining strength, power, and endurance.";
-    }
-
-    const sets = isDeloadWeek ? 3 : Math.min(4 + Math.floor(phase / 2), 5);
-    const intensity = isDeloadWeek ? "Light" : phase < 3 ? "Moderate" : "Heavy";
-
-    workoutProgram[week] = {
-        title: title,
-        description: description,
-        days: [
-            { type: `${intensity} Full Body`, exercises: [
-                { name: "Push-ups/Weighted", specs: `${sets} sets of ${isDeloadWeek ? '8' : '10-12'} reps` },
-                { name: "Squats", specs: `${sets} sets of ${isDeloadWeek ? '10' : '12-15'} reps` },
-                { name: "Plank Holds", specs: `${sets} sets of ${isDeloadWeek ? '40' : '60'} seconds` },
-                { name: "Lunges", specs: `${sets} sets of ${isDeloadWeek ? '10' : '12'} reps per leg` }
-            ]},
-            { type: isDeloadWeek ? "Light Cardio" : "HIIT", exercises: [
-                { name: isDeloadWeek ? "Walking" : "Running", specs: `${isDeloadWeek ? '30' : '25'} minutes` },
-                { name: isDeloadWeek ? "Light Intervals" : "Burpees", specs: `${sets} sets of ${isDeloadWeek ? '5' : '12'} reps` },
-                { name: isDeloadWeek ? "Stretching" : "Jump Rope", specs: `${isDeloadWeek ? '15' : '5'} minutes` }
-            ]},
-            { type: "rest" },
-            { type: `${intensity} Upper Body`, exercises: [
-                { name: "Pull-ups", specs: `${sets} sets of ${isDeloadWeek ? '5' : '8-10'} reps` },
-                { name: "Dips", specs: `${sets} sets of ${isDeloadWeek ? '6' : '10-12'} reps` },
-                { name: "Overhead Press", specs: `${sets} sets of ${isDeloadWeek ? '8' : '10'} reps` },
-                { name: "Bicep Curls", specs: `${sets} sets of ${isDeloadWeek ? '10' : '12'} reps` }
-            ]},
-            { type: `${intensity} Core`, exercises: [
-                { name: "Weighted Sit-ups", specs: `${sets} sets of ${isDeloadWeek ? '12' : '15'} reps` },
-                { name: "Russian Twists", specs: `${sets} sets of ${isDeloadWeek ? '20' : '30'} reps` },
-                { name: "Leg Raises", specs: `${sets} sets of ${isDeloadWeek ? '10' : '15'} reps` },
-                { name: "Ab Wheel", specs: `${sets} sets of ${isDeloadWeek ? '8' : '12'} reps` }
-            ]},
-            { type: `${intensity} Lower Body`, exercises: [
-                { name: "Deadlifts", specs: `${sets} sets of ${isDeloadWeek ? '6' : '8-10'} reps` },
-                { name: "Front Squats", specs: `${sets} sets of ${isDeloadWeek ? '8' : '10'} reps` },
-                { name: "Bulgarian Splits", specs: `${sets} sets of ${isDeloadWeek ? '8' : '10'} reps per leg` },
-                { name: "Calf Raises", specs: `${sets} sets of ${isDeloadWeek ? '15' : '20'} reps` }
-            ]},
-            { type: "rest" }
-        ]
+    questProgram[level] = {
+        title: `LEVEL ${level}`,
+        subtitle: "7 QUESTS TO COMPLETE THIS LEVEL",
+        description: level % 4 === 0
+            ? "Recovery level - restore your HP and prepare for the next challenge!"
+            : `${intensity} intensity training - push your limits and grow stronger!`,
+        quests: [
+            {
+                questNumber: `${level}.1`,
+                name: "CHEST & TRICEPS ASSAULT",
+                objective: "Conquer chest and tricep challenges",
+                difficulty: difficulty,
+                xpReward: 1,
+                preparation: { time: "5-8 min", activities: ["Cardio warmup: 5 minutes", "Dynamic stretches"] },
+                battleSequence: [
+                    { name: "Push-ups (Weighted if able)", specs: `${sets} sets × 10-12 reps` },
+                    { name: "Bench Press", specs: `${sets} sets × 8-10 reps` },
+                    { name: "Chest Flyes", specs: `${sets} sets × 12 reps` },
+                    { name: "Tricep Dips", specs: `${sets} sets × 10-12 reps` },
+                    { name: "Overhead Extension", specs: `${sets} sets × 10 reps` }
+                ],
+                recovery: { time: "5 min", activities: ["Upper body stretches"] },
+                restTimer: "60-90 seconds between sets"
+            },
+            {
+                questNumber: `${level}.2`,
+                name: "BACK & BICEPS CAMPAIGN",
+                objective: "Dominate back and bicep territory",
+                difficulty: difficulty,
+                xpReward: 1,
+                preparation: { time: "5-8 min", activities: ["Light cardio", "Arm swings and stretches"] },
+                battleSequence: [
+                    { name: "Pull-ups/Assisted", specs: `${sets} sets × 8-10 reps` },
+                    { name: "Bent-over Rows", specs: `${sets} sets × 10-12 reps` },
+                    { name: "Single-arm Rows", specs: `${sets} sets × 10 reps each` },
+                    { name: "Bicep Curls", specs: `${sets} sets × 12 reps` },
+                    { name: "Hammer Curls", specs: `${sets} sets × 10 reps` }
+                ],
+                recovery: { time: "5 min", activities: ["Back and arm stretches"] },
+                restTimer: "60-90 seconds between sets"
+            },
+            {
+                questNumber: `${level}.3`,
+                name: "SHOULDERS & LEGS CONQUEST",
+                objective: "Ultimate lower body and shoulder power",
+                difficulty: difficulty + 1,
+                xpReward: 1,
+                preparation: { time: "8-10 min", activities: ["Dynamic warmup", "Leg swings", "Arm circles"] },
+                battleSequence: [
+                    { name: "Squats", specs: `${sets} sets × 10-12 reps` },
+                    { name: "Overhead Press", specs: `${sets} sets × 8-10 reps` },
+                    { name: "Walking Lunges", specs: `${sets} sets × 12 reps each leg` },
+                    { name: "Lateral Raises", specs: `${sets} sets × 12-15 reps` },
+                    { name: "Romanian Deadlifts", specs: `${sets} sets × 10 reps` },
+                    { name: "Calf Raises", specs: `${sets} sets × 15-20 reps` }
+                ],
+                recovery: { time: "5 min", activities: ["Lower body and shoulder stretches"] },
+                restTimer: "90-120 seconds between sets"
+            },
+            {
+                questNumber: `${level}.4`,
+                name: "TOTAL UPPER BODY WAR",
+                objective: "All-out upper body destruction",
+                difficulty: difficulty,
+                xpReward: 1,
+                preparation: { time: "5-8 min", activities: ["Warmup", "Mobility work"] },
+                battleSequence: [
+                    { name: "Dumbbell Bench Press", specs: `${sets} sets × 10 reps` },
+                    { name: "Seated Rows", specs: `${sets} sets × 10-12 reps` },
+                    { name: "Arnold Press", specs: `${sets} sets × 8-10 reps` },
+                    { name: "Concentration Curls", specs: `${sets} sets × 10 reps each` },
+                    { name: "Skull Crushers", specs: `${sets} sets × 10 reps` }
+                ],
+                recovery: { time: "5 min", activities: ["Upper body stretches"] },
+                restTimer: "60-90 seconds between sets"
+            },
+            {
+                questNumber: `${level}.5`,
+                name: "CIRCUIT GAUNTLET CHALLENGE",
+                objective: "Survive the brutal circuit challenge",
+                difficulty: difficulty + 1,
+                xpReward: 1,
+                preparation: { time: "5 min", activities: ["Full body dynamic warmup"] },
+                battleSequence: [
+                    { name: "CIRCUIT (3-4 rounds)", specs: "45s work / 15s rest:" },
+                    { name: "Burpees", specs: "Maximum effort" },
+                    { name: "Mountain Climbers", specs: "Fast pace" },
+                    { name: "Jump Squats", specs: "Explosive power" },
+                    { name: "Push-ups", specs: "Good form" },
+                    { name: "Plank Hold", specs: "Solid core" },
+                    { name: "High Knees", specs: "Sprint pace" }
+                ],
+                recovery: { time: "10 min", activities: ["Full cooldown and stretching"] },
+                restTimer: "2 minutes between rounds"
+            },
+            {
+                questNumber: `${level}.6`,
+                name: "RECOVERY MISSION",
+                objective: "Active recovery to restore HP",
+                difficulty: 1,
+                xpReward: 1,
+                type: "recovery",
+                options: [
+                    "30-45 minute walk/light jog",
+                    "Swimming or cycling (easy pace)",
+                    "Recreational activity",
+                    "Light yoga or stretching"
+                ],
+                notes: ["Low intensity", "Focus on recovery", "Stay active but don't push hard"]
+            },
+            {
+                questNumber: `${level}.7`,
+                name: "ZEN MODE BONUS QUEST",
+                objective: "Mental and physical flexibility",
+                difficulty: 1,
+                xpReward: 1,
+                type: "zen",
+                options: [
+                    "Yoga session (30-45 min)",
+                    "Meditation and stretching",
+                    "Leisurely walk in nature",
+                    "Complete rest day"
+                ],
+                notes: ["Optional but recommended", "Restore mental HP", "Prepare for next level"]
+            }
+        ],
+        strategyGuide: {
+            intensity: level % 4 === 0 ? "Light recovery - 4-5/10" : `${intensity} - ${7 + Math.floor(level/4)}/10`,
+            hpManagement: "7-9 hours sleep required",
+            powerUps: "Hydration and nutrition critical",
+            focus: level % 4 === 0 ? "Recovery and form refinement" : "Progressive overload"
+        }
     };
 }
 
 // ==================== ACHIEVEMENTS SYSTEM ====================
 
 const achievements = [
-    { id: 'first-workout', name: 'First Steps', description: 'Complete your first workout', icon: '🎯', xp: 50 },
-    { id: 'week-1', name: 'Week Warrior', description: 'Complete Week 1', icon: '⭐', xp: 100 },
-    { id: 'streak-3', name: 'Consistency', description: '3-day streak', icon: '🔥', xp: 75 },
-    { id: 'streak-7', name: 'Dedicated', description: '7-day streak', icon: '💪', xp: 150 },
-    { id: 'level-5', name: 'Rising Star', description: 'Reach Level 5', icon: '🌟', xp: 200 },
-    { id: 'level-10', name: 'Champion', description: 'Reach Level 10', icon: '🏆', xp: 300 },
-    { id: 'half-way', name: 'Half Way There', description: 'Complete 12 weeks', icon: '🎖️', xp: 500 },
-    { id: 'complete-program', name: 'Ultimate Warrior', description: 'Complete all 24 weeks', icon: '👑', xp: 1000 },
-    { id: '25-workouts', name: 'Committed', description: 'Complete 25 workouts', icon: '💯', xp: 250 },
-    { id: '50-workouts', name: 'Unstoppable', description: 'Complete 50 workouts', icon: '⚡', xp: 400 }
+    { id: 'first-quest', name: 'First Quest Complete', description: 'Complete your first quest', icon: '⚔️', bonus: 0 },
+    { id: 'level-1', name: 'Level 1 Champion', description: 'Complete all 7 quests in Level 1', icon: '🏅', bonus: 1 },
+    { id: 'level-5', name: 'Rising Warrior', description: 'Reach Level 5', icon: '⭐', bonus: 2 },
+    { id: 'level-10', name: 'Veteran Fighter', description: 'Reach Level 10', icon: '🌟', bonus: 3 },
+    { id: 'level-15', name: 'Elite Champion', description: 'Reach Level 15', icon: '💫', bonus: 5 },
+    { id: 'streak-7', name: 'Week Warrior', description: '7-day quest streak', icon: '🔥', bonus: 2 },
+    { id: 'streak-14', name: 'Fortnight Hero', description: '14-day quest streak', icon: '💪', bonus: 3 },
+    { id: 'streak-30', name: 'Month Legend', description: '30-day quest streak', icon: '👑', bonus: 5 },
+    { id: 'half-way', name: 'Halfway Hero', description: 'Complete Level 12', icon: '🎖️', bonus: 5 },
+    { id: 'ultimate-warrior', name: 'ULTIMATE WARRIOR', description: 'Complete all 24 levels!', icon: '👑', bonus: 10 }
 ];
 
 // ==================== STATE MANAGEMENT ====================
 
-class WorkoutApp {
+class GainzQuest {
     constructor() {
-        this.currentWeek = 1;
-        this.level = 1;
-        this.xp = 0;
+        this.currentLevel = 1;
+        this.totalXP = 0;
         this.streak = 0;
-        this.completedWorkouts = new Set();
+        this.completedQuests = new Set();
         this.unlockedAchievements = new Set();
-        this.lastWorkoutDate = null;
+        this.lastQuestDate = null;
 
         this.loadState();
         this.init();
@@ -248,7 +388,7 @@ class WorkoutApp {
     init() {
         this.renderStats();
         this.renderAchievements();
-        this.renderWeek();
+        this.renderLevel();
         this.setupEventListeners();
     }
 
@@ -256,36 +396,34 @@ class WorkoutApp {
 
     saveState() {
         const state = {
-            currentWeek: this.currentWeek,
-            level: this.level,
-            xp: this.xp,
+            currentLevel: this.currentLevel,
+            totalXP: this.totalXP,
             streak: this.streak,
-            completedWorkouts: Array.from(this.completedWorkouts),
+            completedQuests: Array.from(this.completedQuests),
             unlockedAchievements: Array.from(this.unlockedAchievements),
-            lastWorkoutDate: this.lastWorkoutDate
+            lastQuestDate: this.lastQuestDate
         };
-        localStorage.setItem('workoutAppState', JSON.stringify(state));
+        localStorage.setItem('gainzQuestState', JSON.stringify(state));
     }
 
     loadState() {
-        const saved = localStorage.getItem('workoutAppState');
+        const saved = localStorage.getItem('gainzQuestState');
         if (saved) {
             const state = JSON.parse(saved);
-            this.currentWeek = state.currentWeek || 1;
-            this.level = state.level || 1;
-            this.xp = state.xp || 0;
+            this.currentLevel = state.currentLevel || 1;
+            this.totalXP = state.totalXP || 0;
             this.streak = state.streak || 0;
-            this.completedWorkouts = new Set(state.completedWorkouts || []);
+            this.completedQuests = new Set(state.completedQuests || []);
             this.unlockedAchievements = new Set(state.unlockedAchievements || []);
-            this.lastWorkoutDate = state.lastWorkoutDate;
+            this.lastQuestDate = state.lastQuestDate;
 
             this.updateStreak();
         }
     }
 
     resetProgress() {
-        if (confirm('Are you sure you want to reset all progress? This cannot be undone.')) {
-            localStorage.removeItem('workoutAppState');
+        if (confirm('⚠️ RESET ALL PROGRESS? This cannot be undone, warrior!')) {
+            localStorage.removeItem('gainzQuestState');
             location.reload();
         }
     }
@@ -293,16 +431,14 @@ class WorkoutApp {
     // ==================== STREAK MANAGEMENT ====================
 
     updateStreak() {
-        if (!this.lastWorkoutDate) return;
+        if (!this.lastQuestDate) return;
 
-        const lastDate = new Date(this.lastWorkoutDate);
+        const lastDate = new Date(this.lastQuestDate);
         const today = new Date();
-
         lastDate.setHours(0, 0, 0, 0);
         today.setHours(0, 0, 0, 0);
 
-        const diffTime = today - lastDate;
-        const diffDays = diffTime / (1000 * 60 * 60 * 24);
+        const diffDays = Math.floor((today - lastDate) / (1000 * 60 * 60 * 24));
 
         if (diffDays > 1) {
             this.streak = 0;
@@ -312,41 +448,33 @@ class WorkoutApp {
     incrementStreak() {
         const today = new Date().toDateString();
 
-        if (this.lastWorkoutDate !== today) {
+        if (this.lastQuestDate !== today) {
             this.streak++;
-            this.lastWorkoutDate = today;
+            this.lastQuestDate = today;
 
-            // Check streak achievements
-            if (this.streak === 3) this.unlockAchievement('streak-3');
             if (this.streak === 7) this.unlockAchievement('streak-7');
+            if (this.streak === 14) this.unlockAchievement('streak-14');
+            if (this.streak === 30) this.unlockAchievement('streak-30');
         }
     }
 
     // ==================== XP AND LEVELING ====================
 
     addXP(amount) {
-        this.xp += amount;
-        const xpForNextLevel = this.getXPForLevel(this.level + 1);
-
-        if (this.xp >= xpForNextLevel) {
-            this.levelUp();
-        }
-
+        this.totalXP += amount;
         this.renderStats();
         this.saveState();
     }
 
-    getXPForLevel(level) {
-        return Math.floor(100 * Math.pow(1.2, level - 1));
-    }
-
-    levelUp() {
-        this.level++;
-        this.showLevelUpNotification();
-
-        // Check level achievements
-        if (this.level === 5) this.unlockAchievement('level-5');
-        if (this.level === 10) this.unlockAchievement('level-10');
+    getCurrentLevelXP() {
+        // Calculate how many quests completed in current level
+        let questsInLevel = 0;
+        for (let q = 0; q < 7; q++) {
+            if (this.completedQuests.has(`${this.currentLevel}-${q}`)) {
+                questsInLevel++;
+            }
+        }
+        return questsInLevel;
     }
 
     // ==================== ACHIEVEMENTS ====================
@@ -358,7 +486,7 @@ class WorkoutApp {
         const achievement = achievements.find(a => a.id === achievementId);
 
         if (achievement) {
-            this.addXP(achievement.xp);
+            this.addXP(achievement.bonus);
             this.showAchievementNotification(achievement);
             this.renderAchievements();
             this.saveState();
@@ -366,24 +494,24 @@ class WorkoutApp {
     }
 
     checkAchievements() {
-        const completedCount = this.completedWorkouts.size;
+        const totalCompleted = this.completedQuests.size;
 
-        if (completedCount >= 1) this.unlockAchievement('first-workout');
-        if (completedCount >= 25) this.unlockAchievement('25-workouts');
-        if (completedCount >= 50) this.unlockAchievement('50-workouts');
+        if (totalCompleted >= 1) this.unlockAchievement('first-quest');
 
-        // Check week completions
-        if (this.isWeekCompleted(1)) this.unlockAchievement('week-1');
-        if (this.currentWeek >= 12) this.unlockAchievement('half-way');
-        if (this.currentWeek >= 24 && this.completedWorkouts.size >= 72) {
-            this.unlockAchievement('complete-program');
+        // Check level completions
+        if (this.isLevelCompleted(1)) this.unlockAchievement('level-1');
+        if (this.currentLevel >= 5) this.unlockAchievement('level-5');
+        if (this.currentLevel >= 10) this.unlockAchievement('level-10');
+        if (this.currentLevel >= 12) this.unlockAchievement('half-way');
+        if (this.currentLevel >= 15) this.unlockAchievement('level-15');
+        if (this.currentLevel >= 24 && this.isLevelCompleted(24)) {
+            this.unlockAchievement('ultimate-warrior');
         }
     }
 
-    isWeekCompleted(week) {
-        for (let day = 0; day < 7; day++) {
-            const workout = workoutProgram[week].days[day];
-            if (workout.type !== 'rest' && !this.completedWorkouts.has(`${week}-${day}`)) {
+    isLevelCompleted(level) {
+        for (let q = 0; q < 7; q++) {
+            if (!this.completedQuests.has(`${level}-${q}`)) {
                 return false;
             }
         }
@@ -393,13 +521,16 @@ class WorkoutApp {
     // ==================== RENDERING ====================
 
     renderStats() {
-        document.getElementById('level').textContent = this.level;
-        document.getElementById('current-xp').textContent = this.xp;
-        document.getElementById('next-level-xp').textContent = this.getXPForLevel(this.level + 1);
-        document.getElementById('streak').textContent = this.streak;
-        document.getElementById('completed').textContent = this.completedWorkouts.size;
+        const currentLevelXP = this.getCurrentLevelXP();
+        const completedLevels = this.currentLevel - 1;
 
-        const xpProgress = (this.xp / this.getXPForLevel(this.level + 1)) * 100;
+        document.getElementById('level').textContent = this.currentLevel;
+        document.getElementById('current-xp').textContent = currentLevelXP;
+        document.getElementById('next-level-xp').textContent = '7';
+        document.getElementById('streak').textContent = this.streak;
+        document.getElementById('completed').textContent = this.completedQuests.size;
+
+        const xpProgress = (currentLevelXP / 7) * 100;
         document.getElementById('xp-bar').style.width = `${xpProgress}%`;
     }
 
@@ -419,97 +550,143 @@ class WorkoutApp {
         });
     }
 
-    renderWeek() {
-        const week = workoutProgram[this.currentWeek];
+    renderLevel() {
+        const level = questProgram[this.currentLevel];
 
-        document.getElementById('current-week').textContent = this.currentWeek;
-        document.getElementById('week-title').textContent = week.title;
-        document.getElementById('week-description').textContent = week.description;
+        document.getElementById('current-week').textContent = this.currentLevel;
+        document.getElementById('week-title').textContent = level.title;
+        document.getElementById('week-description').textContent = level.description;
 
         const grid = document.getElementById('workouts-grid');
         grid.innerHTML = '';
 
-        week.days.forEach((day, index) => {
-            const workoutId = `${this.currentWeek}-${index}`;
-            const isCompleted = this.completedWorkouts.has(workoutId);
-            const isRest = day.type === 'rest';
+        level.quests.forEach((quest, index) => {
+            const questId = `${this.currentLevel}-${index}`;
+            const isCompleted = this.completedQuests.has(questId);
 
             const card = document.createElement('div');
-            card.className = `workout-card ${isCompleted ? 'completed' : ''} ${isRest ? 'rest-day' : ''}`;
+            const difficultyStars = '★'.repeat(quest.difficulty) + '☆'.repeat(5 - quest.difficulty);
 
-            if (isRest) {
-                card.innerHTML = `
-                    <div class="workout-header">
-                        <div class="workout-day">Day ${index + 1}</div>
-                        <div class="workout-status">😌</div>
-                    </div>
-                    <div class="workout-type">Rest Day</div>
-                    <p class="rest-message">Take it easy, your muscles are growing!</p>
-                `;
-            } else {
-                card.innerHTML = `
-                    <div class="workout-header">
-                        <div class="workout-day">Day ${index + 1}</div>
-                        <div class="workout-status">${isCompleted ? '✅' : '⭕'}</div>
-                    </div>
-                    <div class="workout-type">${day.type}</div>
-                    <div class="workout-exercises">
-                        ${day.exercises.slice(0, 3).map(ex => `
-                            <div class="exercise-item">${ex.name}</div>
-                        `).join('')}
-                        ${day.exercises.length > 3 ? '<div class="exercise-item">+ more...</div>' : ''}
-                    </div>
-                `;
+            card.className = `workout-card quest-card ${isCompleted ? 'completed' : ''}`;
 
-                card.addEventListener('click', () => this.openWorkoutModal(this.currentWeek, index));
+            if (quest.type === 'recovery' || quest.type === 'zen') {
+                card.classList.add('special-quest');
             }
 
+            card.innerHTML = `
+                <div class="quest-header">
+                    <div class="quest-number">QUEST ${quest.questNumber}</div>
+                    <div class="quest-status">${isCompleted ? '✅' : '⚔️'}</div>
+                </div>
+                <div class="quest-name">${quest.name}</div>
+                <div class="quest-objective">🎯 ${quest.objective}</div>
+                <div class="quest-difficulty">
+                    <span class="difficulty-label">DIFFICULTY:</span>
+                    <span class="stars">${difficultyStars}</span>
+                </div>
+                <div class="quest-xp">🏆 +${quest.xpReward} XP</div>
+            `;
+
+            card.addEventListener('click', () => this.openQuestModal(this.currentLevel, index));
             grid.appendChild(card);
         });
 
-        // Update navigation buttons
-        document.getElementById('prev-week').disabled = this.currentWeek === 1;
-        document.getElementById('next-week').disabled = this.currentWeek === 24;
+        // Update navigation
+        document.getElementById('prev-week').disabled = this.currentLevel === 1;
+        document.getElementById('next-week').disabled = this.currentLevel === 24;
     }
 
-    openWorkoutModal(week, day) {
-        const workout = workoutProgram[week].days[day];
-        const workoutId = `${week}-${day}`;
-        const isCompleted = this.completedWorkouts.has(workoutId);
+    openQuestModal(level, questIndex) {
+        const quest = questProgram[level].quests[questIndex];
+        const questId = `${level}-${questIndex}`;
+        const isCompleted = this.completedQuests.has(questId);
 
-        document.getElementById('modal-day').textContent = `Day ${day + 1}: ${workout.type}`;
+        const difficultyStars = '★'.repeat(quest.difficulty) + '☆'.repeat(5 - quest.difficulty);
+
+        document.getElementById('modal-day').innerHTML = `
+            <div class="modal-quest-header">
+                <div>⚔️ QUEST ${quest.questNumber}: ${quest.name}</div>
+                <div class="modal-difficulty">${difficultyStars}</div>
+            </div>
+        `;
 
         const exercisesDiv = document.getElementById('modal-exercises');
-        exercisesDiv.innerHTML = workout.exercises.map(ex => `
-            <div class="exercise-detail">
-                <div class="exercise-name">${ex.name}</div>
-                <div class="exercise-specs">${ex.specs}</div>
-            </div>
-        `).join('');
+
+        if (quest.type === 'recovery' || quest.type === 'zen') {
+            exercisesDiv.innerHTML = `
+                <div class="quest-objective-big">🎯 ${quest.objective}</div>
+                <div class="quest-section">
+                    <h3>${quest.type === 'recovery' ? '🚶 MISSION OPTIONS:' : '🧘 ZEN OPTIONS:'}</h3>
+                    ${quest.options.map(opt => `<div class="quest-option">• ${opt}</div>`).join('')}
+                </div>
+                <div class="quest-section">
+                    <h3>💡 NOTES:</h3>
+                    ${quest.notes.map(note => `<div class="quest-note">• ${note}</div>`).join('')}
+                </div>
+            `;
+        } else {
+            exercisesDiv.innerHTML = `
+                <div class="quest-objective-big">🎯 ${quest.objective}</div>
+
+                <div class="quest-section">
+                    <h3>⏰ PREPARATION PHASE (${quest.preparation.time})</h3>
+                    ${quest.preparation.activities.map(act => `<div class="phase-item">• ${act}</div>`).join('')}
+                </div>
+
+                <div class="quest-section battle-section">
+                    <h3>⚔️ BATTLE SEQUENCE:</h3>
+                    ${quest.battleSequence.map(ex => `
+                        <div class="exercise-detail">
+                            <div class="exercise-name">${ex.name}</div>
+                            <div class="exercise-specs">${ex.specs}</div>
+                        </div>
+                    `).join('')}
+                </div>
+
+                <div class="quest-section">
+                    <h3>💚 RECOVERY PHASE (${quest.recovery.time})</h3>
+                    ${quest.recovery.activities.map(act => `<div class="phase-item">• ${act}</div>`).join('')}
+                </div>
+
+                <div class="rest-timer">⏱️ REST TIMER: ${quest.restTimer}</div>
+            `;
+        }
 
         const completeBtn = document.getElementById('complete-workout');
-        completeBtn.textContent = isCompleted ? 'Already Completed ✓' : 'Complete Workout (+50 XP)';
+        completeBtn.textContent = isCompleted ? '✅ QUEST COMPLETE' : `⚔️ COMPLETE QUEST (+${quest.xpReward} XP)`;
         completeBtn.disabled = isCompleted;
-
-        completeBtn.onclick = () => this.completeWorkout(workoutId);
+        completeBtn.onclick = () => this.completeQuest(questId, quest.xpReward);
 
         document.getElementById('workout-modal').classList.add('active');
     }
 
-    closeWorkoutModal() {
+    closeQuestModal() {
         document.getElementById('workout-modal').classList.remove('active');
     }
 
-    completeWorkout(workoutId) {
-        if (this.completedWorkouts.has(workoutId)) return;
+    completeQuest(questId, xpReward) {
+        if (this.completedQuests.has(questId)) return;
 
-        this.completedWorkouts.add(workoutId);
-        this.addXP(50);
+        this.completedQuests.add(questId);
+        this.addXP(xpReward);
         this.incrementStreak();
         this.checkAchievements();
 
-        this.closeWorkoutModal();
-        this.renderWeek();
+        // Check if level is complete
+        if (this.isLevelCompleted(this.currentLevel)) {
+            if (this.currentLevel < 24) {
+                this.showLevelUpNotification();
+                setTimeout(() => {
+                    this.currentLevel++;
+                    this.renderLevel();
+                    this.renderStats();
+                    this.saveState();
+                }, 2000);
+            }
+        }
+
+        this.closeQuestModal();
+        this.renderLevel();
         this.renderStats();
         this.saveState();
     }
@@ -517,7 +694,7 @@ class WorkoutApp {
     // ==================== NOTIFICATIONS ====================
 
     showLevelUpNotification() {
-        document.getElementById('new-level').textContent = this.level;
+        document.getElementById('new-level').textContent = this.currentLevel + 1;
         const notification = document.getElementById('level-up-notification');
         notification.classList.add('active');
     }
@@ -541,41 +718,36 @@ class WorkoutApp {
     // ==================== EVENT LISTENERS ====================
 
     setupEventListeners() {
-        // Week navigation
         document.getElementById('prev-week').addEventListener('click', () => {
-            if (this.currentWeek > 1) {
-                this.currentWeek--;
-                this.renderWeek();
+            if (this.currentLevel > 1) {
+                this.currentLevel--;
+                this.renderLevel();
                 this.saveState();
             }
         });
 
         document.getElementById('next-week').addEventListener('click', () => {
-            if (this.currentWeek < 24) {
-                this.currentWeek++;
-                this.renderWeek();
+            if (this.currentLevel < 24) {
+                this.currentLevel++;
+                this.renderLevel();
                 this.saveState();
             }
         });
 
-        // Modal controls
-        document.getElementById('close-modal').addEventListener('click', () => this.closeWorkoutModal());
-        document.getElementById('cancel-workout').addEventListener('click', () => this.closeWorkoutModal());
+        document.getElementById('close-modal').addEventListener('click', () => this.closeQuestModal());
+        document.getElementById('cancel-workout').addEventListener('click', () => this.closeQuestModal());
 
-        // Click outside modal to close
         document.getElementById('workout-modal').addEventListener('click', (e) => {
             if (e.target.id === 'workout-modal') {
-                this.closeWorkoutModal();
+                this.closeQuestModal();
             }
         });
 
-        // Level up notification
         document.getElementById('close-level-up').addEventListener('click', () => this.closeLevelUpNotification());
 
-        // Keyboard shortcuts
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') {
-                this.closeWorkoutModal();
+                this.closeQuestModal();
                 this.closeLevelUpNotification();
             }
         });
@@ -586,9 +758,5 @@ class WorkoutApp {
 
 let app;
 document.addEventListener('DOMContentLoaded', () => {
-    app = new WorkoutApp();
-
-    // Add reset button (for development/testing)
-    // Uncomment the line below to add a reset button
-    // document.body.insertAdjacentHTML('beforeend', '<button style="position:fixed;bottom:20px;right:20px;padding:10px;background:red;color:white;border:none;border-radius:5px;cursor:pointer;z-index:9999;" onclick="app.resetProgress()">Reset Progress</button>');
+    app = new GainzQuest();
 });
