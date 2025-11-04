@@ -391,6 +391,8 @@ class GainzQuest {
         this.exerciseWeights = {};
         // Weight history - stores array of {level, weight} for each exercise
         this.weightHistory = {};
+        // Set progress - stores completed sets per quest
+        this.questSetProgress = {};
 
         this.loadState();
         this.init();
@@ -414,7 +416,8 @@ class GainzQuest {
             unlockedAchievements: Array.from(this.unlockedAchievements),
             lastQuestDate: this.lastQuestDate,
             exerciseWeights: this.exerciseWeights,
-            weightHistory: this.weightHistory
+            weightHistory: this.weightHistory,
+            questSetProgress: this.questSetProgress
         };
         localStorage.setItem('gainzQuestState', JSON.stringify(state));
     }
@@ -431,6 +434,7 @@ class GainzQuest {
             this.lastQuestDate = state.lastQuestDate;
             this.exerciseWeights = state.exerciseWeights || {};
             this.weightHistory = state.weightHistory || {};
+            this.questSetProgress = state.questSetProgress || {};
 
             this.updateStreak();
         }
@@ -654,6 +658,9 @@ class GainzQuest {
             let exerciseIndex = 0;
             let totalSets = 0;
 
+            // Store current quest ID for saving set progress
+            this.currentQuestId = questId;
+
             const exercisesHTML = quest.battleSequence.map((ex, idx) => {
                 const setsMatch = ex.specs.match(/(\d+)\s*sets?/i);
                 const numSets = setsMatch ? parseInt(setsMatch[1]) : 0;
@@ -663,30 +670,31 @@ class GainzQuest {
                 let weightHTML = '';
 
                 if (numSets > 0) {
-                    // Get the current weight for this exercise
-                    const currentWeight = this.getExerciseWeight(ex.name);
+                    // Only add weight tracking if not a bodyweight exercise
+                    if (!this.isBodyweightExercise(ex.name)) {
+                        const currentWeight = this.getExerciseWeight(ex.name);
 
-                    // Add weight tracking
-                    weightHTML = `
-                        <div class="exercise-weight">
-                            <div class="weight-label">💪 WEIGHT:</div>
-                            <div class="weight-controls">
-                                <button class="weight-btn weight-minus" data-exercise="${ex.name}">−</button>
-                                <div class="weight-display">
-                                    <span class="weight-input" data-exercise="${ex.name}">${currentWeight}</span>
-                                    <span class="weight-unit">lbs</span>
+                        weightHTML = `
+                            <div class="exercise-weight">
+                                <div class="weight-label">💪 WEIGHT:</div>
+                                <div class="weight-controls">
+                                    <button class="weight-btn weight-minus" data-exercise="${ex.name}">−</button>
+                                    <div class="weight-display">
+                                        <span class="weight-input" data-exercise="${ex.name}">${currentWeight}</span>
+                                        <span class="weight-unit">lbs</span>
+                                    </div>
+                                    <button class="weight-btn weight-plus" data-exercise="${ex.name}">+</button>
+                                    <button class="weight-btn weight-graph" data-exercise="${ex.name}" title="View progression graph">📈</button>
                                 </div>
-                                <button class="weight-btn weight-plus" data-exercise="${ex.name}">+</button>
-                                <button class="weight-btn weight-graph" data-exercise="${ex.name}" title="View progression graph">📈</button>
                             </div>
-                        </div>
-                    `;
+                        `;
+                    }
 
                     setsHTML = `
                         <div class="exercise-sets">
                             ${Array.from({length: numSets}, (_, i) => `
                                 <div class="set-checkbox-wrapper">
-                                    <input type="checkbox" class="set-checkbox" id="set-${exerciseIndex}-${i}" data-exercise="${exerciseIndex}">
+                                    <input type="checkbox" class="set-checkbox" id="set-${exerciseIndex}-${i}" data-exercise="${exerciseIndex}" data-set="${i}">
                                     <label class="set-label" for="set-${exerciseIndex}-${i}">${i + 1}</label>
                                 </div>
                             `).join('')}
@@ -732,8 +740,14 @@ class GainzQuest {
 
             // Add checkbox change listeners
             setTimeout(() => {
+                // Restore saved checkbox states
+                this.restoreSetProgress(questId);
+
                 document.querySelectorAll('.set-checkbox').forEach(checkbox => {
-                    checkbox.addEventListener('change', () => this.updateProgress());
+                    checkbox.addEventListener('change', () => {
+                        this.updateProgress();
+                        this.saveSetProgress();
+                    });
                 });
 
                 // Add weight button listeners
@@ -775,13 +789,60 @@ class GainzQuest {
         document.getElementById('completed-sets').textContent = completed;
     }
 
+    saveSetProgress() {
+        if (!this.currentQuestId) return;
+
+        const checkboxes = document.querySelectorAll('.set-checkbox');
+        const progress = [];
+
+        checkboxes.forEach(checkbox => {
+            progress.push(checkbox.checked);
+        });
+
+        this.questSetProgress[this.currentQuestId] = progress;
+        this.saveState();
+    }
+
+    restoreSetProgress(questId) {
+        const savedProgress = this.questSetProgress[questId];
+        if (!savedProgress) return;
+
+        const checkboxes = document.querySelectorAll('.set-checkbox');
+        checkboxes.forEach((checkbox, index) => {
+            if (savedProgress[index]) {
+                checkbox.checked = true;
+            }
+        });
+
+        // Update the progress counter
+        this.updateProgress();
+    }
+
     closeQuestModal() {
         this.stopTimer();
         this.saveWeights(); // Save weights when closing modal
+        this.saveSetProgress(); // Save set progress when closing modal
         document.getElementById('workout-modal').classList.remove('active');
     }
 
     // ==================== WEIGHT TRACKING ====================
+
+    isBodyweightExercise(exerciseName) {
+        // List of exercises that don't use external weight
+        const bodyweightKeywords = [
+            'push-up', 'pushup', 'pull-up', 'pullup', 'chin-up', 'chinup',
+            'plank', 'sit-up', 'situp', 'crunch', 'burpee', 'jumping jack',
+            'mountain climber', 'high knee', 'jump squat', 'box jump',
+            'bodyweight', 'lunge', 'leg raise', 'flutter kick', 'bicycle',
+            'russian twist', 'dead bug', 'v-up', 'shoulder tap', 'dip',
+            'pike push', 'diamond push', 'incline push', 'decline push',
+            'side plank', 'bear crawl', 'crab walk', 'wall sit',
+            'assisted', 'calf raise', 'glute bridge', 'hip thrust'
+        ];
+
+        const lowerName = exerciseName.toLowerCase();
+        return bodyweightKeywords.some(keyword => lowerName.includes(keyword));
+    }
 
     getExerciseWeight(exerciseName) {
         // Get stored weight or default to 10 lbs
