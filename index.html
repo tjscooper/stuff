@@ -12,7 +12,7 @@
         <header>
             <h1>🎮 24-LEVEL GAINZ QUEST 🎮</h1>
             <p class="subtitle">Level up your fitness, one quest at a time</p>
-            <div class="version">v2.1.1</div>
+            <div class="version">v2.2.0</div>
         </header>
 
         <!-- Stats Dashboard -->
@@ -126,6 +126,18 @@
                     <button class="btn btn-primary" id="export-data-btn">📥 EXPORT DATA</button>
                     <button class="btn btn-graph" id="import-data-btn">📤 IMPORT DATA</button>
                     <input type="file" id="import-file-input" accept=".json" style="display: none;">
+                </div>
+            </div>
+            <div class="settings-card">
+                <div class="settings-info">
+                    <div class="settings-icon">🏋️</div>
+                    <div class="settings-text">
+                        <h3>Exercise Library</h3>
+                        <p>Customize your exercise list: add new exercises, rename existing ones, or mark them as bodyweight.</p>
+                    </div>
+                </div>
+                <div class="settings-actions">
+                    <button class="btn btn-primary" id="manage-exercises-btn">📋 MANAGE EXERCISES</button>
                 </div>
             </div>
         </div>
@@ -245,9 +257,62 @@
                 </div>
             </div>
         </div>
+
+        <!-- Exercise Library Modal -->
+        <div class="modal" id="exercise-library-modal">
+            <div class="modal-content">
+                <span class="close-btn" id="close-exercise-library">&times;</span>
+                <h2>🏋️ Exercise Library Manager</h2>
+                <p class="template-editor-info">Add custom exercises or modify existing ones. Changes apply to all workout templates.</p>
+
+                <div class="library-search">
+                    <input type="text" id="exercise-search" placeholder="🔍 Search exercises..." class="search-input">
+                    <button class="btn btn-primary" id="add-new-exercise-btn">➕ Add New Exercise</button>
+                </div>
+
+                <div class="exercise-library-list" id="exercise-library-list">
+                    <!-- Exercise items will be populated by JS -->
+                </div>
+
+                <div class="modal-actions">
+                    <button class="btn btn-secondary" id="close-library-btn">Close</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Exercise Edit Modal (sub-modal for adding/editing) -->
+        <div class="modal" id="exercise-edit-modal">
+            <div class="modal-content modal-small">
+                <span class="close-btn" id="close-exercise-edit">&times;</span>
+                <h2 id="exercise-edit-title">➕ Add Exercise</h2>
+
+                <div class="form-group">
+                    <label for="exercise-id-input">Exercise ID (snake_case, no spaces):</label>
+                    <input type="text" id="exercise-id-input" placeholder="e.g., goblet_squats" class="form-input">
+                    <small class="form-hint">This is used internally. Use lowercase with underscores.</small>
+                </div>
+
+                <div class="form-group">
+                    <label for="exercise-name-input">Display Name:</label>
+                    <input type="text" id="exercise-name-input" placeholder="e.g., Goblet Squats" class="form-input">
+                </div>
+
+                <div class="form-group">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="exercise-bodyweight-input">
+                        <span>Bodyweight Exercise (no external weight tracking)</span>
+                    </label>
+                </div>
+
+                <div class="modal-actions">
+                    <button class="btn btn-secondary" id="cancel-exercise-edit">Cancel</button>
+                    <button class="btn btn-primary" id="save-exercise-btn">💾 Save Exercise</button>
+                </div>
+            </div>
+        </div>
     </div>
 
     <script src="quest-data.js"></script>
-    <script src="app.js?v=2.1.1"></script>
+    <script src="app.js?v=2.2.0"></script>
 </body>
 </html>

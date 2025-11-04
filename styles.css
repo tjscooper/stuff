@@ -1545,3 +1545,222 @@ header h1 {
         flex-direction: row;
     }
 }
+
+/* Exercise Library Manager */
+.library-search {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+    align-items: center;
+}
+
+.search-input {
+    flex: 1;
+    padding: 12px;
+    background: var(--bg-color);
+    border: 2px solid var(--border-color);
+    border-radius: 8px;
+    color: var(--text-primary);
+    font-size: 1rem;
+}
+
+.search-input:focus {
+    outline: none;
+    border-color: var(--primary-color);
+}
+
+.exercise-library-list {
+    max-height: 500px;
+    overflow-y: auto;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 8px;
+    padding: 15px;
+    margin-bottom: 20px;
+}
+
+.library-exercise-item {
+    background: var(--card-bg);
+    border: 2px solid var(--border-color);
+    border-radius: 12px;
+    padding: 15px;
+    margin-bottom: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: all 0.2s;
+}
+
+.library-exercise-item:hover {
+    border-color: var(--primary-color);
+    transform: translateX(5px);
+}
+
+.library-exercise-item.custom {
+    border-left: 4px solid var(--secondary-color);
+}
+
+.library-exercise-info {
+    flex: 1;
+}
+
+.library-exercise-name {
+    font-size: 1.1rem;
+    font-weight: bold;
+    color: var(--text-primary);
+    margin-bottom: 5px;
+}
+
+.library-exercise-id {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    font-family: monospace;
+    margin-bottom: 5px;
+}
+
+.library-exercise-badge {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.library-exercise-badge.bodyweight {
+    background: rgba(34, 197, 94, 0.2);
+    color: #22c55e;
+    border: 1px solid #22c55e;
+}
+
+.library-exercise-badge.weighted {
+    background: rgba(236, 72, 153, 0.2);
+    color: var(--primary-color);
+    border: 1px solid var(--primary-color);
+}
+
+.library-exercise-badge.custom-badge {
+    background: rgba(139, 92, 246, 0.2);
+    color: #8b5cf6;
+    border: 1px solid #8b5cf6;
+    margin-left: 8px;
+}
+
+.library-exercise-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.library-exercise-actions button {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: bold;
+    transition: all 0.2s;
+}
+
+.library-exercise-actions .btn-edit {
+    background: var(--secondary-color);
+    color: white;
+}
+
+.library-exercise-actions .btn-edit:hover {
+    background: #f472b6;
+    transform: scale(1.05);
+}
+
+.library-exercise-actions .btn-delete {
+    background: var(--danger-color);
+    color: white;
+}
+
+.library-exercise-actions .btn-delete:hover {
+    background: #dc2626;
+    transform: scale(1.05);
+}
+
+/* Exercise Edit Form */
+.modal-small {
+    max-width: 500px;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    font-size: 0.9rem;
+    font-weight: bold;
+    color: var(--text-primary);
+    margin-bottom: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.form-input {
+    width: 100%;
+    padding: 12px;
+    background: var(--bg-color);
+    border: 2px solid var(--border-color);
+    border-radius: 8px;
+    color: var(--text-primary);
+    font-size: 1rem;
+    box-sizing: border-box;
+}
+
+.form-input:focus {
+    outline: none;
+    border-color: var(--primary-color);
+}
+
+.form-hint {
+    display: block;
+    margin-top: 5px;
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    font-style: italic;
+}
+
+.checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    font-weight: normal;
+    text-transform: none;
+}
+
+.checkbox-label input[type="checkbox"] {
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+}
+
+.checkbox-label span {
+    color: var(--text-primary);
+    font-size: 1rem;
+}
+
+@media (max-width: 768px) {
+    .library-search {
+        flex-direction: column;
+    }
+
+    .library-exercise-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 15px;
+    }
+
+    .library-exercise-actions {
+        width: 100%;
+        justify-content: stretch;
+    }
+
+    .library-exercise-actions button {
+        flex: 1;
+    }
+}

@@ -49,8 +49,9 @@ function generateQuestProgram() {
                 quest.restTimer = activeTemplate.restTimer;
 
                 // Convert exercises from template format to display format
+                const library = getExerciseLibrary();
                 quest.battleSequence = activeTemplate.exercises.map(ex => {
-                    const exerciseData = exerciseLibrary[ex.id];
+                    const exerciseData = library[ex.id];
                     const sets = ex.sets + (level > 12 ? 1 : 0); // Add 1 set after level 12
                     const name = exerciseData ? exerciseData.name : ex.id;
                     const notes = ex.notes ? ` (${ex.notes})` : '';
@@ -90,6 +91,58 @@ function saveCustomTemplate(templateId, customTemplate) {
     const customizations = JSON.parse(localStorage.getItem('workoutCustomizations') || '{}');
     customizations[templateId] = customTemplate;
     localStorage.setItem('workoutCustomizations', JSON.stringify(customizations));
+}
+
+// ==================== EXERCISE LIBRARY HELPERS ====================
+
+// Get merged exercise library (default + custom)
+function getExerciseLibrary() {
+    const customExercises = JSON.parse(localStorage.getItem('customExercises') || '{}');
+    return { ...exerciseLibrary, ...customExercises };
+}
+
+// Get custom exercises only
+function getCustomExercises() {
+    return JSON.parse(localStorage.getItem('customExercises') || '{}');
+}
+
+// Save custom exercise
+function saveCustomExercise(exerciseId, exerciseData) {
+    const customExercises = getCustomExercises();
+    customExercises[exerciseId] = exerciseData;
+    localStorage.setItem('customExercises', JSON.stringify(customExercises));
+}
+
+// Delete custom exercise
+function deleteCustomExercise(exerciseId) {
+    const customExercises = getCustomExercises();
+    delete customExercises[exerciseId];
+    localStorage.setItem('customExercises', JSON.stringify(customExercises));
+}
+
+// Check if exercise ID is used in any templates
+function isExerciseUsedInTemplates(exerciseId) {
+    for (const templateId in workoutTemplates) {
+        const template = workoutTemplates[templateId];
+        if (template.exercises) {
+            if (template.exercises.some(ex => ex.id === exerciseId)) {
+                return true;
+            }
+        }
+    }
+
+    // Also check custom templates
+    const customizations = JSON.parse(localStorage.getItem('workoutCustomizations') || '{}');
+    for (const templateId in customizations) {
+        const template = customizations[templateId];
+        if (template.exercises) {
+            if (template.exercises.some(ex => ex.id === exerciseId)) {
+                return true;
+            }
+        }
+    }
+
+    return false;
 }
 
 // Generate the program
@@ -598,8 +651,10 @@ class GainzQuest {
         const listDiv = document.getElementById('exercise-editor-list');
         listDiv.innerHTML = '';
 
+        const library = getExerciseLibrary();
+
         this.editingExercises.forEach((ex, idx) => {
-            const exerciseData = exerciseLibrary[ex.id];
+            const exerciseData = library[ex.id];
             const div = document.createElement('div');
             div.className = 'exercise-item';
             div.innerHTML = `
@@ -611,8 +666,8 @@ class GainzQuest {
                     <div class="exercise-field">
                         <label>Exercise</label>
                         <select class="exercise-select" data-idx="${idx}">
-                            ${Object.keys(exerciseLibrary).map(key =>
-                                `<option value="${key}" ${key === ex.id ? 'selected' : ''}>${exerciseLibrary[key].name}</option>`
+                            ${Object.keys(library).map(key =>
+                                `<option value="${key}" ${key === ex.id ? 'selected' : ''}>${library[key].name}</option>`
                             ).join('')}
                         </select>
                     </div>
@@ -724,6 +779,188 @@ class GainzQuest {
         document.getElementById('template-editor-modal').classList.remove('active');
         this.editingTemplateId = null;
         this.editingExercises = [];
+    }
+
+    // ==================== EXERCISE LIBRARY MANAGER ====================
+
+    openExerciseLibrary() {
+        this.renderExerciseLibrary();
+        document.getElementById('exercise-library-modal').classList.add('active');
+    }
+
+    renderExerciseLibrary(searchTerm = '') {
+        const library = getExerciseLibrary();
+        const customExercises = getCustomExercises();
+        const listDiv = document.getElementById('exercise-library-list');
+        listDiv.innerHTML = '';
+
+        // Convert to array and filter by search term
+        const exercises = Object.keys(library)
+            .filter(key => {
+                if (!searchTerm) return true;
+                const term = searchTerm.toLowerCase();
+                return key.toLowerCase().includes(term) ||
+                       library[key].name.toLowerCase().includes(term);
+            })
+            .map(key => ({
+                id: key,
+                ...library[key],
+                isCustom: customExercises.hasOwnProperty(key)
+            }))
+            .sort((a, b) => a.name.localeCompare(b.name));
+
+        if (exercises.length === 0) {
+            listDiv.innerHTML = '<p style="text-align: center; color: var(--text-secondary); padding: 20px;">No exercises found.</p>';
+            return;
+        }
+
+        exercises.forEach(exercise => {
+            const div = document.createElement('div');
+            div.className = `library-exercise-item ${exercise.isCustom ? 'custom' : ''}`;
+
+            const badges = `
+                <span class="library-exercise-badge ${exercise.bodyweight ? 'bodyweight' : 'weighted'}">
+                    ${exercise.bodyweight ? '🤸 BODYWEIGHT' : '🏋️ WEIGHTED'}
+                </span>
+                ${exercise.isCustom ? '<span class="library-exercise-badge custom-badge">✨ CUSTOM</span>' : ''}
+            `;
+
+            div.innerHTML = `
+                <div class="library-exercise-info">
+                    <div class="library-exercise-name">${exercise.name}</div>
+                    <div class="library-exercise-id">${exercise.id}</div>
+                    <div>${badges}</div>
+                </div>
+                <div class="library-exercise-actions">
+                    <button class="btn-edit" data-id="${exercise.id}">✏️ Edit</button>
+                    <button class="btn-delete" data-id="${exercise.id}" ${!exercise.isCustom ? 'disabled' : ''}>
+                        🗑️ Delete
+                    </button>
+                </div>
+            `;
+            listDiv.appendChild(div);
+        });
+
+        // Add event listeners
+        listDiv.querySelectorAll('.btn-edit').forEach(btn => {
+            btn.addEventListener('click', (e) => this.editExercise(e.target.dataset.id));
+        });
+        listDiv.querySelectorAll('.btn-delete').forEach(btn => {
+            btn.addEventListener('click', (e) => this.deleteExercise(e.target.dataset.id));
+        });
+    }
+
+    openAddExercise() {
+        this.editingExerciseId = null;
+        document.getElementById('exercise-edit-title').textContent = '➕ Add Exercise';
+        document.getElementById('exercise-id-input').value = '';
+        document.getElementById('exercise-id-input').disabled = false;
+        document.getElementById('exercise-name-input').value = '';
+        document.getElementById('exercise-bodyweight-input').checked = false;
+        document.getElementById('exercise-edit-modal').classList.add('active');
+    }
+
+    editExercise(exerciseId) {
+        const library = getExerciseLibrary();
+        const exercise = library[exerciseId];
+
+        if (!exercise) {
+            alert('❌ Exercise not found');
+            return;
+        }
+
+        this.editingExerciseId = exerciseId;
+        document.getElementById('exercise-edit-title').textContent = '✏️ Edit Exercise';
+        document.getElementById('exercise-id-input').value = exerciseId;
+        document.getElementById('exercise-id-input').disabled = true; // Can't change ID when editing
+        document.getElementById('exercise-name-input').value = exercise.name;
+        document.getElementById('exercise-bodyweight-input').checked = exercise.bodyweight;
+        document.getElementById('exercise-edit-modal').classList.add('active');
+    }
+
+    saveExercise() {
+        const idInput = document.getElementById('exercise-id-input');
+        const nameInput = document.getElementById('exercise-name-input');
+        const bodyweightInput = document.getElementById('exercise-bodyweight-input');
+
+        const exerciseId = idInput.value.trim().toLowerCase().replace(/\s+/g, '_');
+        const exerciseName = nameInput.value.trim();
+        const isBodyweight = bodyweightInput.checked;
+
+        // Validation
+        if (!exerciseId || !exerciseName) {
+            alert('❌ Please fill in both ID and name');
+            return;
+        }
+
+        if (!/^[a-z0-9_]+$/.test(exerciseId)) {
+            alert('❌ Exercise ID must be lowercase letters, numbers, and underscores only');
+            return;
+        }
+
+        // Check if ID already exists (only when adding new)
+        if (!this.editingExerciseId) {
+            const library = getExerciseLibrary();
+            if (library[exerciseId]) {
+                alert('❌ An exercise with this ID already exists. Use a different ID or edit the existing exercise.');
+                return;
+            }
+        }
+
+        // Save exercise
+        saveCustomExercise(exerciseId, {
+            name: exerciseName,
+            bodyweight: isBodyweight
+        });
+
+        // Regenerate quest program to pick up changes
+        Object.assign(questProgram, generateQuestProgram());
+
+        // Re-render current level
+        this.renderLevel();
+
+        alert(`✅ Exercise "${exerciseName}" saved!`);
+        this.closeExerciseEdit();
+        this.renderExerciseLibrary();
+    }
+
+    deleteExercise(exerciseId) {
+        // Check if it's a custom exercise
+        const customExercises = getCustomExercises();
+        if (!customExercises[exerciseId]) {
+            alert('❌ Cannot delete default exercises. You can only delete custom exercises.');
+            return;
+        }
+
+        // Check if used in templates
+        if (isExerciseUsedInTemplates(exerciseId)) {
+            alert(`⚠️ This exercise is currently used in workout templates. Remove it from all templates before deleting.`);
+            return;
+        }
+
+        if (!confirm(`⚠️ Delete exercise "${getExerciseLibrary()[exerciseId].name}"?\n\nThis cannot be undone.`)) {
+            return;
+        }
+
+        deleteCustomExercise(exerciseId);
+
+        // Regenerate quest program
+        Object.assign(questProgram, generateQuestProgram());
+
+        // Re-render
+        this.renderLevel();
+        this.renderExerciseLibrary();
+
+        alert('✅ Exercise deleted!');
+    }
+
+    closeExerciseEdit() {
+        document.getElementById('exercise-edit-modal').classList.remove('active');
+        this.editingExerciseId = null;
+    }
+
+    closeExerciseLibrary() {
+        document.getElementById('exercise-library-modal').classList.remove('active');
     }
 
     // ==================== WEIGHT TRACKING ====================
@@ -1188,7 +1425,7 @@ class GainzQuest {
 
     exportData() {
         const data = {
-            version: '2.0', // Updated for template system
+            version: '2.1', // Updated for exercise library system
             exportDate: new Date().toISOString(),
             data: {
                 currentLevel: this.currentLevel,
@@ -1201,7 +1438,8 @@ class GainzQuest {
                 weightHistory: this.weightHistory,
                 questSetProgress: this.questSetProgress,
                 bodyWeightHistory: this.bodyWeightHistory,
-                workoutCustomizations: JSON.parse(localStorage.getItem('workoutCustomizations') || '{}')
+                workoutCustomizations: JSON.parse(localStorage.getItem('workoutCustomizations') || '{}'),
+                customExercises: JSON.parse(localStorage.getItem('customExercises') || '{}')
             }
         };
 
@@ -1260,6 +1498,14 @@ class GainzQuest {
                 if (data.workoutCustomizations) {
                     localStorage.setItem('workoutCustomizations', JSON.stringify(data.workoutCustomizations));
                 }
+
+                // Restore custom exercises (v2.1+)
+                if (data.customExercises) {
+                    localStorage.setItem('customExercises', JSON.stringify(data.customExercises));
+                }
+
+                // Regenerate quest program to pick up custom exercises
+                Object.assign(questProgram, generateQuestProgram());
 
                 this.saveState();
                 this.renderStats();
@@ -1539,6 +1785,8 @@ class GainzQuest {
                 this.closeBodyWeightModal();
                 this.closeGraphModal();
                 this.closeTemplateEditor();
+                this.closeExerciseLibrary();
+                this.closeExerciseEdit();
             }
         });
 
@@ -1573,6 +1821,68 @@ class GainzQuest {
             templateEditorModal.addEventListener('click', (e) => {
                 if (e.target.id === 'template-editor-modal') {
                     this.closeTemplateEditor();
+                }
+            });
+        }
+
+        // Exercise library listeners
+        const manageExercisesBtn = document.getElementById('manage-exercises-btn');
+        if (manageExercisesBtn) {
+            manageExercisesBtn.addEventListener('click', () => this.openExerciseLibrary());
+        }
+
+        const exerciseSearchInput = document.getElementById('exercise-search');
+        if (exerciseSearchInput) {
+            exerciseSearchInput.addEventListener('input', (e) => {
+                this.renderExerciseLibrary(e.target.value);
+            });
+        }
+
+        const addNewExerciseBtn = document.getElementById('add-new-exercise-btn');
+        if (addNewExerciseBtn) {
+            addNewExerciseBtn.addEventListener('click', () => this.openAddExercise());
+        }
+
+        const closeLibraryBtn = document.getElementById('close-library-btn');
+        if (closeLibraryBtn) {
+            closeLibraryBtn.addEventListener('click', () => this.closeExerciseLibrary());
+        }
+
+        const closeExerciseLibraryBtn = document.getElementById('close-exercise-library');
+        if (closeExerciseLibraryBtn) {
+            closeExerciseLibraryBtn.addEventListener('click', () => this.closeExerciseLibrary());
+        }
+
+        const exerciseLibraryModal = document.getElementById('exercise-library-modal');
+        if (exerciseLibraryModal) {
+            exerciseLibraryModal.addEventListener('click', (e) => {
+                if (e.target.id === 'exercise-library-modal') {
+                    this.closeExerciseLibrary();
+                }
+            });
+        }
+
+        // Exercise edit modal listeners
+        const saveExerciseBtn = document.getElementById('save-exercise-btn');
+        if (saveExerciseBtn) {
+            saveExerciseBtn.addEventListener('click', () => this.saveExercise());
+        }
+
+        const cancelExerciseEditBtn = document.getElementById('cancel-exercise-edit');
+        if (cancelExerciseEditBtn) {
+            cancelExerciseEditBtn.addEventListener('click', () => this.closeExerciseEdit());
+        }
+
+        const closeExerciseEditBtn = document.getElementById('close-exercise-edit');
+        if (closeExerciseEditBtn) {
+            closeExerciseEditBtn.addEventListener('click', () => this.closeExerciseEdit());
+        }
+
+        const exerciseEditModal = document.getElementById('exercise-edit-modal');
+        if (exerciseEditModal) {
+            exerciseEditModal.addEventListener('click', (e) => {
+                if (e.target.id === 'exercise-edit-modal') {
+                    this.closeExerciseEdit();
                 }
             });
         }
