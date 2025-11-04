@@ -64,6 +64,15 @@ header h1 {
     font-size: 1.1rem;
 }
 
+.version {
+    margin-top: 10px;
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    opacity: 0.6;
+    font-family: 'Courier New', monospace;
+    letter-spacing: 1px;
+}
+
 /* Stats Dashboard */
 .stats-dashboard {
     display: grid;
