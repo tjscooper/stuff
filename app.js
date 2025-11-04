@@ -681,7 +681,6 @@ class GainzQuest {
 
                         weightHTML = `
                             <div class="exercise-weight">
-                                <div class="weight-label">💪 WEIGHT:</div>
                                 <div class="weight-controls">
                                     <button class="weight-btn weight-minus" data-exercise="${ex.name}">−</button>
                                     <div class="weight-display">
