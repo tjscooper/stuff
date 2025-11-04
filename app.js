@@ -1031,7 +1031,7 @@ class GainzQuest {
 
     exportData() {
         const data = {
-            version: '1.0',
+            version: '2.0', // Updated for template system
             exportDate: new Date().toISOString(),
             data: {
                 currentLevel: this.currentLevel,
@@ -1043,7 +1043,8 @@ class GainzQuest {
                 exerciseWeights: this.exerciseWeights,
                 weightHistory: this.weightHistory,
                 questSetProgress: this.questSetProgress,
-                bodyWeightHistory: this.bodyWeightHistory
+                bodyWeightHistory: this.bodyWeightHistory,
+                workoutCustomizations: JSON.parse(localStorage.getItem('workoutCustomizations') || '{}')
             }
         };
 
@@ -1097,6 +1098,11 @@ class GainzQuest {
                 this.weightHistory = data.weightHistory || {};
                 this.questSetProgress = data.questSetProgress || {};
                 this.bodyWeightHistory = data.bodyWeightHistory || [];
+
+                // Restore workout customizations (v2.0+)
+                if (data.workoutCustomizations) {
+                    localStorage.setItem('workoutCustomizations', JSON.stringify(data.workoutCustomizations));
+                }
 
                 this.saveState();
                 this.renderStats();
