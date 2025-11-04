@@ -12,7 +12,7 @@
         <header>
             <h1>🎮 24-LEVEL GAINZ QUEST 🎮</h1>
             <p class="subtitle">Level up your fitness, one quest at a time</p>
-            <div class="version">v1.0.1</div>
+            <div class="version">v1.1.0</div>
         </header>
 
         <!-- Stats Dashboard -->
@@ -52,6 +52,33 @@
         <!-- XP Progress Bar -->
         <div class="xp-bar-container">
             <div class="xp-bar" id="xp-bar"></div>
+        </div>
+
+        <!-- Body Weight Tracker -->
+        <div class="body-weight-section">
+            <h2>⚖️ Body Weight Tracker</h2>
+            <div class="body-weight-card">
+                <div class="body-weight-current">
+                    <div class="weight-icon">📊</div>
+                    <div class="weight-info">
+                        <div class="weight-label">Current Weight</div>
+                        <div class="weight-value">
+                            <span id="current-body-weight">--</span>
+                            <span class="weight-unit">lbs</span>
+                        </div>
+                        <div class="weight-change" id="weight-change"></div>
+                    </div>
+                </div>
+                <div class="body-weight-input">
+                    <label for="weight-input">Log Weight:</label>
+                    <div class="input-group">
+                        <input type="number" id="weight-input" placeholder="Enter weight" step="0.1" min="50" max="500">
+                        <span class="input-unit">lbs</span>
+                        <button class="btn btn-primary" id="log-weight-btn">Log</button>
+                        <button class="btn btn-secondary" id="view-weight-history-btn">📈 History</button>
+                    </div>
+                </div>
+            </div>
         </div>
 
         <!-- Achievements Section -->
@@ -155,6 +182,20 @@
                     <canvas id="weight-graph"></canvas>
                 </div>
                 <div class="graph-stats" id="graph-stats">
+                    <!-- Stats will be populated by JS -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Body Weight History Modal -->
+        <div class="modal" id="body-weight-modal">
+            <div class="modal-content graph-modal-content">
+                <span class="close-btn" id="close-body-weight">&times;</span>
+                <h2>⚖️ Body Weight History</h2>
+                <div class="graph-container">
+                    <canvas id="body-weight-graph"></canvas>
+                </div>
+                <div class="graph-stats" id="body-weight-stats">
                     <!-- Stats will be populated by JS -->
                 </div>
             </div>

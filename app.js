@@ -393,6 +393,8 @@ class GainzQuest {
         this.weightHistory = {};
         // Set progress - stores completed sets per quest
         this.questSetProgress = {};
+        // Body weight tracking - stores array of {date, weight}
+        this.bodyWeightHistory = [];
 
         this.loadState();
         this.init();
@@ -402,6 +404,7 @@ class GainzQuest {
         this.renderStats();
         this.renderAchievements();
         this.renderLevel();
+        this.renderBodyWeight();
         this.setupEventListeners();
     }
 
@@ -417,7 +420,8 @@ class GainzQuest {
             lastQuestDate: this.lastQuestDate,
             exerciseWeights: this.exerciseWeights,
             weightHistory: this.weightHistory,
-            questSetProgress: this.questSetProgress
+            questSetProgress: this.questSetProgress,
+            bodyWeightHistory: this.bodyWeightHistory
         };
         localStorage.setItem('gainzQuestState', JSON.stringify(state));
     }
@@ -435,6 +439,7 @@ class GainzQuest {
             this.exerciseWeights = state.exerciseWeights || {};
             this.weightHistory = state.weightHistory || {};
             this.questSetProgress = state.questSetProgress || {};
+            this.bodyWeightHistory = state.bodyWeightHistory || [];
 
             this.updateStreak();
         }
@@ -1064,6 +1069,225 @@ class GainzQuest {
         document.getElementById('graph-modal').classList.remove('active');
     }
 
+    // ==================== BODY WEIGHT TRACKING ====================
+
+    renderBodyWeight() {
+        const latestEntry = this.bodyWeightHistory[this.bodyWeightHistory.length - 1];
+        const currentWeight = latestEntry ? latestEntry.weight : null;
+
+        const weightDisplay = document.getElementById('current-body-weight');
+        const changeDisplay = document.getElementById('weight-change');
+
+        if (currentWeight) {
+            weightDisplay.textContent = currentWeight.toFixed(1);
+
+            // Calculate change from starting weight
+            if (this.bodyWeightHistory.length > 1) {
+                const startWeight = this.bodyWeightHistory[0].weight;
+                const change = currentWeight - startWeight;
+                const changePercent = ((change / startWeight) * 100).toFixed(1);
+
+                changeDisplay.textContent = `${change >= 0 ? '+' : ''}${change.toFixed(1)} lbs (${changePercent}%)`;
+                changeDisplay.className = 'weight-change ' + (change >= 0 ? 'positive' : 'negative');
+            } else {
+                changeDisplay.textContent = '';
+            }
+        } else {
+            weightDisplay.textContent = '--';
+            changeDisplay.textContent = '';
+        }
+    }
+
+    logBodyWeight() {
+        const input = document.getElementById('weight-input');
+        const weight = parseFloat(input.value);
+
+        if (!weight || weight < 50 || weight > 500) {
+            alert('Please enter a valid weight between 50 and 500 lbs');
+            return;
+        }
+
+        const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD format
+
+        // Check if already logged today
+        const existingEntry = this.bodyWeightHistory.find(entry => entry.date === today);
+
+        if (existingEntry) {
+            if (confirm('You already logged your weight today. Update it?')) {
+                existingEntry.weight = weight;
+            } else {
+                return;
+            }
+        } else {
+            this.bodyWeightHistory.push({ date: today, weight: weight });
+        }
+
+        // Sort by date
+        this.bodyWeightHistory.sort((a, b) => new Date(a.date) - new Date(b.date));
+
+        this.saveState();
+        this.renderBodyWeight();
+
+        // Clear input and show feedback
+        input.value = '';
+        alert(`✅ Weight logged: ${weight} lbs`);
+    }
+
+    showBodyWeightHistory() {
+        if (this.bodyWeightHistory.length === 0) {
+            alert('No body weight history yet. Log your weight first!');
+            return;
+        }
+
+        document.getElementById('body-weight-modal').classList.add('active');
+
+        // Draw the graph
+        setTimeout(() => this.drawBodyWeightGraph(), 100);
+    }
+
+    drawBodyWeightGraph() {
+        const canvas = document.getElementById('body-weight-graph');
+        const ctx = canvas.getContext('2d');
+
+        // Set canvas size
+        canvas.width = canvas.offsetWidth;
+        canvas.height = 300;
+
+        const width = canvas.width;
+        const height = canvas.height;
+        const padding = 60;
+
+        // Clear canvas
+        ctx.clearRect(0, 0, width, height);
+
+        const history = this.bodyWeightHistory;
+
+        // Calculate scales
+        const weights = history.map(h => h.weight);
+        const minWeight = Math.max(0, Math.floor(Math.min(...weights) / 10) * 10 - 10);
+        const maxWeight = Math.ceil(Math.max(...weights) / 10) * 10 + 10;
+
+        // Helper functions for positioning
+        const getX = (index) => padding + (index / (history.length - 1 || 1)) * (width - padding * 2);
+        const getY = (weight) => height - padding - ((weight - minWeight) / (maxWeight - minWeight)) * (height - padding * 2);
+
+        // Draw grid
+        ctx.strokeStyle = '#334155';
+        ctx.lineWidth = 1;
+        ctx.setLineDash([5, 5]);
+
+        // Horizontal grid lines (weight)
+        const weightStep = (maxWeight - minWeight) / 5;
+        for (let i = 0; i <= 5; i++) {
+            const weight = minWeight + i * weightStep;
+            const y = getY(weight);
+
+            ctx.beginPath();
+            ctx.moveTo(padding, y);
+            ctx.lineTo(width - padding, y);
+            ctx.stroke();
+
+            // Weight labels
+            ctx.fillStyle = '#94a3b8';
+            ctx.font = '12px Arial';
+            ctx.textAlign = 'right';
+            ctx.fillText(weight.toFixed(0) + ' lbs', padding - 10, y + 4);
+        }
+
+        // Draw line
+        ctx.setLineDash([]);
+        ctx.strokeStyle = '#ec4899';
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+
+        history.forEach((point, index) => {
+            const x = getX(index);
+            const y = getY(point.weight);
+
+            if (index === 0) {
+                ctx.moveTo(x, y);
+            } else {
+                ctx.lineTo(x, y);
+            }
+        });
+
+        ctx.stroke();
+
+        // Draw points with labels
+        history.forEach((point, index) => {
+            const x = getX(index);
+            const y = getY(point.weight);
+
+            // Outer glow
+            ctx.fillStyle = 'rgba(236, 72, 153, 0.3)';
+            ctx.beginPath();
+            ctx.arc(x, y, 8, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Point
+            ctx.fillStyle = '#ec4899';
+            ctx.beginPath();
+            ctx.arc(x, y, 5, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Weight label on point
+            ctx.fillStyle = '#f1f5f9';
+            ctx.font = 'bold 11px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText(point.weight.toFixed(1) + ' lbs', x, y - 15);
+
+            // Date label below
+            ctx.fillStyle = '#94a3b8';
+            ctx.font = '10px Arial';
+            const date = new Date(point.date);
+            const dateLabel = `${date.getMonth() + 1}/${date.getDate()}`;
+            ctx.fillText(dateLabel, x, height - padding + 20);
+        });
+
+        // Update stats
+        this.updateBodyWeightStats();
+    }
+
+    updateBodyWeightStats() {
+        const statsDiv = document.getElementById('body-weight-stats');
+        const history = this.bodyWeightHistory;
+
+        const currentWeight = history[history.length - 1].weight;
+        const startWeight = history[0].weight;
+        const totalChange = currentWeight - startWeight;
+        const percentChange = ((totalChange / startWeight) * 100).toFixed(1);
+
+        const highWeight = Math.max(...history.map(h => h.weight));
+        const lowWeight = Math.min(...history.map(h => h.weight));
+
+        statsDiv.innerHTML = `
+            <div class="stat-item">
+                <div class="stat-label">Current</div>
+                <div class="stat-value">${currentWeight.toFixed(1)} lbs</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-label">Starting</div>
+                <div class="stat-value">${startWeight.toFixed(1)} lbs</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-label">Total Change</div>
+                <div class="stat-value ${totalChange >= 0 ? 'positive' : 'negative'}">${totalChange >= 0 ? '+' : ''}${totalChange.toFixed(1)} lbs (${percentChange}%)</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-label">Range</div>
+                <div class="stat-value">${lowWeight.toFixed(1)} - ${highWeight.toFixed(1)} lbs</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-label">Entries</div>
+                <div class="stat-value">${history.length} days</div>
+            </div>
+        `;
+    }
+
+    closeBodyWeightModal() {
+        document.getElementById('body-weight-modal').classList.remove('active');
+    }
+
     // ==================== TIMER FUNCTIONS ====================
 
     formatTime(seconds) {
@@ -1242,6 +1466,23 @@ class GainzQuest {
             }
         });
 
+        // Body weight tracking listeners
+        document.getElementById('log-weight-btn').addEventListener('click', () => this.logBodyWeight());
+        document.getElementById('view-weight-history-btn').addEventListener('click', () => this.showBodyWeightHistory());
+        document.getElementById('close-body-weight').addEventListener('click', () => this.closeBodyWeightModal());
+        document.getElementById('body-weight-modal').addEventListener('click', (e) => {
+            if (e.target.id === 'body-weight-modal') {
+                this.closeBodyWeightModal();
+            }
+        });
+
+        // Allow Enter key to log weight
+        document.getElementById('weight-input').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                this.logBodyWeight();
+            }
+        });
+
         // Timer event listeners
         document.getElementById('timer-start').addEventListener('click', () => {
             if (this.timerRunning) {
@@ -1270,6 +1511,8 @@ class GainzQuest {
             if (e.key === 'Escape') {
                 this.closeQuestModal();
                 this.closeLevelUpNotification();
+                this.closeBodyWeightModal();
+                this.closeGraphModal();
             }
         });
     }
