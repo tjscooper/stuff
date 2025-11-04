@@ -12,7 +12,7 @@
         <header>
             <h1>🎮 24-LEVEL GAINZ QUEST 🎮</h1>
             <p class="subtitle">Level up your fitness, one quest at a time</p>
-            <div class="version">v1.2.0</div>
+            <div class="version">v1.2.1</div>
         </header>
 
         <!-- Stats Dashboard -->
@@ -54,6 +54,36 @@
             <div class="xp-bar" id="xp-bar"></div>
         </div>
 
+        <!-- Level Navigator -->
+        <div class="week-navigator">
+            <button class="nav-btn" id="prev-week" disabled>← Previous Level</button>
+            <div class="week-display">
+                <span class="week-label">Level</span>
+                <span class="week-number" id="current-week">1</span>
+                <span class="week-total">of 24</span>
+            </div>
+            <button class="nav-btn" id="next-week">Next Level →</button>
+        </div>
+
+        <!-- Current Week Info -->
+        <div class="week-info">
+            <h2 id="week-title">Week 1: Foundation Building</h2>
+            <p id="week-description">Welcome to your fitness journey! This week focuses on establishing proper form and building a solid foundation.</p>
+        </div>
+
+        <!-- Workouts Grid -->
+        <div class="workouts-grid" id="workouts-grid">
+            <!-- Workouts will be populated by JS -->
+        </div>
+
+        <!-- Achievements Section -->
+        <div class="achievements-section">
+            <h2>Achievements</h2>
+            <div class="achievements-grid" id="achievements-grid">
+                <!-- Achievements will be populated by JS -->
+            </div>
+        </div>
+
         <!-- Body Weight Tracker -->
         <div class="body-weight-section">
             <h2 class="section-title">⚖️ WARRIOR STATS TRACKER</h2>
@@ -81,14 +111,6 @@
             </div>
         </div>
 
-        <!-- Achievements Section -->
-        <div class="achievements-section">
-            <h2>Achievements</h2>
-            <div class="achievements-grid" id="achievements-grid">
-                <!-- Achievements will be populated by JS -->
-            </div>
-        </div>
-
         <!-- Settings Section -->
         <div class="settings-section">
             <h2>⚙️ SETTINGS & DATA BACKUP</h2>
@@ -106,28 +128,6 @@
                     <input type="file" id="import-file-input" accept=".json" style="display: none;">
                 </div>
             </div>
-        </div>
-
-        <!-- Level Navigator -->
-        <div class="week-navigator">
-            <button class="nav-btn" id="prev-week" disabled>← Previous Level</button>
-            <div class="week-display">
-                <span class="week-label">Level</span>
-                <span class="week-number" id="current-week">1</span>
-                <span class="week-total">of 24</span>
-            </div>
-            <button class="nav-btn" id="next-week">Next Level →</button>
-        </div>
-
-        <!-- Current Week Info -->
-        <div class="week-info">
-            <h2 id="week-title">Week 1: Foundation Building</h2>
-            <p id="week-description">Welcome to your fitness journey! This week focuses on establishing proper form and building a solid foundation.</p>
-        </div>
-
-        <!-- Workouts Grid -->
-        <div class="workouts-grid" id="workouts-grid">
-            <!-- Workouts will be populated by JS -->
         </div>
 
         <!-- Workout Modal -->
@@ -221,6 +221,6 @@
         </div>
     </div>
 
-    <script src="app.js?v=1.2.0"></script>
+    <script src="app.js?v=1.2.1"></script>
 </body>
 </html>
