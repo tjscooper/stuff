@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>24-Week Gamified Workout Program</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Header Section -->
+        <header>
+            <h1>24-Week Warrior Program</h1>
+            <p class="subtitle">Level up your fitness, one workout at a time</p>
+        </header>
+
+        <!-- Stats Dashboard -->
+        <div class="stats-dashboard">
+            <div class="stat-card">
+                <div class="stat-icon">⭐</div>
+                <div class="stat-content">
+                    <div class="stat-label">Level</div>
+                    <div class="stat-value" id="level">1</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">💪</div>
+                <div class="stat-content">
+                    <div class="stat-label">XP</div>
+                    <div class="stat-value">
+                        <span id="current-xp">0</span>/<span id="next-level-xp">100</span>
+                    </div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">🔥</div>
+                <div class="stat-content">
+                    <div class="stat-label">Streak</div>
+                    <div class="stat-value"><span id="streak">0</span> days</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">✅</div>
+                <div class="stat-content">
+                    <div class="stat-label">Completed</div>
+                    <div class="stat-value"><span id="completed">0</span>/72</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- XP Progress Bar -->
+        <div class="xp-bar-container">
+            <div class="xp-bar" id="xp-bar"></div>
+        </div>
+
+        <!-- Achievements Section -->
+        <div class="achievements-section">
+            <h2>Achievements</h2>
+            <div class="achievements-grid" id="achievements-grid">
+                <!-- Achievements will be populated by JS -->
+            </div>
+        </div>
+
+        <!-- Week Navigator -->
+        <div class="week-navigator">
+            <button class="nav-btn" id="prev-week" disabled>← Previous Week</button>
+            <div class="week-display">
+                <span class="week-label">Week</span>
+                <span class="week-number" id="current-week">1</span>
+                <span class="week-total">of 24</span>
+            </div>
+            <button class="nav-btn" id="next-week">Next Week →</button>
+        </div>
+
+        <!-- Current Week Info -->
+        <div class="week-info">
+            <h2 id="week-title">Week 1: Foundation Building</h2>
+            <p id="week-description">Welcome to your fitness journey! This week focuses on establishing proper form and building a solid foundation.</p>
+        </div>
+
+        <!-- Workouts Grid -->
+        <div class="workouts-grid" id="workouts-grid">
+            <!-- Workouts will be populated by JS -->
+        </div>
+
+        <!-- Workout Modal -->
+        <div class="modal" id="workout-modal">
+            <div class="modal-content">
+                <span class="close-btn" id="close-modal">&times;</span>
+                <h2 id="modal-day">Day 1</h2>
+                <div id="modal-exercises">
+                    <!-- Exercises will be populated by JS -->
+                </div>
+                <div class="modal-actions">
+                    <button class="btn btn-secondary" id="cancel-workout">Cancel</button>
+                    <button class="btn btn-primary" id="complete-workout">Complete Workout (+50 XP)</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Level Up Notification -->
+        <div class="level-up-notification" id="level-up-notification">
+            <div class="level-up-content">
+                <h2>🎉 Level Up!</h2>
+                <p>You've reached <span id="new-level">2</span>!</p>
+                <button class="btn btn-primary" id="close-level-up">Continue</button>
+            </div>
+        </div>
+
+        <!-- Achievement Notification -->
+        <div class="achievement-notification" id="achievement-notification">
+            <div class="achievement-content">
+                <div class="achievement-icon" id="achievement-icon">🏆</div>
+                <div class="achievement-text">
+                    <h3>Achievement Unlocked!</h3>
+                    <p id="achievement-name">First Steps</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
