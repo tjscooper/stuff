@@ -524,6 +524,15 @@ class GainzQuest {
         completeBtn.disabled = isCompleted;
         completeBtn.onclick = () => this.completeQuest(questId, quest.xpReward);
 
+        // Show/hide edit button
+        const editBtn = document.getElementById('edit-template-btn');
+        if (quest.type === 'recovery' || quest.type === 'zen' || !quest.templateId) {
+            editBtn.style.display = 'none';
+        } else {
+            editBtn.style.display = 'inline-block';
+            editBtn.onclick = () => this.openTemplateEditor(quest.templateId);
+        }
+
         document.getElementById('workout-modal').classList.add('active');
     }
 
@@ -567,6 +576,154 @@ class GainzQuest {
         this.saveWeights(); // Save weights when closing modal
         this.saveSetProgress(); // Save set progress when closing modal
         document.getElementById('workout-modal').classList.remove('active');
+    }
+
+    // ==================== TEMPLATE EDITOR ====================
+
+    openTemplateEditor(templateId) {
+        this.editingTemplateId = templateId;
+        const customTemplate = getCustomTemplate(templateId);
+        const template = customTemplate || workoutTemplates[templateId];
+
+        document.getElementById('template-editor-title').textContent = `✏️ Edit: ${template.name}`;
+
+        // Clone template exercises for editing
+        this.editingExercises = JSON.parse(JSON.stringify(template.exercises || []));
+
+        this.renderExerciseEditor();
+        document.getElementById('template-editor-modal').classList.add('active');
+    }
+
+    renderExerciseEditor() {
+        const listDiv = document.getElementById('exercise-editor-list');
+        listDiv.innerHTML = '';
+
+        this.editingExercises.forEach((ex, idx) => {
+            const exerciseData = exerciseLibrary[ex.id];
+            const div = document.createElement('div');
+            div.className = 'exercise-item';
+            div.innerHTML = `
+                <div class="exercise-item-controls">
+                    <button class="move-up" data-idx="${idx}" ${idx === 0 ? 'disabled' : ''}>↑</button>
+                    <button class="move-down" data-idx="${idx}" ${idx === this.editingExercises.length - 1 ? 'disabled' : ''}>↓</button>
+                </div>
+                <div class="exercise-item-fields">
+                    <div class="exercise-field">
+                        <label>Exercise</label>
+                        <select class="exercise-select" data-idx="${idx}">
+                            ${Object.keys(exerciseLibrary).map(key =>
+                                `<option value="${key}" ${key === ex.id ? 'selected' : ''}>${exerciseLibrary[key].name}</option>`
+                            ).join('')}
+                        </select>
+                    </div>
+                    <div class="exercise-field">
+                        <label>Sets</label>
+                        <input type="number" class="sets-input" data-idx="${idx}" value="${ex.sets}" min="1" max="10">
+                    </div>
+                    <div class="exercise-field">
+                        <label>Reps</label>
+                        <input type="text" class="reps-input" data-idx="${idx}" value="${ex.reps}" placeholder="8-12">
+                    </div>
+                </div>
+                <button class="exercise-item-delete" data-idx="${idx}">🗑️</button>
+            `;
+            listDiv.appendChild(div);
+        });
+
+        // Add event listeners
+        listDiv.querySelectorAll('.move-up').forEach(btn => {
+            btn.addEventListener('click', (e) => this.moveExercise(parseInt(e.target.dataset.idx), -1));
+        });
+        listDiv.querySelectorAll('.move-down').forEach(btn => {
+            btn.addEventListener('click', (e) => this.moveExercise(parseInt(e.target.dataset.idx), 1));
+        });
+        listDiv.querySelectorAll('.exercise-select').forEach(select => {
+            select.addEventListener('change', (e) => this.updateExercise(parseInt(e.target.dataset.idx), 'id', e.target.value));
+        });
+        listDiv.querySelectorAll('.sets-input').forEach(input => {
+            input.addEventListener('change', (e) => this.updateExercise(parseInt(e.target.dataset.idx), 'sets', parseInt(e.target.value)));
+        });
+        listDiv.querySelectorAll('.reps-input').forEach(input => {
+            input.addEventListener('change', (e) => this.updateExercise(parseInt(e.target.dataset.idx), 'reps', e.target.value));
+        });
+        listDiv.querySelectorAll('.exercise-item-delete').forEach(btn => {
+            btn.addEventListener('click', (e) => this.deleteExercise(parseInt(e.target.dataset.idx)));
+        });
+    }
+
+    moveExercise(idx, direction) {
+        const newIdx = idx + direction;
+        if (newIdx < 0 || newIdx >= this.editingExercises.length) return;
+
+        // Swap exercises
+        [this.editingExercises[idx], this.editingExercises[newIdx]] =
+        [this.editingExercises[newIdx], this.editingExercises[idx]];
+
+        this.renderExerciseEditor();
+    }
+
+    updateExercise(idx, field, value) {
+        this.editingExercises[idx][field] = value;
+    }
+
+    deleteExercise(idx) {
+        if (!confirm('Delete this exercise?')) return;
+        this.editingExercises.splice(idx, 1);
+        this.renderExerciseEditor();
+    }
+
+    addExercise() {
+        const newEx = {
+            id: 'push_ups',
+            sets: 3,
+            reps: '10-12'
+        };
+        this.editingExercises.push(newEx);
+        this.renderExerciseEditor();
+    }
+
+    saveTemplateEdits() {
+        if (this.editingExercises.length === 0) {
+            alert('❌ Template must have at least one exercise');
+            return;
+        }
+
+        const template = JSON.parse(JSON.stringify(workoutTemplates[this.editingTemplateId]));
+        template.exercises = this.editingExercises;
+
+        saveCustomTemplate(this.editingTemplateId, template);
+
+        // Regenerate quest program
+        Object.assign(questProgram, generateQuestProgram());
+
+        // Re-render current level
+        this.renderLevel();
+
+        alert('✅ Template saved! Changes apply to all levels using this workout.');
+        this.closeTemplateEditor();
+    }
+
+    resetTemplate() {
+        if (!confirm('⚠️ Reset to default template? This will delete all customizations.')) return;
+
+        const customizations = JSON.parse(localStorage.getItem('workoutCustomizations') || '{}');
+        delete customizations[this.editingTemplateId];
+        localStorage.setItem('workoutCustomizations', JSON.stringify(customizations));
+
+        // Regenerate quest program
+        Object.assign(questProgram, generateQuestProgram());
+
+        // Re-render current level
+        this.renderLevel();
+
+        alert('✅ Template reset to default!');
+        this.closeTemplateEditor();
+    }
+
+    closeTemplateEditor() {
+        document.getElementById('template-editor-modal').classList.remove('active');
+        this.editingTemplateId = null;
+        this.editingExercises = [];
     }
 
     // ==================== WEIGHT TRACKING ====================
@@ -1381,8 +1538,44 @@ class GainzQuest {
                 this.closeLevelUpNotification();
                 this.closeBodyWeightModal();
                 this.closeGraphModal();
+                this.closeTemplateEditor();
             }
         });
+
+        // Template editor listeners
+        const addExerciseBtn = document.getElementById('add-exercise-btn');
+        if (addExerciseBtn) {
+            addExerciseBtn.addEventListener('click', () => this.addExercise());
+        }
+
+        const resetTemplateBtn = document.getElementById('reset-template-btn');
+        if (resetTemplateBtn) {
+            resetTemplateBtn.addEventListener('click', () => this.resetTemplate());
+        }
+
+        const saveTemplateBtn = document.getElementById('save-template-btn');
+        if (saveTemplateBtn) {
+            saveTemplateBtn.addEventListener('click', () => this.saveTemplateEdits());
+        }
+
+        const cancelTemplateBtn = document.getElementById('cancel-template-edit');
+        if (cancelTemplateBtn) {
+            cancelTemplateBtn.addEventListener('click', () => this.closeTemplateEditor());
+        }
+
+        const closeTemplateEditorBtn = document.getElementById('close-template-editor');
+        if (closeTemplateEditorBtn) {
+            closeTemplateEditorBtn.addEventListener('click', () => this.closeTemplateEditor());
+        }
+
+        const templateEditorModal = document.getElementById('template-editor-modal');
+        if (templateEditorModal) {
+            templateEditorModal.addEventListener('click', (e) => {
+                if (e.target.id === 'template-editor-modal') {
+                    this.closeTemplateEditor();
+                }
+            });
+        }
     }
 }
 
