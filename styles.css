@@ -883,6 +883,85 @@ header h1 {
     border-left: 4px solid var(--primary-color);
 }
 
+/* Exercise Weight Controls */
+.exercise-weight {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin: 12px 0;
+    padding: 12px;
+    background: rgba(236, 72, 153, 0.1);
+    border-radius: 8px;
+    border: 1px solid rgba(236, 72, 153, 0.3);
+}
+
+.weight-label {
+    font-size: 0.85rem;
+    font-weight: bold;
+    color: var(--secondary-color);
+    letter-spacing: 0.5px;
+}
+
+.weight-controls {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.weight-btn {
+    width: 40px;
+    height: 40px;
+    background: var(--card-bg);
+    border: 2px solid var(--secondary-color);
+    border-radius: 8px;
+    color: var(--secondary-color);
+    font-size: 1.5rem;
+    font-weight: bold;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    user-select: none;
+}
+
+.weight-btn:hover {
+    background: var(--secondary-color);
+    color: white;
+    transform: scale(1.1);
+}
+
+.weight-btn:active {
+    transform: scale(0.95);
+}
+
+.weight-display {
+    display: flex;
+    align-items: baseline;
+    gap: 5px;
+    min-width: 80px;
+    justify-content: center;
+    background: var(--bg-color);
+    padding: 8px 16px;
+    border-radius: 8px;
+    border: 2px solid var(--secondary-color);
+}
+
+.weight-input {
+    font-size: 1.5rem;
+    font-weight: 900;
+    color: var(--secondary-color);
+    font-family: 'Courier New', monospace;
+    min-width: 45px;
+    text-align: right;
+}
+
+.weight-unit {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    font-weight: bold;
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
     header h1 {

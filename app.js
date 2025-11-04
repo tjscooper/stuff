@@ -387,6 +387,9 @@ class GainzQuest {
         this.timerRemaining = 90;
         this.timerRunning = false;
 
+        // Weight tracking - stores weight per exercise name
+        this.exerciseWeights = {};
+
         this.loadState();
         this.init();
     }
@@ -407,7 +410,8 @@ class GainzQuest {
             streak: this.streak,
             completedQuests: Array.from(this.completedQuests),
             unlockedAchievements: Array.from(this.unlockedAchievements),
-            lastQuestDate: this.lastQuestDate
+            lastQuestDate: this.lastQuestDate,
+            exerciseWeights: this.exerciseWeights
         };
         localStorage.setItem('gainzQuestState', JSON.stringify(state));
     }
@@ -422,6 +426,7 @@ class GainzQuest {
             this.completedQuests = new Set(state.completedQuests || []);
             this.unlockedAchievements = new Set(state.unlockedAchievements || []);
             this.lastQuestDate = state.lastQuestDate;
+            this.exerciseWeights = state.exerciseWeights || {};
 
             this.updateStreak();
         }
@@ -651,7 +656,27 @@ class GainzQuest {
                 totalSets += numSets;
 
                 let setsHTML = '';
+                let weightHTML = '';
+
                 if (numSets > 0) {
+                    // Get the current weight for this exercise
+                    const currentWeight = this.getExerciseWeight(ex.name);
+
+                    // Add weight tracking
+                    weightHTML = `
+                        <div class="exercise-weight">
+                            <div class="weight-label">💪 WEIGHT:</div>
+                            <div class="weight-controls">
+                                <button class="weight-btn weight-minus" data-exercise="${ex.name}">−</button>
+                                <div class="weight-display">
+                                    <span class="weight-input" data-exercise="${ex.name}">${currentWeight}</span>
+                                    <span class="weight-unit">lbs</span>
+                                </div>
+                                <button class="weight-btn weight-plus" data-exercise="${ex.name}">+</button>
+                            </div>
+                        </div>
+                    `;
+
                     setsHTML = `
                         <div class="exercise-sets">
                             ${Array.from({length: numSets}, (_, i) => `
@@ -669,6 +694,7 @@ class GainzQuest {
                     <div class="exercise-detail ${numSets > 0 ? 'has-sets' : ''}">
                         <div class="exercise-name">${ex.name}</div>
                         <div class="exercise-specs">${ex.specs}</div>
+                        ${weightHTML}
                         ${setsHTML}
                     </div>
                 `;
@@ -704,6 +730,21 @@ class GainzQuest {
                 document.querySelectorAll('.set-checkbox').forEach(checkbox => {
                     checkbox.addEventListener('change', () => this.updateProgress());
                 });
+
+                // Add weight button listeners
+                document.querySelectorAll('.weight-minus').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        const exerciseName = e.target.dataset.exercise;
+                        this.changeWeight(exerciseName, -2.5);
+                    });
+                });
+
+                document.querySelectorAll('.weight-plus').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        const exerciseName = e.target.dataset.exercise;
+                        this.changeWeight(exerciseName, 2.5);
+                    });
+                });
             }, 0);
         }
 
@@ -723,7 +764,43 @@ class GainzQuest {
 
     closeQuestModal() {
         this.stopTimer();
+        this.saveWeights(); // Save weights when closing modal
         document.getElementById('workout-modal').classList.remove('active');
+    }
+
+    // ==================== WEIGHT TRACKING ====================
+
+    getExerciseWeight(exerciseName) {
+        // Get stored weight or default to 10 lbs
+        return this.exerciseWeights[exerciseName] || 10;
+    }
+
+    updateExerciseWeight(exerciseName, weight) {
+        this.exerciseWeights[exerciseName] = weight;
+    }
+
+    saveWeights() {
+        // Read all current weight inputs and save them
+        document.querySelectorAll('.weight-input').forEach(input => {
+            const exerciseName = input.dataset.exercise;
+            const weight = parseFloat(input.textContent);
+            this.exerciseWeights[exerciseName] = weight;
+        });
+        this.saveState();
+    }
+
+    changeWeight(exerciseName, delta) {
+        const currentWeight = this.getExerciseWeight(exerciseName);
+        const newWeight = Math.max(0, currentWeight + delta); // Don't go below 0
+        this.updateExerciseWeight(exerciseName, newWeight);
+
+        // Update the display
+        const input = document.querySelector(`.weight-input[data-exercise="${exerciseName}"]`);
+        if (input) {
+            input.textContent = newWeight;
+        }
+
+        this.saveState();
     }
 
     // ==================== TIMER FUNCTIONS ====================
