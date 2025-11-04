@@ -381,6 +381,12 @@ class GainzQuest {
         this.unlockedAchievements = new Set();
         this.lastQuestDate = null;
 
+        // Timer state
+        this.timerInterval = null;
+        this.timerSeconds = 90;
+        this.timerRemaining = 90;
+        this.timerRunning = false;
+
         this.loadState();
         this.init();
     }
@@ -612,7 +618,14 @@ class GainzQuest {
 
         const exercisesDiv = document.getElementById('modal-exercises');
 
+        // Show/hide timer and progress based on quest type
+        const timerSection = document.getElementById('timer-section');
+        const progressSection = document.getElementById('workout-progress');
+
         if (quest.type === 'recovery' || quest.type === 'zen') {
+            timerSection.style.display = 'none';
+            progressSection.style.display = 'none';
+
             exercisesDiv.innerHTML = `
                 <div class="quest-objective-big">🎯 ${quest.objective}</div>
                 <div class="quest-section">
@@ -625,6 +638,42 @@ class GainzQuest {
                 </div>
             `;
         } else {
+            timerSection.style.display = 'block';
+            progressSection.style.display = 'block';
+            this.resetTimer();
+
+            let exerciseIndex = 0;
+            let totalSets = 0;
+
+            const exercisesHTML = quest.battleSequence.map((ex, idx) => {
+                const setsMatch = ex.specs.match(/(\d+)\s*sets?/i);
+                const numSets = setsMatch ? parseInt(setsMatch[1]) : 0;
+                totalSets += numSets;
+
+                let setsHTML = '';
+                if (numSets > 0) {
+                    setsHTML = `
+                        <div class="exercise-sets">
+                            ${Array.from({length: numSets}, (_, i) => `
+                                <div class="set-checkbox-wrapper">
+                                    <input type="checkbox" class="set-checkbox" id="set-${exerciseIndex}-${i}" data-exercise="${exerciseIndex}">
+                                    <label class="set-label" for="set-${exerciseIndex}-${i}">${i + 1}</label>
+                                </div>
+                            `).join('')}
+                        </div>
+                    `;
+                    exerciseIndex++;
+                }
+
+                return `
+                    <div class="exercise-detail ${numSets > 0 ? 'has-sets' : ''}">
+                        <div class="exercise-name">${ex.name}</div>
+                        <div class="exercise-specs">${ex.specs}</div>
+                        ${setsHTML}
+                    </div>
+                `;
+            }).join('');
+
             exercisesDiv.innerHTML = `
                 <div class="quest-objective-big">🎯 ${quest.objective}</div>
 
@@ -635,12 +684,7 @@ class GainzQuest {
 
                 <div class="quest-section battle-section">
                     <h3>⚔️ BATTLE SEQUENCE:</h3>
-                    ${quest.battleSequence.map(ex => `
-                        <div class="exercise-detail">
-                            <div class="exercise-name">${ex.name}</div>
-                            <div class="exercise-specs">${ex.specs}</div>
-                        </div>
-                    `).join('')}
+                    ${exercisesHTML}
                 </div>
 
                 <div class="quest-section">
@@ -650,6 +694,17 @@ class GainzQuest {
 
                 <div class="rest-timer">⏱️ REST TIMER: ${quest.restTimer}</div>
             `;
+
+            // Set up progress tracking
+            document.getElementById('total-sets').textContent = totalSets;
+            document.getElementById('completed-sets').textContent = '0';
+
+            // Add checkbox change listeners
+            setTimeout(() => {
+                document.querySelectorAll('.set-checkbox').forEach(checkbox => {
+                    checkbox.addEventListener('change', () => this.updateProgress());
+                });
+            }, 0);
         }
 
         const completeBtn = document.getElementById('complete-workout');
@@ -660,8 +715,104 @@ class GainzQuest {
         document.getElementById('workout-modal').classList.add('active');
     }
 
+    updateProgress() {
+        const total = document.querySelectorAll('.set-checkbox').length;
+        const completed = document.querySelectorAll('.set-checkbox:checked').length;
+        document.getElementById('completed-sets').textContent = completed;
+    }
+
     closeQuestModal() {
+        this.stopTimer();
         document.getElementById('workout-modal').classList.remove('active');
+    }
+
+    // ==================== TIMER FUNCTIONS ====================
+
+    formatTime(seconds) {
+        const mins = Math.floor(seconds / 60);
+        const secs = seconds % 60;
+        return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+    }
+
+    updateTimerDisplay() {
+        const display = document.getElementById('timer-display');
+        display.textContent = this.formatTime(this.timerRemaining);
+
+        // Add visual feedback
+        display.classList.remove('warning', 'done');
+        if (this.timerRemaining === 0) {
+            display.classList.add('done');
+        } else if (this.timerRemaining <= 10) {
+            display.classList.add('warning');
+        }
+
+        // Update progress bar
+        const progress = (this.timerRemaining / this.timerSeconds) * 100;
+        document.getElementById('timer-progress').style.width = `${progress}%`;
+    }
+
+    startTimer() {
+        if (this.timerRunning) return;
+
+        // Don't start if timer is at 0
+        if (this.timerRemaining <= 0) {
+            this.resetTimer();
+        }
+
+        this.timerRunning = true;
+        document.getElementById('timer-start').textContent = '⏸ Pause';
+
+        this.timerInterval = setInterval(() => {
+            this.timerRemaining--;
+            this.updateTimerDisplay();
+
+            if (this.timerRemaining <= 0) {
+                this.stopTimer();
+                this.playTimerSound();
+            }
+        }, 1000);
+    }
+
+    stopTimer() {
+        if (this.timerInterval) {
+            clearInterval(this.timerInterval);
+            this.timerInterval = null;
+        }
+        this.timerRunning = false;
+        document.getElementById('timer-start').textContent = '▶ Start';
+    }
+
+    resetTimer(seconds) {
+        this.stopTimer();
+        if (seconds !== undefined) {
+            this.timerSeconds = seconds;
+        }
+        this.timerRemaining = this.timerSeconds;
+        this.updateTimerDisplay();
+    }
+
+    playTimerSound() {
+        // Create a simple beep using Web Audio API
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        const oscillator = audioContext.createOscillator();
+        const gainNode = audioContext.createGain();
+
+        oscillator.connect(gainNode);
+        gainNode.connect(audioContext.destination);
+
+        oscillator.frequency.value = 800;
+        oscillator.type = 'sine';
+
+        gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
+
+        oscillator.start(audioContext.currentTime);
+        oscillator.stop(audioContext.currentTime + 0.5);
+
+        // Vibrate if available
+        if (navigator.vibrate) {
+            navigator.vibrate([200, 100, 200]);
+        }
     }
 
     completeQuest(questId, xpReward) {
@@ -744,6 +895,30 @@ class GainzQuest {
         });
 
         document.getElementById('close-level-up').addEventListener('click', () => this.closeLevelUpNotification());
+
+        // Timer event listeners
+        document.getElementById('timer-start').addEventListener('click', () => {
+            if (this.timerRunning) {
+                this.stopTimer();
+            } else {
+                this.startTimer();
+            }
+        });
+
+        document.getElementById('timer-reset').addEventListener('click', () => {
+            this.resetTimer();
+        });
+
+        document.querySelectorAll('.preset-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const seconds = parseInt(e.target.dataset.seconds);
+                this.resetTimer(seconds);
+
+                // Visual feedback for selected preset
+                document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
+                e.target.classList.add('active');
+            });
+        });
 
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') {

@@ -88,6 +88,33 @@
             <div class="modal-content">
                 <span class="close-btn" id="close-modal">&times;</span>
                 <h2 id="modal-day">Day 1</h2>
+
+                <!-- Rest Timer -->
+                <div class="timer-section" id="timer-section">
+                    <div class="timer-display">
+                        <div class="timer-label">⏱️ REST TIMER</div>
+                        <div class="timer-time" id="timer-display">00:00</div>
+                    </div>
+                    <div class="timer-controls">
+                        <button class="timer-btn preset-btn" data-seconds="60">60s</button>
+                        <button class="timer-btn preset-btn" data-seconds="90">90s</button>
+                        <button class="timer-btn preset-btn" data-seconds="120">120s</button>
+                        <button class="timer-btn" id="timer-start">▶ Start</button>
+                        <button class="timer-btn" id="timer-reset">↺ Reset</button>
+                    </div>
+                    <div class="timer-progress-bar">
+                        <div class="timer-progress-fill" id="timer-progress"></div>
+                    </div>
+                </div>
+
+                <!-- Workout Progress -->
+                <div class="workout-progress" id="workout-progress">
+                    <div class="progress-label">Quest Progress</div>
+                    <div class="progress-stats">
+                        <span id="completed-sets">0</span> / <span id="total-sets">0</span> sets completed
+                    </div>
+                </div>
+
                 <div id="modal-exercises">
                     <!-- Exercises will be populated by JS -->
                 </div>
