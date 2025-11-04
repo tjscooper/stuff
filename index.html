@@ -12,7 +12,7 @@
         <header>
             <h1>🎮 24-LEVEL GAINZ QUEST 🎮</h1>
             <p class="subtitle">Level up your fitness, one quest at a time</p>
-            <div class="version">v1.1.0-debug</div>
+            <div class="version">v1.1.1</div>
         </header>
 
         <!-- Stats Dashboard -->
@@ -56,12 +56,12 @@
 
         <!-- Body Weight Tracker -->
         <div class="body-weight-section">
-            <h2>⚖️ Body Weight Tracker</h2>
+            <h2 class="section-title">⚖️ WARRIOR STATS TRACKER</h2>
             <div class="body-weight-card">
                 <div class="body-weight-current">
-                    <div class="weight-icon">📊</div>
+                    <div class="weight-icon">🛡️</div>
                     <div class="weight-info">
-                        <div class="weight-label">Current Weight</div>
+                        <div class="weight-label">CURRENT HP</div>
                         <div class="weight-value">
                             <span id="current-body-weight">--</span>
                             <span class="weight-unit">lbs</span>
@@ -70,12 +70,12 @@
                     </div>
                 </div>
                 <div class="body-weight-input">
-                    <label for="weight-input">Log Weight:</label>
+                    <label for="weight-input">⚔️ LOG WARRIOR WEIGHT:</label>
                     <div class="input-group">
                         <input type="number" id="weight-input" placeholder="Enter weight" step="0.1" min="50" max="500">
                         <span class="input-unit">lbs</span>
-                        <button class="btn btn-primary" id="log-weight-btn">Log</button>
-                        <button class="btn btn-secondary" id="view-weight-history-btn">📈 History</button>
+                        <button class="btn btn-primary weight-log-btn" id="log-weight-btn">💾 LOG STATS</button>
+                        <button class="btn btn-graph weight-history-btn" id="view-weight-history-btn">📈 VIEW PROGRESS</button>
                     </div>
                 </div>
             </div>

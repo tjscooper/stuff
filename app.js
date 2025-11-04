@@ -1099,11 +1099,8 @@ class GainzQuest {
     }
 
     logBodyWeight() {
-        console.log('logBodyWeight called');
         const input = document.getElementById('weight-input');
-        console.log('Input element:', input);
         const weight = parseFloat(input.value);
-        console.log('Weight value:', weight);
 
         if (!weight || weight < 50 || weight > 500) {
             alert('Please enter a valid weight between 50 and 500 lbs');
@@ -1470,14 +1467,9 @@ class GainzQuest {
         });
 
         // Body weight tracking listeners
-        console.log('Setting up body weight listeners...');
         const logBtn = document.getElementById('log-weight-btn');
-        console.log('Log button element:', logBtn);
         if (logBtn) {
-            logBtn.addEventListener('click', () => {
-                console.log('Log button clicked!');
-                this.logBodyWeight();
-            });
+            logBtn.addEventListener('click', () => this.logBodyWeight());
         }
 
         const historyBtn = document.getElementById('view-weight-history-btn');
