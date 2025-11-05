@@ -1778,6 +1778,17 @@ class GainzQuest {
             });
         });
 
+        // Scroll navigation buttons
+        document.getElementById('scroll-to-exercises').addEventListener('click', () => {
+            const exercisesDiv = document.getElementById('modal-exercises');
+            exercisesDiv.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        });
+
+        document.getElementById('scroll-to-timer').addEventListener('click', () => {
+            const timerSection = document.getElementById('timer-section');
+            timerSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        });
+
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') {
                 this.closeQuestModal();

@@ -1764,3 +1764,28 @@ header h1 {
         flex: 1;
     }
 }
+
+/* Scroll Navigation Buttons */
+.scroll-nav-btn {
+    width: 100%;
+    padding: 12px;
+    margin: 15px 0;
+    background: linear-gradient(135deg, var(--secondary-color), var(--primary-color));
+    border: none;
+    border-radius: 8px;
+    color: white;
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+}
+
+.scroll-nav-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(236, 72, 153, 0.4);
+}
+
+.scroll-nav-btn:active {
+    transform: translateY(0);
+}
