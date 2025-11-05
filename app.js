@@ -436,6 +436,7 @@ class GainzQuest {
         if (quest.type === 'recovery' || quest.type === 'zen') {
             timerSection.style.display = 'none';
             progressSection.style.display = 'none';
+            document.getElementById('floating-timer-btn').style.display = 'none';
 
             exercisesDiv.innerHTML = `
                 <div class="quest-objective-big">🎯 ${quest.objective}</div>
@@ -451,6 +452,7 @@ class GainzQuest {
         } else {
             timerSection.style.display = 'block';
             progressSection.style.display = 'block';
+            document.getElementById('floating-timer-btn').style.display = 'block';
             this.resetTimer();
 
             let exerciseIndex = 0;
@@ -1784,7 +1786,7 @@ class GainzQuest {
             exercisesDiv.scrollIntoView({ behavior: 'smooth', block: 'start' });
         });
 
-        document.getElementById('scroll-to-timer').addEventListener('click', () => {
+        document.getElementById('floating-timer-btn').addEventListener('click', () => {
             const timerSection = document.getElementById('timer-section');
             timerSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
         });

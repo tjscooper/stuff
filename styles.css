@@ -1789,3 +1789,49 @@ header h1 {
 .scroll-nav-btn:active {
     transform: translateY(0);
 }
+
+/* Floating Timer Button */
+.floating-timer-btn {
+    position: fixed;
+    right: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    border: 3px solid rgba(255, 255, 255, 0.3);
+    color: white;
+    font-size: 0.85rem;
+    font-weight: bold;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(236, 72, 153, 0.5);
+    transition: all 0.3s ease;
+    z-index: 1000;
+    display: none;
+    line-height: 1.2;
+    padding: 5px;
+}
+
+.floating-timer-btn:hover {
+    transform: translateY(-50%) scale(1.1);
+    box-shadow: 0 6px 20px rgba(236, 72, 153, 0.7);
+}
+
+.floating-timer-btn:active {
+    transform: translateY(-50%) scale(0.95);
+}
+
+/* Show floating button when modal is active and timer section exists */
+.modal.active .floating-timer-btn {
+    display: block;
+}
+
+@media (max-width: 768px) {
+    .floating-timer-btn {
+        width: 60px;
+        height: 60px;
+        right: 15px;
+        font-size: 0.75rem;
+    }
+}
