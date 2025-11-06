@@ -676,7 +676,7 @@ class GainzQuest {
             const userId = this.currentUser.id;
 
             // Save user progress
-            await supabase
+            await supabaseClient
                 .from('user_progress')
                 .upsert({
                     user_id: userId,
@@ -691,7 +691,7 @@ class GainzQuest {
 
             // Save exercise weights
             for (const [exerciseName, weight] of Object.entries(this.exerciseWeights)) {
-                await supabase
+                await supabaseClient
                     .from('exercise_weights')
                     .upsert({
                         user_id: userId,
@@ -704,7 +704,7 @@ class GainzQuest {
             // Save weight history
             for (const [exerciseName, history] of Object.entries(this.weightHistory)) {
                 for (const entry of history) {
-                    await supabase
+                    await supabaseClient
                         .from('weight_history')
                         .upsert({
                             user_id: userId,
@@ -719,7 +719,7 @@ class GainzQuest {
             for (const [questId, exercises] of Object.entries(this.setWeights)) {
                 for (const [exerciseIdx, sets] of Object.entries(exercises)) {
                     for (const [setNum, weight] of Object.entries(sets)) {
-                        await supabase
+                        await supabaseClient
                             .from('set_weights')
                             .upsert({
                                 user_id: userId,
@@ -734,7 +734,7 @@ class GainzQuest {
 
             // Save body weight history
             for (const entry of this.bodyWeightHistory) {
-                await supabase
+                await supabaseClient
                     .from('body_weight_history')
                     .upsert({
                         user_id: userId,
@@ -747,7 +747,7 @@ class GainzQuest {
 
             // Save quest set progress
             for (const [questId, progress] of Object.entries(this.questSetProgress)) {
-                await supabase
+                await supabaseClient
                     .from('quest_set_progress')
                     .upsert({
                         user_id: userId,
@@ -760,7 +760,7 @@ class GainzQuest {
             // Save workout customizations
             const workoutCustomizations = JSON.parse(localStorage.getItem('workoutCustomizations') || '{}');
             for (const [templateId, customization] of Object.entries(workoutCustomizations)) {
-                await supabase
+                await supabaseClient
                     .from('workout_customizations')
                     .upsert({
                         user_id: userId,
@@ -773,7 +773,7 @@ class GainzQuest {
             // Save custom exercises
             const customExercises = JSON.parse(localStorage.getItem('customExercises') || '{}');
             for (const [exerciseId, exerciseData] of Object.entries(customExercises)) {
-                await supabase
+                await supabaseClient
                     .from('custom_exercises')
                     .upsert({
                         user_id: userId,
