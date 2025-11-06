@@ -1088,11 +1088,22 @@ class GainzQuest {
 
         // Iterate through all recorded quests
         for (const questId in this.setWeights) {
-            // Parse questId to get level (e.g., "1.1" -> level 1)
-            const level = parseInt(questId.split('.')[0]);
+            // Parse questId to get level (e.g., "1-0" or "1.1" -> level 1)
+            const level = parseInt(questId.split(/[-.]/) [0]);
 
-            // Get the quest to map exercise indices to names
-            const quest = questProgram[level]?.quests.find(q => q.questNumber === questId);
+            // Find the quest data
+            const questData = questProgram[level];
+            if (!questData || !questData.quests) continue;
+
+            // Try to find the specific quest
+            let quest = questData.quests.find(q => q.questNumber === questId);
+
+            // If not found by questNumber, try finding by index (for backwards compatibility)
+            if (!quest) {
+                const questIndex = parseInt(questId.split(/[-.]/) [1]);
+                quest = questData.quests[questIndex];
+            }
+
             if (!quest || !quest.battleSequence) continue;
 
             // Check each exercise in this quest
@@ -1122,6 +1133,19 @@ class GainzQuest {
             if (a.level !== b.level) return a.level - b.level;
             return a.setNum - b.setNum;
         });
+
+        // Fallback to old weightHistory if no per-set data
+        if (dataPoints.length === 0 && this.weightHistory[exerciseName]) {
+            const oldHistory = this.weightHistory[exerciseName];
+            oldHistory.forEach(entry => {
+                dataPoints.push({
+                    label: `L${entry.level}`,
+                    weight: entry.weight,
+                    level: entry.level,
+                    setNum: 0
+                });
+            });
+        }
 
         if (dataPoints.length === 0) {
             alert('No weight history yet for this exercise. Complete a workout first!');
