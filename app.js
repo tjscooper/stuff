@@ -104,6 +104,10 @@ async function loadSeedDataFromSupabase() {
             achievements: achievements.length
         });
 
+        // Generate quest program from loaded seed data
+        questProgram = generateQuestProgram();
+        console.log('✅ Quest program generated for', Object.keys(questProgram).length, 'levels');
+
     } catch (error) {
         console.error('❌ Error loading seed data from Supabase:', error);
         // Fall back to quest-data.js if it exists
@@ -113,6 +117,10 @@ async function loadSeedDataFromSupabase() {
             workoutTemplates = window.workoutTemplates || {};
             questMapping = window.questMapping || {};
             achievements = window.achievements || [];
+
+            // Generate quest program from fallback data
+            questProgram = generateQuestProgram();
+            console.log('✅ Quest program generated from fallback data');
         }
     }
 }
@@ -264,8 +272,8 @@ function isExerciseUsedInTemplates(exerciseId) {
     return false;
 }
 
-// Generate the program
-const questProgram = generateQuestProgram();
+// Quest program - will be generated after seed data loads
+let questProgram = {};
 
 // ==================== ACHIEVEMENTS SYSTEM ====================
 // Achievements are now loaded from Supabase (see loadSeedDataFromSupabase at top of file)
@@ -595,6 +603,10 @@ class GainzQuest {
                 customExercises[ex.exercise_id] = ex.exercise_data_json;
             });
             localStorage.setItem('customExercises', JSON.stringify(customExercises));
+
+            // Regenerate quest program to include user customizations
+            Object.assign(questProgram, generateQuestProgram());
+            console.log('✅ Quest program regenerated with user customizations');
 
         } catch (error) {
             console.error('Error loading from Supabase:', error);
