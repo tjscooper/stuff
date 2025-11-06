@@ -2055,7 +2055,7 @@ class GainzQuest {
 
     exportData() {
         const data = {
-            version: '2.5', // Updated for Supabase cloud sync
+            version: '2.6', // Updated for manual sync feature
             exportDate: new Date().toISOString(),
             data: {
                 currentLevel: this.currentLevel,
