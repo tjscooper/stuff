@@ -1083,9 +1083,47 @@ class GainzQuest {
     // ==================== WEIGHT GRAPH ====================
 
     showWeightGraph(exerciseName) {
-        const history = this.weightHistory[exerciseName] || [];
+        // Build data points from per-set weights
+        const dataPoints = [];
 
-        if (history.length === 0) {
+        // Iterate through all recorded quests
+        for (const questId in this.setWeights) {
+            // Parse questId to get level (e.g., "1.1" -> level 1)
+            const level = parseInt(questId.split('.')[0]);
+
+            // Get the quest to map exercise indices to names
+            const quest = questProgram[level]?.quests.find(q => q.questNumber === questId);
+            if (!quest || !quest.battleSequence) continue;
+
+            // Check each exercise in this quest
+            for (const exerciseIdx in this.setWeights[questId]) {
+                const exercise = quest.battleSequence[parseInt(exerciseIdx)];
+
+                // If this exercise matches the one we're graphing
+                if (exercise && exercise.name === exerciseName) {
+                    // Get all sets for this exercise
+                    const sets = this.setWeights[questId][exerciseIdx];
+
+                    // Add each set as a data point
+                    for (const setNum in sets) {
+                        dataPoints.push({
+                            label: `L${level}-${parseInt(setNum) + 1}`,
+                            weight: sets[setNum],
+                            level: level,
+                            setNum: parseInt(setNum)
+                        });
+                    }
+                }
+            }
+        }
+
+        // Sort by level, then by set number
+        dataPoints.sort((a, b) => {
+            if (a.level !== b.level) return a.level - b.level;
+            return a.setNum - b.setNum;
+        });
+
+        if (dataPoints.length === 0) {
             alert('No weight history yet for this exercise. Complete a workout first!');
             return;
         }
@@ -1094,10 +1132,10 @@ class GainzQuest {
         document.getElementById('graph-modal').classList.add('active');
 
         // Draw the graph
-        setTimeout(() => this.drawWeightGraph(exerciseName, history), 100);
+        setTimeout(() => this.drawWeightGraph(exerciseName, dataPoints), 100);
     }
 
-    drawWeightGraph(exerciseName, history) {
+    drawWeightGraph(exerciseName, dataPoints) {
         const canvas = document.getElementById('weight-graph');
         const ctx = canvas.getContext('2d');
 
@@ -1113,15 +1151,13 @@ class GainzQuest {
         ctx.clearRect(0, 0, width, height);
 
         // Calculate scales
-        const weights = history.map(h => h.weight);
+        const weights = dataPoints.map(d => d.weight);
         const minWeight = Math.max(0, Math.floor(Math.min(...weights) / 10) * 10 - 10);
         const maxWeight = Math.ceil(Math.max(...weights) / 10) * 10 + 10;
-        const levels = history.map(h => h.level);
-        const minLevel = Math.min(...levels);
-        const maxLevel = Math.max(...levels, minLevel + 1); // At least 2 levels spread
+        const numPoints = dataPoints.length;
 
         // Helper functions
-        const getX = (level) => padding + ((level - minLevel) / (maxLevel - minLevel)) * (width - padding * 2);
+        const getX = (index) => padding + (index / (numPoints - 1)) * (width - padding * 2);
         const getY = (weight) => height - padding - ((weight - minWeight) / (maxWeight - minWeight)) * (height - padding * 2);
 
         // Draw grid
@@ -1147,31 +1183,14 @@ class GainzQuest {
             ctx.fillText(weight.toFixed(0) + ' lbs', padding - 10, y + 4);
         }
 
-        // Vertical grid lines (levels)
-        const levelStep = Math.max(1, Math.floor((maxLevel - minLevel) / 6));
-        for (let level = minLevel; level <= maxLevel; level += levelStep) {
-            const x = getX(level);
-
-            ctx.beginPath();
-            ctx.moveTo(x, padding);
-            ctx.lineTo(x, height - padding);
-            ctx.stroke();
-
-            // Level labels
-            ctx.fillStyle = '#94a3b8';
-            ctx.font = '12px Arial';
-            ctx.textAlign = 'center';
-            ctx.fillText('L' + level, x, height - padding + 20);
-        }
-
-        // Draw line
+        // Draw line connecting points
         ctx.setLineDash([]);
         ctx.strokeStyle = '#ec4899';
         ctx.lineWidth = 3;
         ctx.beginPath();
 
-        history.forEach((point, index) => {
-            const x = getX(point.level);
+        dataPoints.forEach((point, index) => {
+            const x = getX(index);
             const y = getY(point.weight);
 
             if (index === 0) {
@@ -1183,9 +1202,9 @@ class GainzQuest {
 
         ctx.stroke();
 
-        // Draw points
-        history.forEach(point => {
-            const x = getX(point.level);
+        // Draw points and labels
+        dataPoints.forEach((point, index) => {
+            const x = getX(index);
             const y = getY(point.weight);
 
             // Outer glow
@@ -1205,10 +1224,20 @@ class GainzQuest {
             ctx.font = 'bold 11px Arial';
             ctx.textAlign = 'center';
             ctx.fillText(point.weight + ' lbs', x, y - 15);
+
+            // Set label below x-axis (L1-1, L1-2, etc)
+            ctx.fillStyle = '#94a3b8';
+            ctx.font = '10px Arial';
+            ctx.textAlign = 'center';
+            ctx.save();
+            ctx.translate(x, height - padding + 15);
+            ctx.rotate(-Math.PI / 4); // 45 degree angle
+            ctx.fillText(point.label, 0, 0);
+            ctx.restore();
         });
 
         // Update stats
-        this.updateGraphStats(exerciseName, history, minWeight, maxWeight);
+        this.updateGraphStats(exerciseName, dataPoints, minWeight, maxWeight);
     }
 
     updateGraphStats(exerciseName, history, minWeight, maxWeight) {
@@ -1234,7 +1263,7 @@ class GainzQuest {
             </div>
             <div class="stat-item">
                 <div class="stat-label">Data Points</div>
-                <div class="stat-value">${history.length} levels</div>
+                <div class="stat-value">${history.length} sets</div>
             </div>
         `;
     }
