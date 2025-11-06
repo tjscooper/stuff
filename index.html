@@ -334,6 +334,14 @@
         </div>
     </div>
 
+    <!-- Supabase Client -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        // Initialize Supabase client
+        const SUPABASE_URL = 'https://wxfspjwixcysbqzhwvxp.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind4ZnNwandpeGN5c2Jxemh3dnhwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI0MDc4MjEsImV4cCI6MjA3Nzk4MzgyMX0.ksgTb-1zuHEDsI46Z_Jq1thnS6XbGzD-0f1Hy3AQivk';
+        const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    </script>
     <script src="quest-data.js"></script>
     <script src="app.js?v=2.4.2"></script>
 </body>
