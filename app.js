@@ -2187,111 +2187,6 @@ class GainzQuest {
         document.getElementById('body-weight-modal').classList.remove('active');
     }
 
-    // ==================== EXPORT/IMPORT DATA ====================
-
-    exportData() {
-        const data = {
-            version: '2.6', // Updated for manual sync feature
-            exportDate: new Date().toISOString(),
-            data: {
-                currentLevel: this.currentLevel,
-                totalXP: this.totalXP,
-                streak: this.streak,
-                completedQuests: Array.from(this.completedQuests),
-                unlockedAchievements: Array.from(this.unlockedAchievements),
-                lastQuestDate: this.lastQuestDate,
-                exerciseWeights: this.exerciseWeights,
-                weightHistory: this.weightHistory,
-                questSetProgress: this.questSetProgress,
-                setWeights: this.setWeights,
-                bodyWeightHistory: this.bodyWeightHistory,
-                workoutCustomizations: JSON.parse(localStorage.getItem('workoutCustomizations') || '{}'),
-                customExercises: JSON.parse(localStorage.getItem('customExercises') || '{}')
-            }
-        };
-
-        const jsonStr = JSON.stringify(data, null, 2);
-        const blob = new Blob([jsonStr], { type: 'application/json' });
-        const url = URL.createObjectURL(blob);
-
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `gainz-quest-backup-${new Date().toISOString().split('T')[0]}.json`;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
-
-        alert('✅ Data exported successfully! Save this file somewhere safe.');
-    }
-
-    importData() {
-        document.getElementById('import-file-input').click();
-    }
-
-    handleImportFile(event) {
-        const file = event.target.files[0];
-        if (!file) return;
-
-        const reader = new FileReader();
-        reader.onload = (e) => {
-            try {
-                const imported = JSON.parse(e.target.result);
-
-                if (!imported.data) {
-                    alert('❌ Invalid backup file format');
-                    return;
-                }
-
-                // Confirm before overwriting
-                if (!confirm('⚠️ This will replace all your current data. Continue?')) {
-                    return;
-                }
-
-                // Restore data
-                const data = imported.data;
-                this.currentLevel = data.currentLevel || 1;
-                this.totalXP = data.totalXP || 0;
-                this.streak = data.streak || 0;
-                this.completedQuests = new Set(data.completedQuests || []);
-                this.unlockedAchievements = new Set(data.unlockedAchievements || []);
-                this.lastQuestDate = data.lastQuestDate;
-                this.exerciseWeights = data.exerciseWeights || {};
-                this.weightHistory = data.weightHistory || {};
-                this.questSetProgress = data.questSetProgress || {};
-                this.setWeights = data.setWeights || {};
-                this.bodyWeightHistory = data.bodyWeightHistory || [];
-
-                // Restore workout customizations (v2.0+)
-                if (data.workoutCustomizations) {
-                    localStorage.setItem('workoutCustomizations', JSON.stringify(data.workoutCustomizations));
-                }
-
-                // Restore custom exercises (v2.1+)
-                if (data.customExercises) {
-                    localStorage.setItem('customExercises', JSON.stringify(data.customExercises));
-                }
-
-                // Regenerate quest program to pick up custom exercises
-                Object.assign(questProgram, generateQuestProgram());
-
-                this.saveState();
-                this.renderStats();
-                this.renderAchievements();
-                this.renderLevel();
-                this.renderBodyWeight();
-
-                alert('✅ Data imported successfully! Your progress has been restored.');
-            } catch (error) {
-                alert('❌ Error reading backup file. Make sure it\'s a valid Gainz Quest backup.');
-                console.error('Import error:', error);
-            }
-        };
-        reader.readAsText(file);
-
-        // Reset file input
-        event.target.value = '';
-    }
 
     // ==================== TIMER FUNCTIONS ====================
 
@@ -2511,22 +2406,6 @@ class GainzQuest {
                     this.logBodyWeight();
                 }
             });
-        }
-
-        // Export/Import listeners
-        const exportBtn = document.getElementById('export-data-btn');
-        if (exportBtn) {
-            exportBtn.addEventListener('click', () => this.exportData());
-        }
-
-        const importBtn = document.getElementById('import-data-btn');
-        if (importBtn) {
-            importBtn.addEventListener('click', () => this.importData());
-        }
-
-        const importFileInput = document.getElementById('import-file-input');
-        if (importFileInput) {
-            importFileInput.addEventListener('change', (e) => this.handleImportFile(e));
         }
 
         // Sync to cloud button
