@@ -1,5 +1,124 @@
+// ==================== SEED DATA CACHE ====================
+// Cache for reference data loaded from Supabase
+let exerciseLibrary = {};
+let workoutTemplates = {};
+let questMapping = {};
+let achievements = [];
+let seedDataLoaded = false;
+
+// Load all seed data from Supabase
+async function loadSeedDataFromSupabase() {
+    if (seedDataLoaded) return; // Already loaded
+    if (typeof supabaseClient === 'undefined') {
+        console.error('Supabase client not available');
+        return;
+    }
+
+    try {
+        console.log('📥 Loading seed data from Supabase...');
+
+        // Load exercises
+        const { data: exercisesData, error: exercisesError } = await supabaseClient
+            .from('exercises')
+            .select('*');
+
+        if (exercisesError) throw exercisesError;
+
+        // Convert to object keyed by id
+        exerciseLibrary = {};
+        exercisesData?.forEach(ex => {
+            exerciseLibrary[ex.id] = {
+                name: ex.name,
+                bodyweight: ex.bodyweight
+            };
+        });
+
+        // Load workout templates
+        const { data: templatesData, error: templatesError } = await supabaseClient
+            .from('workout_templates')
+            .select('*');
+
+        if (templatesError) throw templatesError;
+
+        // Convert to object keyed by id
+        workoutTemplates = {};
+        templatesData?.forEach(t => {
+            workoutTemplates[t.id] = {
+                name: t.name,
+                objective: t.objective,
+                difficulty: t.difficulty,
+                type: t.type || 'strength'
+            };
+
+            // Add structure based on type
+            if (t.type === 'recovery' || t.type === 'zen') {
+                workoutTemplates[t.id].options = t.options || [];
+                workoutTemplates[t.id].notes = t.notes || [];
+            } else {
+                workoutTemplates[t.id].preparation = {
+                    time: t.preparation_time,
+                    activities: t.preparation_activities || []
+                };
+                workoutTemplates[t.id].recovery = {
+                    time: t.recovery_time,
+                    activities: t.recovery_activities || []
+                };
+                workoutTemplates[t.id].restTimer = t.rest_timer;
+                workoutTemplates[t.id].exercises = t.exercises || [];
+            }
+        });
+
+        // Load quest mapping
+        const { data: mappingData, error: mappingError } = await supabaseClient
+            .from('quest_mapping')
+            .select('*')
+            .order('level', { ascending: true })
+            .order('quest_index', { ascending: true });
+
+        if (mappingError) throw mappingError;
+
+        // Build quest mapping object
+        questMapping = {};
+        mappingData?.forEach(m => {
+            if (!questMapping[m.level]) {
+                questMapping[m.level] = [];
+            }
+            questMapping[m.level][m.quest_index] = m.template_id;
+        });
+
+        // Load achievements
+        const { data: achievementsData, error: achievementsError } = await supabaseClient
+            .from('achievements')
+            .select('*')
+            .order('sort_order', { ascending: true });
+
+        if (achievementsError) throw achievementsError;
+
+        achievements = achievementsData || [];
+
+        seedDataLoaded = true;
+        console.log('✅ Seed data loaded:', {
+            exercises: Object.keys(exerciseLibrary).length,
+            templates: Object.keys(workoutTemplates).length,
+            levels: Object.keys(questMapping).length,
+            achievements: achievements.length
+        });
+
+    } catch (error) {
+        console.error('❌ Error loading seed data from Supabase:', error);
+        // Fall back to quest-data.js if it exists
+        if (typeof window.exerciseLibrary !== 'undefined') {
+            console.log('📦 Falling back to quest-data.js');
+            exerciseLibrary = window.exerciseLibrary || {};
+            workoutTemplates = window.workoutTemplates || {};
+            questMapping = window.questMapping || {};
+            achievements = window.achievements || [];
+        }
+    }
+}
+
 // ==================== QUEST PROGRAM GENERATOR ====================
-// Generates quest program from templates (loaded from quest-data.js)
+// Generates quest program from templates (loaded from Supabase)
 
 function generateQuestProgram() {
     const program = {};
@@ -149,19 +268,7 @@ function isExerciseUsedInTemplates(exerciseId) {
 const questProgram = generateQuestProgram();
 
 // ==================== ACHIEVEMENTS SYSTEM ====================
-
-const achievements = [
-    { id: 'first-quest', name: 'First Quest Complete', description: 'Complete your first quest', icon: '⚔️', bonus: 0 },
-    { id: 'level-1', name: 'Level 1 Champion', description: 'Complete all 7 quests in Level 1', icon: '🏅', bonus: 1 },
-    { id: 'level-5', name: 'Rising Warrior', description: 'Reach Level 5', icon: '⭐', bonus: 2 },
-    { id: 'level-10', name: 'Veteran Fighter', description: 'Reach Level 10', icon: '🌟', bonus: 3 },
-    { id: 'level-15', name: 'Elite Champion', description: 'Reach Level 15', icon: '💫', bonus: 5 },
-    { id: 'streak-7', name: 'Week Warrior', description: '7-day quest streak', icon: '🔥', bonus: 2 },
-    { id: 'streak-14', name: 'Fortnight Hero', description: '14-day quest streak', icon: '💪', bonus: 3 },
-    { id: 'streak-30', name: 'Month Legend', description: '30-day quest streak', icon: '👑', bonus: 5 },
-    { id: 'half-way', name: 'Halfway Hero', description: 'Complete Level 12', icon: '🎖️', bonus: 5 },
-    { id: 'ultimate-warrior', name: 'ULTIMATE WARRIOR', description: 'Complete all 24 levels!', icon: '👑', bonus: 10 }
-];
+// Achievements are now loaded from Supabase (see loadSeedDataFromSupabase at top of file)
 
 // ==================== STATE MANAGEMENT ====================
 
@@ -201,6 +308,11 @@ class GainzQuest {
     }
 
     async initializeApp() {
+        // Load seed data from Supabase first
+        if (this.supabaseAvailable) {
+            await loadSeedDataFromSupabase();
+        }
+
         // Check for existing session
         if (this.supabaseAvailable) {
             await this.checkSession();
