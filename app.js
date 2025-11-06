@@ -186,6 +186,8 @@ class GainzQuest {
         this.weightHistory = {};
         // Set progress - stores completed sets per quest
         this.questSetProgress = {};
+        // Per-set weight tracking - stores weight used for each set
+        this.setWeights = {};
         // Body weight tracking - stores array of {date, weight}
         this.bodyWeightHistory = [];
 
@@ -214,6 +216,7 @@ class GainzQuest {
             exerciseWeights: this.exerciseWeights,
             weightHistory: this.weightHistory,
             questSetProgress: this.questSetProgress,
+            setWeights: this.setWeights,
             bodyWeightHistory: this.bodyWeightHistory
         };
         localStorage.setItem('gainzQuestState', JSON.stringify(state));
@@ -232,6 +235,7 @@ class GainzQuest {
             this.exerciseWeights = state.exerciseWeights || {};
             this.weightHistory = state.weightHistory || {};
             this.questSetProgress = state.questSetProgress || {};
+            this.setWeights = state.setWeights || {};
             this.bodyWeightHistory = state.bodyWeightHistory || [];
 
             this.updateStreak();
@@ -477,12 +481,12 @@ class GainzQuest {
                         weightHTML = `
                             <div class="exercise-weight">
                                 <div class="weight-controls">
-                                    <button class="weight-btn weight-minus" data-exercise="${ex.name}">−</button>
+                                    <button class="weight-btn weight-minus" data-exercise="${ex.name}" data-exercise-idx="${exerciseIndex}">−</button>
                                     <div class="weight-display">
-                                        <span class="weight-input" data-exercise="${ex.name}">${currentWeight}</span>
+                                        <span class="weight-value" data-exercise="${ex.name}" data-exercise-idx="${exerciseIndex}">${currentWeight}</span>
                                         <span class="weight-unit">lbs</span>
                                     </div>
-                                    <button class="weight-btn weight-plus" data-exercise="${ex.name}">+</button>
+                                    <button class="weight-btn weight-plus" data-exercise="${ex.name}" data-exercise-idx="${exerciseIndex}">+</button>
                                     <button class="weight-btn weight-graph" data-exercise="${ex.name}" title="View progression graph">📈</button>
                                 </div>
                             </div>
@@ -493,7 +497,7 @@ class GainzQuest {
                         <div class="exercise-sets">
                             ${Array.from({length: numSets}, (_, i) => `
                                 <div class="set-checkbox-wrapper">
-                                    <input type="checkbox" class="set-checkbox" id="set-${exerciseIndex}-${i}" data-exercise="${exerciseIndex}" data-set="${i}">
+                                    <input type="checkbox" class="set-checkbox" id="set-${exerciseIndex}-${i}" data-exercise-idx="${exerciseIndex}" data-exercise-name="${ex.name}" data-set="${i}">
                                     <label class="set-label" for="set-${exerciseIndex}-${i}">${i + 1}</label>
                                 </div>
                             `).join('')}
@@ -543,9 +547,38 @@ class GainzQuest {
                 this.restoreSetProgress(questId);
 
                 document.querySelectorAll('.set-checkbox').forEach(checkbox => {
-                    checkbox.addEventListener('change', () => {
+                    checkbox.addEventListener('change', (e) => {
                         this.updateProgress();
                         this.saveSetProgress();
+
+                        // Capture weight when checkbox is checked (for weighted exercises only)
+                        const exerciseIdx = e.target.dataset.exerciseIdx;
+                        const exerciseName = e.target.dataset.exerciseName;
+                        const setNum = e.target.dataset.set;
+
+                        if (exerciseIdx !== undefined && exerciseName) {
+                            // Get current weight from the weight display
+                            const weightDisplay = document.querySelector(`.weight-value[data-exercise-idx="${exerciseIdx}"]`);
+                            if (weightDisplay) {
+                                const currentWeight = parseFloat(weightDisplay.textContent);
+
+                                // Initialize structures if needed
+                                if (!this.setWeights[this.currentQuestId]) {
+                                    this.setWeights[this.currentQuestId] = {};
+                                }
+                                if (!this.setWeights[this.currentQuestId][exerciseIdx]) {
+                                    this.setWeights[this.currentQuestId][exerciseIdx] = {};
+                                }
+
+                                // Store the weight for this set
+                                this.setWeights[this.currentQuestId][exerciseIdx][setNum] = currentWeight;
+
+                                // Also update weight history
+                                this.recordWeightHistory(exerciseName, currentWeight);
+
+                                this.saveState();
+                            }
+                        }
                     });
                 });
 
@@ -553,14 +586,16 @@ class GainzQuest {
                 document.querySelectorAll('.weight-minus').forEach(btn => {
                     btn.addEventListener('click', (e) => {
                         const exerciseName = e.target.dataset.exercise;
-                        this.changeWeight(exerciseName, -2.5);
+                        const exerciseIdx = e.target.dataset.exerciseIdx;
+                        this.changeWeight(exerciseName, exerciseIdx, -2.5);
                     });
                 });
 
                 document.querySelectorAll('.weight-plus').forEach(btn => {
                     btn.addEventListener('click', (e) => {
                         const exerciseName = e.target.dataset.exercise;
-                        this.changeWeight(exerciseName, 2.5);
+                        const exerciseIdx = e.target.dataset.exerciseIdx;
+                        this.changeWeight(exerciseName, exerciseIdx, 2.5);
                     });
                 });
 
@@ -993,49 +1028,53 @@ class GainzQuest {
         this.exerciseWeights[exerciseName] = weight;
     }
 
+    recordWeightHistory(exerciseName, weight) {
+        // Record weight in history for this level
+        if (!this.weightHistory[exerciseName]) {
+            this.weightHistory[exerciseName] = [];
+        }
+
+        // Check if we already have an entry for this level
+        const existingEntry = this.weightHistory[exerciseName].find(
+            entry => entry.level === this.currentLevel
+        );
+
+        if (existingEntry) {
+            // Update to the latest/heaviest weight for this level
+            existingEntry.weight = Math.max(existingEntry.weight, weight);
+        } else {
+            // Add new entry
+            this.weightHistory[exerciseName].push({
+                level: this.currentLevel,
+                weight: weight
+            });
+        }
+
+        // Sort by level
+        this.weightHistory[exerciseName].sort((a, b) => a.level - b.level);
+    }
+
     saveWeights() {
-        // Read all current weight inputs and save them
-        document.querySelectorAll('.weight-input').forEach(input => {
-            const exerciseName = input.dataset.exercise;
-            const weight = parseFloat(input.textContent);
-            this.exerciseWeights[exerciseName] = weight;
-
-            // Record in history for this level
-            if (!this.weightHistory[exerciseName]) {
-                this.weightHistory[exerciseName] = [];
+        // Read all current weight displays and save them
+        document.querySelectorAll('.weight-value').forEach(display => {
+            const exerciseName = display.dataset.exercise;
+            const weight = parseFloat(display.textContent);
+            if (exerciseName && !isNaN(weight)) {
+                this.exerciseWeights[exerciseName] = weight;
             }
-
-            // Check if we already have an entry for this level
-            const existingEntry = this.weightHistory[exerciseName].find(
-                entry => entry.level === this.currentLevel
-            );
-
-            if (existingEntry) {
-                // Update existing entry
-                existingEntry.weight = weight;
-            } else {
-                // Add new entry
-                this.weightHistory[exerciseName].push({
-                    level: this.currentLevel,
-                    weight: weight
-                });
-            }
-
-            // Sort by level
-            this.weightHistory[exerciseName].sort((a, b) => a.level - b.level);
         });
         this.saveState();
     }
 
-    changeWeight(exerciseName, delta) {
+    changeWeight(exerciseName, exerciseIdx, delta) {
         const currentWeight = this.getExerciseWeight(exerciseName);
         const newWeight = Math.max(0, currentWeight + delta); // Don't go below 0
         this.updateExerciseWeight(exerciseName, newWeight);
 
         // Update the display
-        const input = document.querySelector(`.weight-input[data-exercise="${exerciseName}"]`);
-        if (input) {
-            input.textContent = newWeight;
+        const display = document.querySelector(`.weight-value[data-exercise-idx="${exerciseIdx}"]`);
+        if (display) {
+            display.textContent = newWeight;
         }
 
         this.saveState();
@@ -1427,7 +1466,7 @@ class GainzQuest {
 
     exportData() {
         const data = {
-            version: '2.1', // Updated for exercise library system
+            version: '2.4', // Updated for per-set weight tracking
             exportDate: new Date().toISOString(),
             data: {
                 currentLevel: this.currentLevel,
@@ -1439,6 +1478,7 @@ class GainzQuest {
                 exerciseWeights: this.exerciseWeights,
                 weightHistory: this.weightHistory,
                 questSetProgress: this.questSetProgress,
+                setWeights: this.setWeights,
                 bodyWeightHistory: this.bodyWeightHistory,
                 workoutCustomizations: JSON.parse(localStorage.getItem('workoutCustomizations') || '{}'),
                 customExercises: JSON.parse(localStorage.getItem('customExercises') || '{}')
@@ -1494,6 +1534,7 @@ class GainzQuest {
                 this.exerciseWeights = data.exerciseWeights || {};
                 this.weightHistory = data.weightHistory || {};
                 this.questSetProgress = data.questSetProgress || {};
+                this.setWeights = data.setWeights || {};
                 this.bodyWeightHistory = data.bodyWeightHistory || [];
 
                 // Restore workout customizations (v2.0+)
