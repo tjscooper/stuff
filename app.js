@@ -436,7 +436,7 @@ class GainzQuest {
         if (quest.type === 'recovery' || quest.type === 'zen') {
             timerSection.style.display = 'none';
             progressSection.style.display = 'none';
-            document.getElementById('floating-timer-btn').style.display = 'none';
+            document.getElementById('floating-timer-widget').style.display = 'none';
 
             exercisesDiv.innerHTML = `
                 <div class="quest-objective-big">🎯 ${quest.objective}</div>
@@ -452,7 +452,7 @@ class GainzQuest {
         } else {
             timerSection.style.display = 'block';
             progressSection.style.display = 'block';
-            document.getElementById('floating-timer-btn').style.display = 'block';
+            document.getElementById('floating-timer-widget').style.display = 'block';
             this.resetTimer();
 
             let exerciseIndex = 0;
@@ -1537,7 +1537,11 @@ class GainzQuest {
 
     updateTimerDisplay() {
         const display = document.getElementById('timer-display');
-        display.textContent = this.formatTime(this.timerRemaining);
+        const floatingDisplay = document.getElementById('floating-timer-display');
+        const timeText = this.formatTime(this.timerRemaining);
+
+        display.textContent = timeText;
+        floatingDisplay.textContent = timeText;
 
         // Add visual feedback
         display.classList.remove('warning', 'done');
@@ -1547,9 +1551,10 @@ class GainzQuest {
             display.classList.add('warning');
         }
 
-        // Update progress bar
+        // Update progress bars (main and floating)
         const progress = (this.timerRemaining / this.timerSeconds) * 100;
         document.getElementById('timer-progress').style.width = `${progress}%`;
+        document.getElementById('floating-timer-progress').style.width = `${progress}%`;
     }
 
     startTimer() {
@@ -1562,6 +1567,7 @@ class GainzQuest {
 
         this.timerRunning = true;
         document.getElementById('timer-start').textContent = '⏸ Pause';
+        document.getElementById('floating-timer-start').textContent = '⏸';
 
         this.timerInterval = setInterval(() => {
             this.timerRemaining--;
@@ -1581,6 +1587,7 @@ class GainzQuest {
         }
         this.timerRunning = false;
         document.getElementById('timer-start').textContent = '▶ Start';
+        document.getElementById('floating-timer-start').textContent = '▶';
     }
 
     resetTimer(seconds) {
@@ -1786,9 +1793,28 @@ class GainzQuest {
             exercisesDiv.scrollIntoView({ behavior: 'smooth', block: 'start' });
         });
 
-        document.getElementById('floating-timer-btn').addEventListener('click', () => {
-            const timerSection = document.getElementById('timer-section');
-            timerSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        // Floating timer widget controls
+        document.getElementById('floating-timer-start').addEventListener('click', () => {
+            if (this.timerRunning) {
+                this.stopTimer();
+            } else {
+                this.startTimer();
+            }
+        });
+
+        document.getElementById('floating-timer-reset').addEventListener('click', () => {
+            this.resetTimer();
+        });
+
+        document.querySelectorAll('.floating-preset-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const seconds = parseInt(e.target.dataset.seconds);
+                this.resetTimer(seconds);
+
+                // Visual feedback for selected preset
+                document.querySelectorAll('.floating-preset-btn').forEach(b => b.classList.remove('active'));
+                e.target.classList.add('active');
+            });
         });
 
         document.addEventListener('keydown', (e) => {

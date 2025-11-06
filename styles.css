@@ -1790,48 +1790,123 @@ header h1 {
     transform: translateY(0);
 }
 
-/* Floating Timer Button */
-.floating-timer-btn {
+
+/* Floating Timer Widget */
+.floating-timer-widget {
     position: fixed;
     right: 20px;
     top: 50%;
     transform: translateY(-50%);
-    width: 70px;
-    height: 70px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-    border: 3px solid rgba(255, 255, 255, 0.3);
-    color: white;
-    font-size: 0.85rem;
-    font-weight: bold;
-    cursor: pointer;
-    box-shadow: 0 4px 12px rgba(236, 72, 153, 0.5);
-    transition: all 0.3s ease;
+    width: 140px;
+    background: var(--card-bg);
+    border: 2px solid var(--border-color);
+    border-radius: 12px;
+    padding: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
     z-index: 1001;
     display: none;
-    line-height: 1.2;
-    padding: 5px;
 }
 
-.floating-timer-btn:hover {
-    transform: translateY(-50%) scale(1.1);
-    box-shadow: 0 6px 20px rgba(236, 72, 153, 0.7);
+.floating-timer-header {
+    text-align: center;
+    font-size: 0.75rem;
+    font-weight: bold;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 8px;
 }
 
-.floating-timer-btn:active {
-    transform: translateY(-50%) scale(0.95);
+.floating-timer-display {
+    text-align: center;
+    font-size: 2rem;
+    font-weight: bold;
+    color: var(--primary-color);
+    font-family: 'Courier New', monospace;
+    margin-bottom: 8px;
+    text-shadow: 0 0 10px rgba(236, 72, 153, 0.5);
 }
 
-/* Show floating button when modal is active and timer section exists */
-.modal.active .floating-timer-btn {
+.floating-timer-progress-bar {
+    width: 100%;
+    height: 4px;
+    background: var(--border-color);
+    border-radius: 2px;
+    overflow: hidden;
+    margin-bottom: 10px;
+}
+
+.floating-timer-progress {
+    height: 100%;
+    background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+    transition: width 0.3s ease;
+    width: 100%;
+}
+
+.floating-timer-controls {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 8px;
+}
+
+.floating-timer-btn-small {
+    flex: 1;
+    padding: 8px;
+    background: var(--border-color);
+    border: none;
+    border-radius: 6px;
+    color: var(--text-primary);
+    font-size: 1.2rem;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.floating-timer-btn-small:hover {
+    background: var(--primary-color);
+    transform: scale(1.05);
+}
+
+.floating-timer-presets {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 5px;
+}
+
+.floating-preset-btn {
+    padding: 6px;
+    background: rgba(236, 72, 153, 0.2);
+    border: 1px solid var(--primary-color);
+    border-radius: 6px;
+    color: var(--text-primary);
+    font-size: 0.75rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.floating-preset-btn:hover {
+    background: var(--primary-color);
+    transform: scale(1.05);
+}
+
+.floating-preset-btn.active {
+    background: var(--primary-color);
+    box-shadow: 0 0 10px rgba(236, 72, 153, 0.5);
+}
+
+/* Show floating widget when modal is active */
+.modal.active .floating-timer-widget {
     display: block;
 }
 
 @media (max-width: 768px) {
-    .floating-timer-btn {
-        width: 60px;
-        height: 60px;
-        right: 15px;
-        font-size: 0.75rem;
+    .floating-timer-widget {
+        width: 120px;
+        right: 10px;
+        padding: 10px;
+    }
+
+    .floating-timer-display {
+        font-size: 1.6rem;
     }
 }

@@ -12,7 +12,7 @@
         <header>
             <h1>🎮 24-LEVEL GAINZ QUEST 🎮</h1>
             <p class="subtitle">Level up your fitness, one quest at a time</p>
-            <div class="version">v2.2.4</div>
+            <div class="version">v2.3.0</div>
         </header>
 
         <!-- Stats Dashboard -->
@@ -187,10 +187,24 @@
                 </div>
             </div>
 
-            <!-- Floating Timer Button (outside modal-content to avoid clipping) -->
-            <button class="floating-timer-btn" id="floating-timer-btn" title="Jump to Timer">
-                ⏱️<br>Timer
-            </button>
+            <!-- Floating Timer Widget (outside modal-content to avoid clipping) -->
+            <div class="floating-timer-widget" id="floating-timer-widget">
+                <div class="floating-timer-header">⏱️ REST TIMER</div>
+                <div class="floating-timer-display" id="floating-timer-display">01:30</div>
+                <div class="floating-timer-progress-bar">
+                    <div class="floating-timer-progress" id="floating-timer-progress"></div>
+                </div>
+                <div class="floating-timer-controls">
+                    <button class="floating-timer-btn-small" id="floating-timer-start">▶</button>
+                    <button class="floating-timer-btn-small" id="floating-timer-reset">↺</button>
+                </div>
+                <div class="floating-timer-presets">
+                    <button class="floating-preset-btn" data-seconds="45">45s</button>
+                    <button class="floating-preset-btn" data-seconds="60">60s</button>
+                    <button class="floating-preset-btn" data-seconds="90">90s</button>
+                    <button class="floating-preset-btn" data-seconds="120">2m</button>
+                </div>
+            </div>
         </div>
 
         <!-- Level Up Notification -->
@@ -321,6 +335,6 @@
     </div>
 
     <script src="quest-data.js"></script>
-    <script src="app.js?v=2.2.4"></script>
+    <script src="app.js?v=2.3.0"></script>
 </body>
 </html>
