@@ -435,28 +435,15 @@ class GainzQuest {
     updateAuthUI() {
         const emailSpan = document.getElementById('user-email');
         const authBtn = document.getElementById('auth-btn');
-        const syncBtn = document.getElementById('sync-to-cloud-btn');
 
         if (this.currentUser) {
             emailSpan.textContent = this.currentUser.email;
             authBtn.textContent = 'Logout';
             authBtn.onclick = () => this.logout();
-
-            // Enable sync button when logged in
-            if (syncBtn) {
-                syncBtn.disabled = false;
-                syncBtn.textContent = '☁️ SYNC TO CLOUD';
-            }
         } else {
             emailSpan.textContent = '';
             authBtn.textContent = 'Login';
             authBtn.onclick = () => this.openAuthModal();
-
-            // Disable sync button when not logged in
-            if (syncBtn) {
-                syncBtn.disabled = true;
-                syncBtn.textContent = '🔒 Login Required';
-            }
         }
     }
 
@@ -774,85 +761,6 @@ class GainzQuest {
         }
     }
 
-    async syncAllDataToCloud() {
-        if (!this.currentUser) {
-            this.showSyncStatus('Please log in first', 'error');
-            return;
-        }
-
-        const statusDiv = document.getElementById('sync-status');
-        const btn = document.getElementById('sync-to-cloud-btn');
-
-        try {
-            btn.disabled = true;
-            this.showSyncStatus('🔄 Starting sync...', 'syncing');
-
-            // Step 1: Load all localStorage data
-            this.showSyncStatus('📥 Reading local data...', 'syncing');
-            const localData = localStorage.getItem('gainzQuestState');
-
-            if (localData) {
-                const state = JSON.parse(localData);
-
-                // Load into current state
-                this.currentLevel = state.currentLevel || this.currentLevel;
-                this.totalXP = state.totalXP || this.totalXP;
-                this.streak = state.streak || this.streak;
-                this.completedQuests = new Set(state.completedQuests || Array.from(this.completedQuests));
-                this.unlockedAchievements = new Set(state.unlockedAchievements || Array.from(this.unlockedAchievements));
-                this.lastQuestDate = state.lastQuestDate || this.lastQuestDate;
-                this.exerciseWeights = state.exerciseWeights || this.exerciseWeights;
-                this.weightHistory = state.weightHistory || this.weightHistory;
-                this.questSetProgress = state.questSetProgress || this.questSetProgress;
-                this.setWeights = state.setWeights || this.setWeights;
-                this.bodyWeightHistory = state.bodyWeightHistory || this.bodyWeightHistory;
-            }
-
-            // Step 2: Count data items
-            const dataCount = {
-                progress: 1,
-                weights: Object.keys(this.exerciseWeights).length,
-                history: Object.keys(this.weightHistory).length,
-                setWeights: Object.keys(this.setWeights).length,
-                bodyWeight: this.bodyWeightHistory.length,
-                quests: Object.keys(this.questSetProgress).length,
-                customizations: Object.keys(JSON.parse(localStorage.getItem('workoutCustomizations') || '{}')).length,
-                exercises: Object.keys(JSON.parse(localStorage.getItem('customExercises') || '{}')).length
-            };
-
-            const totalItems = Object.values(dataCount).reduce((a, b) => a + b, 0);
-            this.showSyncStatus(`📊 Found ${totalItems} items to sync...`, 'syncing');
-
-            // Step 3: Sync to Supabase
-            await new Promise(resolve => setTimeout(resolve, 500)); // Brief pause for UX
-            this.showSyncStatus('☁️ Uploading to cloud...', 'syncing');
-            await this.saveToSupabase();
-
-            // Step 4: Success
-            this.showSyncStatus(`✅ Successfully synced ${totalItems} items to cloud!`, 'success');
-
-            // Mark as migrated so auto-migration doesn't run again
-            localStorage.setItem('supabaseMigrated', 'true');
-
-            // Auto-hide success message after 5 seconds
-            setTimeout(() => {
-                statusDiv.className = 'sync-status';
-                statusDiv.textContent = '';
-            }, 5000);
-
-        } catch (error) {
-            console.error('Sync error:', error);
-            this.showSyncStatus(`❌ Sync failed: ${error.message}`, 'error');
-        } finally {
-            btn.disabled = false;
-        }
-    }
-
-    showSyncStatus(message, type) {
-        const statusDiv = document.getElementById('sync-status');
-        statusDiv.textContent = message;
-        statusDiv.className = `sync-status ${type}`;
-    }
 
     // ==================== DATA PERSISTENCE ====================
 
@@ -2406,12 +2314,6 @@ class GainzQuest {
                     this.logBodyWeight();
                 }
             });
-        }
-
-        // Sync to cloud button
-        const syncBtn = document.getElementById('sync-to-cloud-btn');
-        if (syncBtn) {
-            syncBtn.addEventListener('click', () => this.syncAllDataToCloud());
         }
 
         // Timer event listeners
