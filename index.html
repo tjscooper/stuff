@@ -12,7 +12,7 @@
         <header>
             <h1>🎮 24-LEVEL GAINZ QUEST 🎮</h1>
             <p class="subtitle">Level up your fitness, one quest at a time</p>
-            <div class="version">v2.2.3</div>
+            <div class="version">v2.2.4</div>
         </header>
 
         <!-- Stats Dashboard -->
@@ -180,16 +180,17 @@
                     <!-- Exercises will be populated by JS -->
                 </div>
 
-                <!-- Floating Timer Button -->
-                <button class="floating-timer-btn" id="floating-timer-btn" title="Jump to Timer">
-                    ⏱️<br>Timer
-                </button>
                 <div class="modal-actions">
                     <button class="btn btn-secondary" id="cancel-workout">Cancel</button>
                     <button class="btn btn-graph" id="edit-template-btn" style="display: none;">✏️ Edit Workout</button>
                     <button class="btn btn-primary" id="complete-workout">⚔️ Complete Quest (+1 XP)</button>
                 </div>
             </div>
+
+            <!-- Floating Timer Button (outside modal-content to avoid clipping) -->
+            <button class="floating-timer-btn" id="floating-timer-btn" title="Jump to Timer">
+                ⏱️<br>Timer
+            </button>
         </div>
 
         <!-- Level Up Notification -->
@@ -320,6 +321,6 @@
     </div>
 
     <script src="quest-data.js"></script>
-    <script src="app.js?v=2.2.3"></script>
+    <script src="app.js?v=2.2.4"></script>
 </body>
 </html>
