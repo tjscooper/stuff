@@ -229,9 +229,8 @@ class GainzQuest {
 
             if (session) {
                 this.currentUser = session.user;
+                // Load ONLY from Supabase (cloud is source of truth)
                 await this.loadFromSupabase();
-                // Check if we need to migrate localStorage data
-                await this.migrateFromLocalStorage();
             } else {
                 // No session, load from localStorage
                 this.loadState();
@@ -252,13 +251,10 @@ class GainzQuest {
             if (error) throw error;
 
             this.currentUser = data.user;
-            this.showAuthSuccess('Login successful! Syncing data...');
+            this.showAuthSuccess('Login successful! Loading your data...');
 
-            // Load data from Supabase
+            // Load data ONLY from Supabase (cloud is source of truth)
             await this.loadFromSupabase();
-
-            // Check if we need to migrate localStorage data
-            await this.migrateFromLocalStorage();
 
             // Re-render everything
             this.renderStats();
@@ -284,13 +280,13 @@ class GainzQuest {
             if (error) throw error;
 
             this.currentUser = data.user;
-            this.showAuthSuccess('Account created! Check your email to verify.');
+            this.showAuthSuccess('Account created! Use "Sync to Cloud" in settings to upload your data.');
 
-            // Migrate localStorage data to Supabase
-            await this.migrateFromLocalStorage();
+            // Start with empty cloud data (or load if any exists)
+            await this.loadFromSupabase();
 
             this.updateAuthUI();
-            setTimeout(() => this.closeAuthModal(), 2000);
+            setTimeout(() => this.closeAuthModal(), 3000);
 
         } catch (error) {
             this.showAuthError(error.message);
@@ -734,27 +730,31 @@ class GainzQuest {
         statusDiv.className = `sync-status ${type}`;
     }
 
-    // ==================== LOCAL STORAGE ====================
+    // ==================== DATA PERSISTENCE ====================
 
     async saveState() {
-        const state = {
-            currentLevel: this.currentLevel,
-            totalXP: this.totalXP,
-            streak: this.streak,
-            completedQuests: Array.from(this.completedQuests),
-            unlockedAchievements: Array.from(this.unlockedAchievements),
-            lastQuestDate: this.lastQuestDate,
-            exerciseWeights: this.exerciseWeights,
-            weightHistory: this.weightHistory,
-            questSetProgress: this.questSetProgress,
-            setWeights: this.setWeights,
-            bodyWeightHistory: this.bodyWeightHistory
-        };
-        localStorage.setItem('gainzQuestState', JSON.stringify(state));
+        // When logged in: ONLY save to Supabase (cloud is source of truth)
+        // When not logged in: save to localStorage (offline fallback)
 
-        // Also sync to Supabase if user is logged in
         if (this.currentUser && this.supabaseAvailable) {
+            // Logged in: Save ONLY to Supabase
             await this.saveToSupabase();
+        } else {
+            // Not logged in: Save to localStorage
+            const state = {
+                currentLevel: this.currentLevel,
+                totalXP: this.totalXP,
+                streak: this.streak,
+                completedQuests: Array.from(this.completedQuests),
+                unlockedAchievements: Array.from(this.unlockedAchievements),
+                lastQuestDate: this.lastQuestDate,
+                exerciseWeights: this.exerciseWeights,
+                weightHistory: this.weightHistory,
+                questSetProgress: this.questSetProgress,
+                setWeights: this.setWeights,
+                bodyWeightHistory: this.bodyWeightHistory
+            };
+            localStorage.setItem('gainzQuestState', JSON.stringify(state));
         }
     }
 
@@ -1327,6 +1327,9 @@ class GainzQuest {
         // Re-render current level
         this.renderLevel();
 
+        // Sync to cloud if logged in
+        this.saveState();
+
         alert('✅ Template saved! Changes apply to all levels using this workout.');
         this.closeTemplateEditor();
     }
@@ -1343,6 +1346,9 @@ class GainzQuest {
 
         // Re-render current level
         this.renderLevel();
+
+        // Sync to cloud if logged in
+        this.saveState();
 
         alert('✅ Template reset to default!');
         this.closeTemplateEditor();
@@ -1492,6 +1498,9 @@ class GainzQuest {
         // Re-render current level
         this.renderLevel();
 
+        // Sync to cloud if logged in
+        this.saveState();
+
         alert(`✅ Exercise "${exerciseName}" saved!`);
         this.closeExerciseEdit();
         this.renderExerciseLibrary();
@@ -1523,6 +1532,9 @@ class GainzQuest {
         // Re-render
         this.renderLevel();
         this.renderExerciseLibrary();
+
+        // Sync to cloud if logged in
+        this.saveState();
 
         alert('✅ Exercise deleted!');
     }
