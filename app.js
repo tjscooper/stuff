@@ -435,15 +435,37 @@ class GainzQuest {
     updateAuthUI() {
         const emailSpan = document.getElementById('user-email');
         const authBtn = document.getElementById('auth-btn');
+        const avatarText = authBtn?.querySelector('.avatar-text');
+        const avatarIcon = authBtn?.querySelector('.avatar-icon');
 
         if (this.currentUser) {
-            emailSpan.textContent = this.currentUser.email;
-            authBtn.textContent = 'Logout';
-            authBtn.onclick = () => this.logout();
+            // Show email
+            if (emailSpan) {
+                emailSpan.textContent = this.currentUser.email;
+                emailSpan.classList.add('show');
+            }
+
+            // Update button for logged-in state
+            if (authBtn) {
+                authBtn.classList.add('logged-in');
+                if (avatarText) avatarText.textContent = 'Logout';
+                if (avatarIcon) avatarIcon.textContent = '👋';
+                authBtn.onclick = () => this.logout();
+            }
         } else {
-            emailSpan.textContent = '';
-            authBtn.textContent = 'Login';
-            authBtn.onclick = () => this.openAuthModal();
+            // Hide email
+            if (emailSpan) {
+                emailSpan.textContent = '';
+                emailSpan.classList.remove('show');
+            }
+
+            // Update button for logged-out state
+            if (authBtn) {
+                authBtn.classList.remove('logged-in');
+                if (avatarText) avatarText.textContent = 'Login';
+                if (avatarIcon) avatarIcon.textContent = '👤';
+                authBtn.onclick = () => this.openAuthModal();
+            }
         }
     }
 
