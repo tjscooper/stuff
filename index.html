@@ -7,8 +7,8 @@
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <!-- Fixed Top Navigation -->
-    <nav class="top-nav">
+    <!-- Fixed Top Navigation (hidden until logged in) -->
+    <nav class="top-nav" id="top-nav" style="display: none;">
         <div class="nav-left">
             <span class="app-title">GAINZ QUEST</span>
             <span class="version-badge">v2.7.0</span>
@@ -16,14 +16,42 @@
         <div class="nav-right">
             <div class="user-menu">
                 <span id="user-email" class="user-email-nav"></span>
-                <button class="user-avatar-btn" id="auth-btn">
-                    <span class="avatar-icon">👤</span>
-                    <span class="avatar-text">Login</span>
+                <button class="user-avatar-btn logged-in" id="logout-btn">
+                    <span class="avatar-icon">👋</span>
+                    <span class="avatar-text">Logout</span>
                 </button>
             </div>
         </div>
     </nav>
 
+    <!-- Auth Modal (shown by default if not logged in) -->
+    <div class="modal auth-wall" id="auth-modal">
+        <div class="modal-content modal-small">
+            <h2 id="auth-title">🔐 Login to GAINZ QUEST</h2>
+            <p class="auth-info">Sign in to access your workout program</p>
+
+            <div class="form-group">
+                <label for="auth-email">Email:</label>
+                <input type="email" id="auth-email" class="form-input" placeholder="your@email.com" required>
+            </div>
+
+            <div class="form-group">
+                <label for="auth-password">Password:</label>
+                <input type="password" id="auth-password" class="form-input" placeholder="••••••••" required>
+            </div>
+
+            <div id="auth-error" class="auth-error"></div>
+            <div id="auth-success" class="auth-success"></div>
+
+            <div class="modal-actions">
+                <button class="btn btn-primary" id="auth-submit">Login</button>
+                <button class="btn btn-secondary" id="auth-toggle">Need an account? Sign up</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- App Content (hidden until logged in) -->
+    <div class="app-content" id="app-content" style="display: none;">
     <div class="container">
         <!-- Header Section -->
         <header>
@@ -362,6 +390,8 @@
             </div>
         </div>
     </div>
+    </div> <!-- End container -->
+    </div> <!-- End app-content -->
 
     <!-- Supabase Client -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>

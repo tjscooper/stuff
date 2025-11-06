@@ -806,6 +806,18 @@ header h1 {
     padding-bottom: 40px;
 }
 
+/* Login wall - always visible until user logs in */
+.modal.auth-wall {
+    display: flex !important;
+    justify-content: center;
+    align-items: center;
+    pointer-events: all;
+}
+
+.modal.auth-wall .modal-content {
+    pointer-events: all;
+}
+
 .modal-content {
     background: var(--card-bg);
     border-radius: 16px;

@@ -351,13 +351,15 @@ class GainzQuest {
                 this.currentUser = session.user;
                 // Load ONLY from Supabase (cloud is source of truth)
                 await this.loadFromSupabase();
+                // Show app since user is logged in
+                this.showApp();
             } else {
-                // No session, load from localStorage
-                this.loadState();
+                // No session, keep login wall visible
+                this.hideApp();
             }
         } catch (error) {
             console.error('Session check error:', error);
-            this.loadState(); // Fallback to localStorage
+            this.hideApp(); // Show login wall on error
         }
     }
 
@@ -383,7 +385,11 @@ class GainzQuest {
             this.renderBodyWeight();
             this.updateAuthUI();
 
-            setTimeout(() => this.closeAuthModal(), 1500);
+            // Show app and close auth modal
+            setTimeout(() => {
+                this.showApp();
+                this.clearAuthMessages();
+            }, 1500);
 
         } catch (error) {
             this.showAuthError(error.message);
@@ -400,13 +406,18 @@ class GainzQuest {
             if (error) throw error;
 
             this.currentUser = data.user;
-            this.showAuthSuccess('Account created! Use "Sync to Cloud" in settings to upload your data.');
+            this.showAuthSuccess('Account created! Check your email to confirm.');
 
             // Start with empty cloud data (or load if any exists)
             await this.loadFromSupabase();
 
             this.updateAuthUI();
-            setTimeout(() => this.closeAuthModal(), 3000);
+
+            // Show app and close auth modal
+            setTimeout(() => {
+                this.showApp();
+                this.clearAuthMessages();
+            }, 3000);
 
         } catch (error) {
             this.showAuthError(error.message);
@@ -418,23 +429,49 @@ class GainzQuest {
             await supabaseClient.auth.signOut();
             this.currentUser = null;
 
-            // Clear current data and reload from localStorage
-            this.loadState();
-            this.renderStats();
-            this.renderAchievements();
-            this.renderLevel();
-            this.renderBodyWeight();
+            // Hide app and show login wall
+            this.hideApp();
             this.updateAuthUI();
 
-            alert('✅ Logged out successfully');
+            // Clear auth messages
+            this.clearAuthMessages();
+
         } catch (error) {
             console.error('Logout error:', error);
         }
     }
 
+    showApp() {
+        // Show navigation and app content
+        const topNav = document.getElementById('top-nav');
+        const appContent = document.getElementById('app-content');
+        const authModal = document.getElementById('auth-modal');
+
+        if (topNav) topNav.style.display = 'flex';
+        if (appContent) appContent.style.display = 'block';
+        if (authModal) {
+            authModal.classList.remove('auth-wall');
+            authModal.classList.remove('active');
+        }
+    }
+
+    hideApp() {
+        // Hide navigation and app content, show auth modal
+        const topNav = document.getElementById('top-nav');
+        const appContent = document.getElementById('app-content');
+        const authModal = document.getElementById('auth-modal');
+
+        if (topNav) topNav.style.display = 'none';
+        if (appContent) appContent.style.display = 'none';
+        if (authModal) {
+            authModal.classList.add('auth-wall');
+            authModal.classList.add('active');
+        }
+    }
+
     updateAuthUI() {
         const emailSpan = document.getElementById('user-email');
-        const authBtn = document.getElementById('auth-btn');
+        const authBtn = document.getElementById('logout-btn');
         const avatarText = authBtn?.querySelector('.avatar-text');
         const avatarIcon = authBtn?.querySelector('.avatar-icon');
 
@@ -474,8 +511,10 @@ class GainzQuest {
     }
 
     closeAuthModal() {
-        document.getElementById('auth-modal').classList.remove('active');
-        this.clearAuthMessages();
+        // Only allow closing modal if user is logged in
+        if (this.currentUser) {
+            this.showApp();
+        }
     }
 
     showAuthError(message) {
@@ -506,7 +545,7 @@ class GainzQuest {
             const userId = this.currentUser.id;
 
             // Load user progress
-            const { data: progress } = await supabase
+            const { data: progress } = await supabaseClient
                 .from('user_progress')
                 .select('*')
                 .eq('user_id', userId)
@@ -522,7 +561,7 @@ class GainzQuest {
             }
 
             // Load exercise weights
-            const { data: weights } = await supabase
+            const { data: weights } = await supabaseClient
                 .from('exercise_weights')
                 .select('*')
                 .eq('user_id', userId);
@@ -533,7 +572,7 @@ class GainzQuest {
             });
 
             // Load weight history
-            const { data: history } = await supabase
+            const { data: history } = await supabaseClient
                 .from('weight_history')
                 .select('*')
                 .eq('user_id', userId);
@@ -550,7 +589,7 @@ class GainzQuest {
             });
 
             // Load set weights
-            const { data: setWeights } = await supabase
+            const { data: setWeights } = await supabaseClient
                 .from('set_weights')
                 .select('*')
                 .eq('user_id', userId);
@@ -567,7 +606,7 @@ class GainzQuest {
             });
 
             // Load body weight history
-            const { data: bodyWeight } = await supabase
+            const { data: bodyWeight } = await supabaseClient
                 .from('body_weight_history')
                 .select('*')
                 .eq('user_id', userId)
@@ -579,7 +618,7 @@ class GainzQuest {
             })) || [];
 
             // Load quest set progress
-            const { data: questProgress } = await supabase
+            const { data: questProgress } = await supabaseClient
                 .from('quest_set_progress')
                 .select('*')
                 .eq('user_id', userId);
@@ -590,7 +629,7 @@ class GainzQuest {
             });
 
             // Load workout customizations
-            const { data: customizations } = await supabase
+            const { data: customizations } = await supabaseClient
                 .from('workout_customizations')
                 .select('*')
                 .eq('user_id', userId);
@@ -602,7 +641,7 @@ class GainzQuest {
             localStorage.setItem('workoutCustomizations', JSON.stringify(workoutCustomizations));
 
             // Load custom exercises
-            const { data: exercises } = await supabase
+            const { data: exercises } = await supabaseClient
                 .from('custom_exercises')
                 .select('*')
                 .eq('user_id', userId);
