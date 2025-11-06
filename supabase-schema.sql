@@ -99,90 +99,91 @@ ALTER TABLE workout_customizations ENABLE ROW LEVEL SECURITY;
 ALTER TABLE custom_exercises ENABLE ROW LEVEL SECURITY;
 
 -- Create policies: users can only access their own data
--- Note: We're using a client-side generated user_id for anonymous auth
+-- auth.uid() returns the authenticated user's UUID from Supabase Auth
+-- We cast it to TEXT since our user_id columns are TEXT type
 
 -- user_progress policies
 CREATE POLICY "Users can view own progress" ON user_progress
-    FOR SELECT USING (true);
+    FOR SELECT USING (user_id = auth.uid()::text);
 
 CREATE POLICY "Users can insert own progress" ON user_progress
-    FOR INSERT WITH CHECK (true);
+    FOR INSERT WITH CHECK (user_id = auth.uid()::text);
 
 CREATE POLICY "Users can update own progress" ON user_progress
-    FOR UPDATE USING (true);
+    FOR UPDATE USING (user_id = auth.uid()::text);
 
 -- exercise_weights policies
 CREATE POLICY "Users can view own weights" ON exercise_weights
-    FOR SELECT USING (true);
+    FOR SELECT USING (user_id = auth.uid()::text);
 
 CREATE POLICY "Users can insert own weights" ON exercise_weights
-    FOR INSERT WITH CHECK (true);
+    FOR INSERT WITH CHECK (user_id = auth.uid()::text);
 
 CREATE POLICY "Users can update own weights" ON exercise_weights
-    FOR UPDATE USING (true);
+    FOR UPDATE USING (user_id = auth.uid()::text);
 
 -- weight_history policies
 CREATE POLICY "Users can view own history" ON weight_history
-    FOR SELECT USING (true);
+    FOR SELECT USING (user_id = auth.uid()::text);
 
 CREATE POLICY "Users can insert own history" ON weight_history
-    FOR INSERT WITH CHECK (true);
+    FOR INSERT WITH CHECK (user_id = auth.uid()::text);
 
 CREATE POLICY "Users can update own history" ON weight_history
-    FOR UPDATE USING (true);
+    FOR UPDATE USING (user_id = auth.uid()::text);
 
 -- set_weights policies
 CREATE POLICY "Users can view own set weights" ON set_weights
-    FOR SELECT USING (true);
+    FOR SELECT USING (user_id = auth.uid()::text);
 
 CREATE POLICY "Users can insert own set weights" ON set_weights
-    FOR INSERT WITH CHECK (true);
+    FOR INSERT WITH CHECK (user_id = auth.uid()::text);
 
 CREATE POLICY "Users can update own set weights" ON set_weights
-    FOR UPDATE USING (true);
+    FOR UPDATE USING (user_id = auth.uid()::text);
 
 -- quest_set_progress policies
 CREATE POLICY "Users can view own quest progress" ON quest_set_progress
-    FOR SELECT USING (true);
+    FOR SELECT USING (user_id = auth.uid()::text);
 
 CREATE POLICY "Users can insert own quest progress" ON quest_set_progress
-    FOR INSERT WITH CHECK (true);
+    FOR INSERT WITH CHECK (user_id = auth.uid()::text);
 
 CREATE POLICY "Users can update own quest progress" ON quest_set_progress
-    FOR UPDATE USING (true);
+    FOR UPDATE USING (user_id = auth.uid()::text);
 
 -- body_weight_history policies
 CREATE POLICY "Users can view own body weight" ON body_weight_history
-    FOR SELECT USING (true);
+    FOR SELECT USING (user_id = auth.uid()::text);
 
 CREATE POLICY "Users can insert own body weight" ON body_weight_history
-    FOR INSERT WITH CHECK (true);
+    FOR INSERT WITH CHECK (user_id = auth.uid()::text);
 
 -- workout_customizations policies
 CREATE POLICY "Users can view own customizations" ON workout_customizations
-    FOR SELECT USING (true);
+    FOR SELECT USING (user_id = auth.uid()::text);
 
 CREATE POLICY "Users can insert own customizations" ON workout_customizations
-    FOR INSERT WITH CHECK (true);
+    FOR INSERT WITH CHECK (user_id = auth.uid()::text);
 
 CREATE POLICY "Users can update own customizations" ON workout_customizations
-    FOR UPDATE USING (true);
+    FOR UPDATE USING (user_id = auth.uid()::text);
 
 CREATE POLICY "Users can delete own customizations" ON workout_customizations
-    FOR DELETE USING (true);
+    FOR DELETE USING (user_id = auth.uid()::text);
 
 -- custom_exercises policies
 CREATE POLICY "Users can view own exercises" ON custom_exercises
-    FOR SELECT USING (true);
+    FOR SELECT USING (user_id = auth.uid()::text);
 
 CREATE POLICY "Users can insert own exercises" ON custom_exercises
-    FOR INSERT WITH CHECK (true);
+    FOR INSERT WITH CHECK (user_id = auth.uid()::text);
 
 CREATE POLICY "Users can update own exercises" ON custom_exercises
-    FOR UPDATE USING (true);
+    FOR UPDATE USING (user_id = auth.uid()::text);
 
 CREATE POLICY "Users can delete own exercises" ON custom_exercises
-    FOR DELETE USING (true);
+    FOR DELETE USING (user_id = auth.uid()::text);
 
 -- ==================== INDEXES ====================
 -- Create indexes for better query performance
