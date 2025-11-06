@@ -687,6 +687,8 @@ class GainzQuest {
                     unlocked_achievements: Array.from(this.unlockedAchievements),
                     last_quest_date: this.lastQuestDate,
                     updated_at: new Date().toISOString()
+                }, {
+                    onConflict: 'user_id'
                 });
 
             // Save exercise weights
@@ -698,6 +700,8 @@ class GainzQuest {
                         exercise_name: exerciseName,
                         current_weight: weight,
                         updated_at: new Date().toISOString()
+                    }, {
+                        onConflict: 'user_id,exercise_name'
                     });
             }
 
@@ -711,6 +715,8 @@ class GainzQuest {
                             exercise_name: exerciseName,
                             level: entry.level,
                             weight: entry.weight
+                        }, {
+                            onConflict: 'user_id,exercise_name,level'
                         });
                 }
             }
@@ -727,6 +733,8 @@ class GainzQuest {
                                 exercise_idx: parseInt(exerciseIdx),
                                 set_num: parseInt(setNum),
                                 weight: weight
+                            }, {
+                                onConflict: 'user_id,quest_id,exercise_idx,set_num'
                             });
                     }
                 }
@@ -754,6 +762,8 @@ class GainzQuest {
                         quest_id: questId,
                         progress: progress,
                         updated_at: new Date().toISOString()
+                    }, {
+                        onConflict: 'user_id,quest_id'
                     });
             }
 
@@ -767,6 +777,8 @@ class GainzQuest {
                         template_id: templateId,
                         customization_json: customization,
                         updated_at: new Date().toISOString()
+                    }, {
+                        onConflict: 'user_id,template_id'
                     });
             }
 
@@ -779,6 +791,8 @@ class GainzQuest {
                         user_id: userId,
                         exercise_id: exerciseId,
                         exercise_data_json: exerciseData
+                    }, {
+                        onConflict: 'user_id,exercise_id'
                     });
             }
 
