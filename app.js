@@ -365,12 +365,19 @@ class GainzQuest {
 
     async login(email, password) {
         try {
+            console.log('Attempting login for:', email);
+
             const { data, error } = await supabaseClient.auth.signInWithPassword({
                 email,
                 password
             });
 
-            if (error) throw error;
+            if (error) {
+                console.error('Login error:', error);
+                throw error;
+            }
+
+            console.log('Login successful:', data.user.email);
 
             this.currentUser = data.user;
             this.showAuthSuccess('Login successful! Loading your data...');
@@ -392,7 +399,8 @@ class GainzQuest {
             }, 1500);
 
         } catch (error) {
-            this.showAuthError(error.message);
+            console.error('Login failed:', error);
+            this.showAuthError(error.message || 'Login failed. Please check your credentials.');
         }
     }
 
@@ -2579,8 +2587,11 @@ class GainzQuest {
         const authSubmitBtn = document.getElementById('auth-submit');
         if (authSubmitBtn) {
             authSubmitBtn.addEventListener('click', async () => {
+                console.log('Auth submit button clicked, mode:', this.isAuthMode);
                 const email = document.getElementById('auth-email').value.trim();
                 const password = document.getElementById('auth-password').value;
+
+                console.log('Email:', email, 'Password length:', password?.length);
 
                 if (!email || !password) {
                     this.showAuthError('Please enter both email and password');
