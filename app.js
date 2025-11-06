@@ -191,7 +191,24 @@ class GainzQuest {
         // Body weight tracking - stores array of {date, weight}
         this.bodyWeightHistory = [];
 
-        this.loadState();
+        // Auth state
+        this.currentUser = null;
+        this.isAuthMode = 'login'; // 'login' or 'signup'
+        this.supabaseAvailable = typeof supabase !== 'undefined';
+
+        // Initialize app
+        this.initializeApp();
+    }
+
+    async initializeApp() {
+        // Check for existing session
+        if (this.supabaseAvailable) {
+            await this.checkSession();
+        } else {
+            // Fallback to localStorage only
+            this.loadState();
+        }
+
         this.init();
     }
 
@@ -201,11 +218,432 @@ class GainzQuest {
         this.renderLevel();
         this.renderBodyWeight();
         this.setupEventListeners();
+        this.updateAuthUI();
+    }
+
+    // ==================== AUTHENTICATION ====================
+
+    async checkSession() {
+        try {
+            const { data: { session } } = await supabase.auth.getSession();
+
+            if (session) {
+                this.currentUser = session.user;
+                await this.loadFromSupabase();
+                // Check if we need to migrate localStorage data
+                await this.migrateFromLocalStorage();
+            } else {
+                // No session, load from localStorage
+                this.loadState();
+            }
+        } catch (error) {
+            console.error('Session check error:', error);
+            this.loadState(); // Fallback to localStorage
+        }
+    }
+
+    async login(email, password) {
+        try {
+            const { data, error } = await supabase.auth.signInWithPassword({
+                email,
+                password
+            });
+
+            if (error) throw error;
+
+            this.currentUser = data.user;
+            this.showAuthSuccess('Login successful! Syncing data...');
+
+            // Load data from Supabase
+            await this.loadFromSupabase();
+
+            // Check if we need to migrate localStorage data
+            await this.migrateFromLocalStorage();
+
+            // Re-render everything
+            this.renderStats();
+            this.renderAchievements();
+            this.renderLevel();
+            this.renderBodyWeight();
+            this.updateAuthUI();
+
+            setTimeout(() => this.closeAuthModal(), 1500);
+
+        } catch (error) {
+            this.showAuthError(error.message);
+        }
+    }
+
+    async signup(email, password) {
+        try {
+            const { data, error } = await supabase.auth.signUp({
+                email,
+                password
+            });
+
+            if (error) throw error;
+
+            this.currentUser = data.user;
+            this.showAuthSuccess('Account created! Check your email to verify.');
+
+            // Migrate localStorage data to Supabase
+            await this.migrateFromLocalStorage();
+
+            this.updateAuthUI();
+            setTimeout(() => this.closeAuthModal(), 2000);
+
+        } catch (error) {
+            this.showAuthError(error.message);
+        }
+    }
+
+    async logout() {
+        try {
+            await supabase.auth.signOut();
+            this.currentUser = null;
+
+            // Clear current data and reload from localStorage
+            this.loadState();
+            this.renderStats();
+            this.renderAchievements();
+            this.renderLevel();
+            this.renderBodyWeight();
+            this.updateAuthUI();
+
+            alert('✅ Logged out successfully');
+        } catch (error) {
+            console.error('Logout error:', error);
+        }
+    }
+
+    updateAuthUI() {
+        const emailSpan = document.getElementById('user-email');
+        const authBtn = document.getElementById('auth-btn');
+
+        if (this.currentUser) {
+            emailSpan.textContent = this.currentUser.email;
+            authBtn.textContent = 'Logout';
+            authBtn.onclick = () => this.logout();
+        } else {
+            emailSpan.textContent = '';
+            authBtn.textContent = 'Login';
+            authBtn.onclick = () => this.openAuthModal();
+        }
+    }
+
+    openAuthModal() {
+        document.getElementById('auth-modal').classList.add('active');
+    }
+
+    closeAuthModal() {
+        document.getElementById('auth-modal').classList.remove('active');
+        this.clearAuthMessages();
+    }
+
+    showAuthError(message) {
+        const errorDiv = document.getElementById('auth-error');
+        errorDiv.textContent = message;
+        errorDiv.classList.add('show');
+        document.getElementById('auth-success').classList.remove('show');
+    }
+
+    showAuthSuccess(message) {
+        const successDiv = document.getElementById('auth-success');
+        successDiv.textContent = message;
+        successDiv.classList.add('show');
+        document.getElementById('auth-error').classList.remove('show');
+    }
+
+    clearAuthMessages() {
+        document.getElementById('auth-error').classList.remove('show');
+        document.getElementById('auth-success').classList.remove('show');
+    }
+
+    // ==================== SUPABASE SYNC ====================
+
+    async loadFromSupabase() {
+        if (!this.currentUser) return;
+
+        try {
+            const userId = this.currentUser.id;
+
+            // Load user progress
+            const { data: progress } = await supabase
+                .from('user_progress')
+                .select('*')
+                .eq('user_id', userId)
+                .single();
+
+            if (progress) {
+                this.currentLevel = progress.current_level;
+                this.totalXP = progress.total_xp;
+                this.streak = progress.streak;
+                this.completedQuests = new Set(progress.completed_quests || []);
+                this.unlockedAchievements = new Set(progress.unlocked_achievements || []);
+                this.lastQuestDate = progress.last_quest_date;
+            }
+
+            // Load exercise weights
+            const { data: weights } = await supabase
+                .from('exercise_weights')
+                .select('*')
+                .eq('user_id', userId);
+
+            this.exerciseWeights = {};
+            weights?.forEach(w => {
+                this.exerciseWeights[w.exercise_name] = w.current_weight;
+            });
+
+            // Load weight history
+            const { data: history } = await supabase
+                .from('weight_history')
+                .select('*')
+                .eq('user_id', userId);
+
+            this.weightHistory = {};
+            history?.forEach(h => {
+                if (!this.weightHistory[h.exercise_name]) {
+                    this.weightHistory[h.exercise_name] = [];
+                }
+                this.weightHistory[h.exercise_name].push({
+                    level: h.level,
+                    weight: h.weight
+                });
+            });
+
+            // Load set weights
+            const { data: setWeights } = await supabase
+                .from('set_weights')
+                .select('*')
+                .eq('user_id', userId);
+
+            this.setWeights = {};
+            setWeights?.forEach(sw => {
+                if (!this.setWeights[sw.quest_id]) {
+                    this.setWeights[sw.quest_id] = {};
+                }
+                if (!this.setWeights[sw.quest_id][sw.exercise_idx]) {
+                    this.setWeights[sw.quest_id][sw.exercise_idx] = {};
+                }
+                this.setWeights[sw.quest_id][sw.exercise_idx][sw.set_num] = sw.weight;
+            });
+
+            // Load body weight history
+            const { data: bodyWeight } = await supabase
+                .from('body_weight_history')
+                .select('*')
+                .eq('user_id', userId)
+                .order('recorded_at', { ascending: true });
+
+            this.bodyWeightHistory = bodyWeight?.map(bw => ({
+                date: bw.recorded_at,
+                weight: bw.weight
+            })) || [];
+
+            // Load quest set progress
+            const { data: questProgress } = await supabase
+                .from('quest_set_progress')
+                .select('*')
+                .eq('user_id', userId);
+
+            this.questSetProgress = {};
+            questProgress?.forEach(qp => {
+                this.questSetProgress[qp.quest_id] = qp.progress;
+            });
+
+            // Load workout customizations
+            const { data: customizations } = await supabase
+                .from('workout_customizations')
+                .select('*')
+                .eq('user_id', userId);
+
+            const workoutCustomizations = {};
+            customizations?.forEach(c => {
+                workoutCustomizations[c.template_id] = c.customization_json;
+            });
+            localStorage.setItem('workoutCustomizations', JSON.stringify(workoutCustomizations));
+
+            // Load custom exercises
+            const { data: exercises } = await supabase
+                .from('custom_exercises')
+                .select('*')
+                .eq('user_id', userId);
+
+            const customExercises = {};
+            exercises?.forEach(ex => {
+                customExercises[ex.exercise_id] = ex.exercise_data_json;
+            });
+            localStorage.setItem('customExercises', JSON.stringify(customExercises));
+
+        } catch (error) {
+            console.error('Error loading from Supabase:', error);
+        }
+    }
+
+    async saveToSupabase() {
+        if (!this.currentUser) return;
+
+        try {
+            const userId = this.currentUser.id;
+
+            // Save user progress
+            await supabase
+                .from('user_progress')
+                .upsert({
+                    user_id: userId,
+                    current_level: this.currentLevel,
+                    total_xp: this.totalXP,
+                    streak: this.streak,
+                    completed_quests: Array.from(this.completedQuests),
+                    unlocked_achievements: Array.from(this.unlockedAchievements),
+                    last_quest_date: this.lastQuestDate,
+                    updated_at: new Date().toISOString()
+                });
+
+            // Save exercise weights
+            for (const [exerciseName, weight] of Object.entries(this.exerciseWeights)) {
+                await supabase
+                    .from('exercise_weights')
+                    .upsert({
+                        user_id: userId,
+                        exercise_name: exerciseName,
+                        current_weight: weight,
+                        updated_at: new Date().toISOString()
+                    });
+            }
+
+            // Save weight history
+            for (const [exerciseName, history] of Object.entries(this.weightHistory)) {
+                for (const entry of history) {
+                    await supabase
+                        .from('weight_history')
+                        .upsert({
+                            user_id: userId,
+                            exercise_name: exerciseName,
+                            level: entry.level,
+                            weight: entry.weight
+                        });
+                }
+            }
+
+            // Save set weights
+            for (const [questId, exercises] of Object.entries(this.setWeights)) {
+                for (const [exerciseIdx, sets] of Object.entries(exercises)) {
+                    for (const [setNum, weight] of Object.entries(sets)) {
+                        await supabase
+                            .from('set_weights')
+                            .upsert({
+                                user_id: userId,
+                                quest_id: questId,
+                                exercise_idx: parseInt(exerciseIdx),
+                                set_num: parseInt(setNum),
+                                weight: weight
+                            });
+                    }
+                }
+            }
+
+            // Save body weight history
+            for (const entry of this.bodyWeightHistory) {
+                await supabase
+                    .from('body_weight_history')
+                    .upsert({
+                        user_id: userId,
+                        weight: entry.weight,
+                        recorded_at: entry.date
+                    }, {
+                        onConflict: 'user_id,recorded_at'
+                    });
+            }
+
+            // Save quest set progress
+            for (const [questId, progress] of Object.entries(this.questSetProgress)) {
+                await supabase
+                    .from('quest_set_progress')
+                    .upsert({
+                        user_id: userId,
+                        quest_id: questId,
+                        progress: progress,
+                        updated_at: new Date().toISOString()
+                    });
+            }
+
+            // Save workout customizations
+            const workoutCustomizations = JSON.parse(localStorage.getItem('workoutCustomizations') || '{}');
+            for (const [templateId, customization] of Object.entries(workoutCustomizations)) {
+                await supabase
+                    .from('workout_customizations')
+                    .upsert({
+                        user_id: userId,
+                        template_id: templateId,
+                        customization_json: customization,
+                        updated_at: new Date().toISOString()
+                    });
+            }
+
+            // Save custom exercises
+            const customExercises = JSON.parse(localStorage.getItem('customExercises') || '{}');
+            for (const [exerciseId, exerciseData] of Object.entries(customExercises)) {
+                await supabase
+                    .from('custom_exercises')
+                    .upsert({
+                        user_id: userId,
+                        exercise_id: exerciseId,
+                        exercise_data_json: exerciseData
+                    });
+            }
+
+        } catch (error) {
+            console.error('Error saving to Supabase:', error);
+        }
+    }
+
+    async migrateFromLocalStorage() {
+        if (!this.currentUser) return;
+
+        // Check if we've already migrated
+        const migrated = localStorage.getItem('supabaseMigrated');
+        if (migrated) return;
+
+        // Check if there's localStorage data to migrate
+        const localData = localStorage.getItem('gainzQuestState');
+        if (!localData) {
+            localStorage.setItem('supabaseMigrated', 'true');
+            return;
+        }
+
+        try {
+            // Load localStorage data
+            const state = JSON.parse(localData);
+
+            // Set it to current state
+            this.currentLevel = state.currentLevel || 1;
+            this.totalXP = state.totalXP || 0;
+            this.streak = state.streak || 0;
+            this.completedQuests = new Set(state.completedQuests || []);
+            this.unlockedAchievements = new Set(state.unlockedAchievements || []);
+            this.lastQuestDate = state.lastQuestDate;
+            this.exerciseWeights = state.exerciseWeights || {};
+            this.weightHistory = state.weightHistory || {};
+            this.questSetProgress = state.questSetProgress || {};
+            this.setWeights = state.setWeights || {};
+            this.bodyWeightHistory = state.bodyWeightHistory || [];
+
+            // Save to Supabase
+            await this.saveToSupabase();
+
+            // Mark as migrated
+            localStorage.setItem('supabaseMigrated', 'true');
+
+            console.log('✅ Data migrated to Supabase successfully');
+        } catch (error) {
+            console.error('Migration error:', error);
+        }
     }
 
     // ==================== LOCAL STORAGE ====================
 
-    saveState() {
+    async saveState() {
         const state = {
             currentLevel: this.currentLevel,
             totalXP: this.totalXP,
@@ -220,6 +658,11 @@ class GainzQuest {
             bodyWeightHistory: this.bodyWeightHistory
         };
         localStorage.setItem('gainzQuestState', JSON.stringify(state));
+
+        // Also sync to Supabase if user is logged in
+        if (this.currentUser && this.supabaseAvailable) {
+            await this.saveToSupabase();
+        }
     }
 
     loadState() {
@@ -1519,7 +1962,7 @@ class GainzQuest {
 
     exportData() {
         const data = {
-            version: '2.4', // Updated for per-set weight tracking
+            version: '2.5', // Updated for Supabase cloud sync
             exportDate: new Date().toISOString(),
             data: {
                 currentLevel: this.currentLevel,
@@ -2017,6 +2460,96 @@ class GainzQuest {
                 if (e.target.id === 'exercise-edit-modal') {
                     this.closeExerciseEdit();
                 }
+            });
+        }
+
+        // Auth modal listeners
+        const closeAuthBtn = document.getElementById('close-auth');
+        if (closeAuthBtn) {
+            closeAuthBtn.addEventListener('click', () => this.closeAuthModal());
+        }
+
+        const authModal = document.getElementById('auth-modal');
+        if (authModal) {
+            authModal.addEventListener('click', (e) => {
+                if (e.target.id === 'auth-modal') {
+                    this.closeAuthModal();
+                }
+            });
+        }
+
+        const authToggleBtn = document.getElementById('auth-toggle');
+        if (authToggleBtn) {
+            authToggleBtn.addEventListener('click', () => {
+                this.isAuthMode = this.isAuthMode === 'login' ? 'signup' : 'login';
+                const title = document.getElementById('auth-title');
+                const submitBtn = document.getElementById('auth-submit');
+                const toggleBtn = document.getElementById('auth-toggle');
+
+                if (this.isAuthMode === 'signup') {
+                    title.textContent = '🔐 Sign Up to Sync Your Progress';
+                    submitBtn.textContent = 'Sign Up';
+                    toggleBtn.textContent = 'Already have an account? Login';
+                } else {
+                    title.textContent = '🔐 Login to Sync Your Progress';
+                    submitBtn.textContent = 'Login';
+                    toggleBtn.textContent = 'Need an account? Sign up';
+                }
+                this.clearAuthMessages();
+            });
+        }
+
+        const authSubmitBtn = document.getElementById('auth-submit');
+        if (authSubmitBtn) {
+            authSubmitBtn.addEventListener('click', async () => {
+                const email = document.getElementById('auth-email').value.trim();
+                const password = document.getElementById('auth-password').value;
+
+                if (!email || !password) {
+                    this.showAuthError('Please enter both email and password');
+                    return;
+                }
+
+                if (password.length < 6) {
+                    this.showAuthError('Password must be at least 6 characters');
+                    return;
+                }
+
+                if (this.isAuthMode === 'login') {
+                    await this.login(email, password);
+                } else {
+                    await this.signup(email, password);
+                }
+            });
+        }
+
+        // Allow Enter key to submit auth form
+        const authEmailInput = document.getElementById('auth-email');
+        const authPasswordInput = document.getElementById('auth-password');
+        if (authEmailInput && authPasswordInput) {
+            [authEmailInput, authPasswordInput].forEach(input => {
+                input.addEventListener('keypress', async (e) => {
+                    if (e.key === 'Enter') {
+                        const email = document.getElementById('auth-email').value.trim();
+                        const password = document.getElementById('auth-password').value;
+
+                        if (!email || !password) {
+                            this.showAuthError('Please enter both email and password');
+                            return;
+                        }
+
+                        if (password.length < 6) {
+                            this.showAuthError('Password must be at least 6 characters');
+                            return;
+                        }
+
+                        if (this.isAuthMode === 'login') {
+                            await this.login(email, password);
+                        } else {
+                            await this.signup(email, password);
+                        }
+                    }
+                });
             });
         }
     }
