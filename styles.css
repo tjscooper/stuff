@@ -1910,3 +1910,8 @@ header h1 {
         font-size: 1.6rem;
     }
 }
+
+/* Hide main timer section when floating widget is available */
+.modal.active .timer-section {
+    display: none !important;
+}
