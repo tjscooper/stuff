@@ -557,7 +557,7 @@ class GainzQuest {
                 .from('user_progress')
                 .select('*')
                 .eq('user_id', userId)
-                .single();
+                .maybeSingle();
 
             if (progress) {
                 this.currentLevel = progress.current_level;
