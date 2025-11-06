@@ -194,7 +194,7 @@ class GainzQuest {
         // Auth state
         this.currentUser = null;
         this.isAuthMode = 'login'; // 'login' or 'signup'
-        this.supabaseAvailable = typeof supabase !== 'undefined';
+        this.supabaseAvailable = typeof supabaseClient !== 'undefined';
 
         // Initialize app
         this.initializeApp();
@@ -225,7 +225,7 @@ class GainzQuest {
 
     async checkSession() {
         try {
-            const { data: { session } } = await supabase.auth.getSession();
+            const { data: { session } } = await supabaseClient.auth.getSession();
 
             if (session) {
                 this.currentUser = session.user;
@@ -244,7 +244,7 @@ class GainzQuest {
 
     async login(email, password) {
         try {
-            const { data, error } = await supabase.auth.signInWithPassword({
+            const { data, error } = await supabaseClient.auth.signInWithPassword({
                 email,
                 password
             });
@@ -276,7 +276,7 @@ class GainzQuest {
 
     async signup(email, password) {
         try {
-            const { data, error } = await supabase.auth.signUp({
+            const { data, error } = await supabaseClient.auth.signUp({
                 email,
                 password
             });
@@ -299,7 +299,7 @@ class GainzQuest {
 
     async logout() {
         try {
-            await supabase.auth.signOut();
+            await supabaseClient.auth.signOut();
             this.currentUser = null;
 
             // Clear current data and reload from localStorage
