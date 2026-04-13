@@ -13,6 +13,29 @@ const CATEGORIES = [
 
 const GROUP_ICONS = { Chore: 'tools', Tim: 'crown', Work: 'computer' };
 
+const HABIT_IDEAS = {
+  Chore: [
+    'Clean kitchen', 'Do laundry', 'Vacuum floors', 'Take out trash',
+    'Wipe down counters', 'Clean bathroom', 'Water plants', 'Grocery shopping',
+    'Meal prep', 'Organize a drawer', 'Wash dishes', 'Sweep porch',
+    'Pay a bill', 'File paperwork', 'Change bed sheets', 'Clean fridge',
+  ],
+  Tim: [
+    'Sketch something', 'Work on pixel art', 'Try a new art technique',
+    'Design a character', 'Build a game mechanic', 'Model something in 3D',
+    'Write in journal', 'Read a chapter', 'Learn a new tool',
+    'Prototype a game idea', 'Record a timelapse', 'Experiment with shaders',
+    'Plan a project', 'Go for a walk', 'Meditate 10 minutes', 'Listen to a podcast',
+  ],
+  Work: [
+    'Clear email inbox', 'Update project status', 'Write documentation',
+    'Plan the week', 'Do a code review', 'Refactor something messy',
+    'Fix a lingering bug', 'Write tests', 'Update dependencies',
+    'Prep for a meeting', 'Research a topic', 'Draft a proposal',
+    'Review open PRs', 'Update README', 'Set weekly goals', 'Follow up on blockers',
+  ],
+};
+
 const CATEGORY_LABELS = Object.fromEntries(CATEGORIES.map(c => [c.id, c.label]));
 const GROUPS = ['Chore', 'Tim', 'Work'];
 
@@ -371,6 +394,30 @@ function renderHabits() {
     });
     list.querySelectorAll('.habit-delete').forEach(btn => {
       btn.addEventListener('click', () => deleteHabitItem(btn.dataset.id));
+    });
+  });
+
+  // Render idea chips for each group
+  GROUPS.forEach(group => {
+    const col = document.getElementById('habit-col-' + group.toLowerCase());
+    const existing = col.querySelector('.habit-ideas');
+    if (existing) existing.remove();
+
+    const ideas = HABIT_IDEAS[group] || [];
+    const div = document.createElement('div');
+    div.className = 'habit-ideas';
+    div.innerHTML = '<div class="habit-ideas-label">// IDEAS</div>'
+      + ideas.map(idea =>
+          '<button class="idea-chip" data-group="' + group + '" data-idea="' + idea + '">' + idea + '</button>'
+        ).join('');
+    col.appendChild(div);
+
+    div.querySelectorAll('.idea-chip').forEach(chip => {
+      chip.addEventListener('click', () => {
+        const form = col.querySelector('.habit-add-form');
+        form.querySelector('.habit-add-text').value = chip.dataset.idea;
+        form.querySelector('.habit-add-text').focus();
+      });
     });
   });
 }
