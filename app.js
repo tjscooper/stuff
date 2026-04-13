@@ -407,6 +407,12 @@ async function openPost(slug) {
   showView('post', { slug: post.slug });
 }
 
+function readingTime(content) {
+  const words = (content || '').trim().split(/\s+/).length;
+  const mins = Math.max(1, Math.round(words / 200));
+  return mins + ' min read';
+}
+
 function renderPostDetail(post) {
   const container = document.getElementById('post-detail');
   const images = (post.image_urls || []).filter(Boolean);
@@ -419,22 +425,41 @@ function renderPostDetail(post) {
   const galleryHtml = images.length > 0
     ? '<div class="post-gallery">' + images.map(url => '<img src="' + url + '" alt="" loading="lazy" class="gallery-img">').join('') + '</div>'
     : '';
+  const postUrl = location.origin + location.pathname + '#/post/' + post.slug;
+  const shareHtml = '<div class="post-share">'
+    + '<span class="post-share-label">// SHARE</span>'
+    + '<button class="share-btn" id="share-copy" title="Copy link">&#128279; Copy Link</button>'
+    + '<a class="share-btn" href="https://x.com/intent/post?url=' + encodeURIComponent(postUrl) + '&text=' + encodeURIComponent(post.title) + '" target="_blank" rel="noopener">&#10006; Post on X</a>'
+    + '</div>';
 
   container.innerHTML = '<div class="post-nav"><button class="btn btn-ghost" id="back-to-blog">&larr; Back</button>' + adminHtml + '</div>'
     + coverHtml
+    + '<div class="post-page">'
     + '<div class="post-content-wrap">'
     + '<div class="post-meta">'
     + '<span class="cat-badge cat-' + post.category + '">' + (CATEGORY_LABELS[post.category] || post.category) + '</span>'
     + (!post.published ? '<span class="draft-badge">Draft</span>' : '')
     + '<span class="post-date">' + formatDate(post.created_at) + '</span>'
+    + '<span class="post-reading-time">&#9201; ' + readingTime(post.content) + '</span>'
     + '</div>'
     + '<h1 class="post-title">' + post.title + '</h1>'
     + (post.excerpt ? '<p class="post-excerpt">' + post.excerpt + '</p>' : '')
     + '<div class="post-body">' + marked.parse(post.content || '') + '</div>'
     + galleryHtml
+    + shareHtml
+    + '</div>'
     + '</div>';
 
   document.getElementById('back-to-blog').addEventListener('click', () => history.back());
+
+  document.getElementById('share-copy').addEventListener('click', () => {
+    const url = location.origin + location.pathname + '#/post/' + post.slug;
+    navigator.clipboard.writeText(url).then(() => {
+      const btn = document.getElementById('share-copy');
+      btn.textContent = '✓ Copied!';
+      setTimeout(() => { btn.innerHTML = '&#128279; Copy Link'; }, 2000);
+    });
+  });
 
   if (state.user) {
     document.getElementById('edit-post-btn').addEventListener('click', () => openEditor(post));
