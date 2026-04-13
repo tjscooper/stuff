@@ -299,6 +299,47 @@ a:hover { text-decoration: underline; }
 .cat-laser   { border-color: var(--danger); color: var(--danger); background: #ffeeee; }
 .cat-other   { border-color: var(--text-muted); color: var(--text-muted); background: var(--surface2); }
 
+.featured-badge {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: var(--radius);
+  font-family: var(--font-pixel);
+  font-size: 7px;
+  border: 2px solid var(--cyan);
+  color: var(--cyan);
+  background: #eef4ff;
+  text-transform: uppercase;
+}
+
+.post-card.featured {
+  border-color: var(--cyan);
+  box-shadow: 4px 4px 0 var(--cyan);
+}
+
+.featured-toggle {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+}
+
+.featured-toggle input[type="checkbox"] {
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+  accent-color: var(--cyan);
+}
+
+.featured-toggle-label {
+  font-family: var(--font-vt);
+  font-size: 22px;
+  color: var(--text);
+}
+
+.form-group--inline {
+  padding: 8px 0;
+}
+
 .draft-badge {
   display: inline-block;
   padding: 3px 10px;

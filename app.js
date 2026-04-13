@@ -362,6 +362,9 @@ function renderPostGrid() {
     filtered = filtered.filter(p => p.category === state.activeCategory);
   }
 
+  // Featured posts first
+  filtered.sort((a, b) => (b.featured ? 1 : 0) - (a.featured ? 1 : 0));
+
   if (filtered.length === 0) {
     const hint = state.user ? ' &mdash; hit <strong>+ New Post</strong> to write one!' : '.';
     grid.innerHTML = '<div class="empty-state">No posts yet' + hint + '</div>';
@@ -373,13 +376,14 @@ function renderPostGrid() {
       ? '<div class="post-card-image" style="background-image: url(\'' + post.cover_image + '\')"></div>'
       : '<div class="post-card-image post-card-image--empty"></div>';
     const draftBadge = !post.published ? '<span class="draft-badge">Draft</span>' : '';
+    const featuredBadge = post.featured ? '<span class="featured-badge">&#11088; Featured</span>' : '';
     const excerptHtml = post.excerpt ? '<p class="post-card-excerpt">' + post.excerpt + '</p>' : '';
-    return '<article class="post-card ' + (!post.published ? 'draft' : '') + '" data-slug="' + post.slug + '">'
+    return '<article class="post-card ' + (!post.published ? 'draft' : '') + (post.featured ? ' featured' : '') + '" data-slug="' + post.slug + '">'
       + imgHtml
       + '<div class="post-card-body">'
       + '<div class="post-card-meta">'
       + '<span class="cat-badge cat-' + post.category + '">' + (CATEGORY_LABELS[post.category] || post.category) + '</span>'
-      + draftBadge
+      + featuredBadge + draftBadge
       + '<span class="post-date">' + formatDate(post.created_at) + '</span>'
       + '</div>'
       + '<h2 class="post-card-title">' + post.title + '</h2>'
@@ -542,6 +546,7 @@ function openEditor(post) {
   document.getElementById('post-cover').value = post ? (post.cover_image || '') : '';
   document.getElementById('post-content').value = post ? (post.content || '') : '';
   document.getElementById('post-images').value = post ? (post.image_urls || []).join('\n') : '';
+  document.getElementById('post-featured').checked = post ? !!post.featured : false;
   showView('editor');
 }
 
@@ -561,6 +566,7 @@ async function submitPost(publish) {
     cover_image: document.getElementById('post-cover').value.trim(),
     content: document.getElementById('post-content').value,
     image_urls: imageUrls,
+    featured: document.getElementById('post-featured').checked,
     published: publish,
   };
 
