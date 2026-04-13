@@ -453,6 +453,8 @@ function renderPostDetail(post) {
 
   document.getElementById('back-to-blog').addEventListener('click', () => history.back());
 
+  attachLightboxToPost();
+
   document.getElementById('share-copy').addEventListener('click', () => {
     const url = location.origin + location.pathname + '#/post/' + post.slug;
     navigator.clipboard.writeText(url).then(() => {
@@ -700,6 +702,75 @@ function initPasteUpload() {
     const url = await uploadImage(image.getAsFile());
     cover.disabled = false;
     cover.value = url || '';
+  });
+}
+
+// =====================
+// LIGHTBOX
+// =====================
+const lightbox = {
+  images: [],
+  index: 0,
+
+  open(imgs, startIndex) {
+    this.images = imgs;
+    this.index = startIndex;
+    this.render();
+    document.getElementById('lightbox').classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+  },
+
+  close() {
+    document.getElementById('lightbox').classList.add('hidden');
+    document.body.style.overflow = '';
+  },
+
+  go(delta) {
+    this.index = (this.index + delta + this.images.length) % this.images.length;
+    this.render();
+  },
+
+  render() {
+    document.getElementById('lightbox-img').src = this.images[this.index];
+    const counter = document.getElementById('lightbox-counter');
+    const prev = document.getElementById('lightbox-prev');
+    const next = document.getElementById('lightbox-next');
+    if (this.images.length > 1) {
+      counter.textContent = (this.index + 1) + ' / ' + this.images.length;
+      prev.classList.remove('hidden');
+      next.classList.remove('hidden');
+    } else {
+      counter.textContent = '';
+      prev.classList.add('hidden');
+      next.classList.add('hidden');
+    }
+  },
+};
+
+function initLightbox() {
+  document.getElementById('lightbox-close').addEventListener('click', () => lightbox.close());
+  document.getElementById('lightbox-prev').addEventListener('click', () => lightbox.go(-1));
+  document.getElementById('lightbox-next').addEventListener('click', () => lightbox.go(1));
+  document.getElementById('lightbox').addEventListener('click', (e) => {
+    if (e.target === e.currentTarget || e.target.classList.contains('lightbox-img-wrap')) lightbox.close();
+  });
+  document.addEventListener('keydown', (e) => {
+    if (document.getElementById('lightbox').classList.contains('hidden')) return;
+    if (e.key === 'Escape') lightbox.close();
+    if (e.key === 'ArrowLeft') lightbox.go(-1);
+    if (e.key === 'ArrowRight') lightbox.go(1);
+  });
+}
+
+function attachLightboxToPost() {
+  const imgs = [...document.querySelectorAll('.post-body img, .gallery-img')]
+    .map(img => img.src)
+    .filter(Boolean);
+  if (!imgs.length) return;
+
+  document.querySelectorAll('.post-body img, .gallery-img').forEach((img, i) => {
+    img.style.cursor = 'zoom-in';
+    img.addEventListener('click', () => lightbox.open(imgs, i));
   });
 }
 
@@ -960,6 +1031,7 @@ async function init() {
   generateAsteroid();
   await initAuth();
   initEvents();
+  initLightbox();
   initPasteUpload();
   await loadPosts();
   await handleRoute();

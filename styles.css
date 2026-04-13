@@ -904,6 +904,85 @@ a:hover { text-decoration: underline; }
 }
 
 /* =====================
+   LIGHTBOX
+   ===================== */
+.lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 300;
+  background: rgba(10, 8, 20, 0.93);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding: 60px 20px 48px;
+}
+
+.lightbox-img-wrap {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  max-width: 90vw;
+  max-height: 85vh;
+}
+
+.lightbox-img {
+  max-width: 100%;
+  max-height: 85vh;
+  object-fit: contain;
+  border: 2px solid rgba(255,255,255,0.15);
+  box-shadow: 0 0 60px rgba(0,0,0,0.8);
+  image-rendering: pixelated;
+}
+
+.lightbox-close {
+  position: absolute;
+  top: 16px;
+  right: 20px;
+  background: none;
+  border: 2px solid rgba(255,255,255,0.3);
+  color: #fff;
+  font-size: 28px;
+  width: 44px;
+  height: 44px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: border-color 0.15s;
+  line-height: 1;
+}
+.lightbox-close:hover { border-color: var(--cyan); color: var(--cyan); }
+
+.lightbox-nav {
+  background: none;
+  border: 2px solid rgba(255,255,255,0.2);
+  color: #fff;
+  font-size: 24px;
+  width: 48px;
+  height: 48px;
+  cursor: pointer;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: border-color 0.15s;
+}
+.lightbox-nav:hover { border-color: var(--cyan); color: var(--cyan); }
+
+.lightbox-counter {
+  position: absolute;
+  bottom: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-family: var(--font-pixel);
+  font-size: 8px;
+  color: rgba(255,255,255,0.5);
+  letter-spacing: 1px;
+}
+
+/* =====================
    STATS DRAWER
    ===================== */
 .stats-tab {
