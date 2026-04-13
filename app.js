@@ -719,6 +719,7 @@ function initEvents() {
 
   // Editor
   document.getElementById('new-post-btn').addEventListener('click', () => openEditor());
+  document.getElementById('new-post-btn-inline').addEventListener('click', () => openEditor());
   document.getElementById('editor-cancel').addEventListener('click', () => showView('blog'));
   document.getElementById('editor-save-draft').addEventListener('click', () => submitPost(false));
   document.getElementById('editor-publish').addEventListener('click', () => submitPost(true));

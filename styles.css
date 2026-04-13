@@ -240,6 +240,12 @@ a:hover { text-decoration: underline; }
 .form-textarea-sm { min-height: 100px; resize: vertical; font-size: 20px; }
 .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
 
+/* Mobile-only new entry toolbar */
+.blog-toolbar { display: none; }
+@media (max-width: 768px) {
+  .blog-toolbar { display: flex; margin-bottom: 16px; }
+}
+
 /* =====================
    CATEGORY TABS
    ===================== */
@@ -1046,8 +1052,9 @@ a:hover { text-decoration: underline; }
 @media (max-width: 768px) {
   .top-nav { padding: 0 14px; gap: 8px; height: 64px; }
   .nav-logo { height: 48px; }
-  .nav-link { font-size: 8px; padding: 6px 10px; }
+  .nav-link { font-size: 7px; padding: 5px 8px; }
   .nav-actions { gap: 6px; }
+  #new-post-btn { display: none; } /* too crowded on mobile — hidden in nav */
   #main { padding: 20px 14px 70px; }
   .post-title { font-size: 14px; }
   .post-cover { height: 220px; }
