@@ -8,7 +8,7 @@ const CATEGORIES = [
   { id: '3dprint', label: '3D Printing',     icon: 'rocket' },
   { id: 'cnc',     label: 'CNC',             icon: 'swords' },
   { id: 'laser',   label: 'Laser Engraving', icon: 'flame' },
-  { id: 'other',   label: 'Other',           icon: 'skull' },
+  { id: 'other',   label: 'News',            icon: 'skull' },
 ];
 
 const GROUP_ICONS = { Chore: 'tools', Tim: 'crown', Work: 'computer' };
