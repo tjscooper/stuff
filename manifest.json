@@ -2,7 +2,7 @@
   "name": "HYPNOCHIP",
   "short_name": "HYPNOCHIP",
   "description": "Tim's personal site — art, game dev, 3D printing, CNC, laser engraving, and daily habits.",
-  "start_url": "/stuff/",
+  "start_url": "/",
   "display": "standalone",
   "background_color": "#0f172a",
   "theme_color": "#0f172a",
