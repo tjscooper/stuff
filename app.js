@@ -185,8 +185,8 @@ function generateAsteroid() {
           n += (nr < 0 || nr >= rows || nc < 0 || nc >= cols) ? 1 : grid[nr][nc];
         }
       const t = Math.min((n - 3) / 6, 1); // 0 = edge rock, 1 = deep rock
-      const v = Math.round(200 - t * 68);  // 200 → 132
-      ctx.fillStyle = `rgb(${v},${Math.round(v * 0.96)},${Math.round(v * 0.90)})`;
+      const v = Math.round(232 - t * 18);  // 232 → 214 (subtle, close to parchment)
+      ctx.fillStyle = `rgb(${v},${Math.round(v * 0.97)},${Math.round(v * 0.93)})`;
       ctx.fillRect(c * CELL, r * CELL, CELL, CELL);
     }
   }
