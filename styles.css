@@ -796,6 +796,35 @@ a:hover { text-decoration: underline; }
 /* =====================
    STATS DRAWER
    ===================== */
+.stats-tab {
+  position: fixed;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 199;
+  background: var(--surface);
+  border: 3px solid var(--border);
+  border-left: none;
+  box-shadow: 4px 4px 0 var(--border);
+  padding: 12px 10px 12px 12px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.stats-tab:hover {
+  border-color: var(--amber);
+  box-shadow: 4px 4px 0 var(--amber);
+}
+
+.stats-tab img {
+  width: 36px;
+  height: 36px;
+  image-rendering: pixelated;
+  display: block;
+}
+
 .drawer-overlay {
   position: fixed;
   inset: 0;

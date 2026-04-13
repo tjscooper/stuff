@@ -498,6 +498,8 @@ function showView(view) {
     document.getElementById('nav-habits-link').classList.add('active');
   }
 
+  document.getElementById('stats-open-btn').classList.toggle('hidden', view !== 'habits');
+
   window.scrollTo(0, 0);
 }
 
