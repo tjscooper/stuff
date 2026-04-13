@@ -404,7 +404,7 @@ async function openPost(slug) {
   if (!post) return;
   state.currentPost = post;
   renderPostDetail(post);
-  showView('post');
+  showView('post', { slug: post.slug });
 }
 
 function renderPostDetail(post) {
@@ -434,7 +434,7 @@ function renderPostDetail(post) {
     + galleryHtml
     + '</div>';
 
-  document.getElementById('back-to-blog').addEventListener('click', () => showView('blog'));
+  document.getElementById('back-to-blog').addEventListener('click', () => history.back());
 
   if (state.user) {
     document.getElementById('edit-post-btn').addEventListener('click', () => openEditor(post));
@@ -582,7 +582,7 @@ async function submitPost(publish) {
 // =====================
 // VIEWS
 // =====================
-function showView(view) {
+function showView(view, { slug, pushState = true } = {}) {
   document.querySelectorAll('.view').forEach(el => el.classList.add('hidden'));
   document.getElementById('view-' + view).classList.remove('hidden');
   state.currentView = view;
@@ -595,6 +595,17 @@ function showView(view) {
   }
 
   document.getElementById('stats-open-btn').classList.toggle('hidden', view !== 'habits');
+
+  // Update URL hash
+  if (pushState) {
+    if (view === 'post' && slug) {
+      history.pushState({ view, slug }, '', '#/post/' + slug);
+    } else if (view === 'blog') {
+      history.pushState({ view }, '', '#/');
+    } else {
+      history.pushState({ view }, '', '#/' + view);
+    }
+  }
 
   window.scrollTo(0, 0);
 }
@@ -892,6 +903,30 @@ function closeStats() {
 }
 
 // =====================
+// ROUTER
+// =====================
+async function handleRoute() {
+  const hash = location.hash;
+  const postMatch = hash.match(/^#\/post\/(.+)$/);
+
+  if (postMatch) {
+    const slug = postMatch[1];
+    const post = await loadPost(slug);
+    if (post) {
+      state.currentPost = post;
+      renderPostDetail(post);
+      showView('post', { slug, pushState: false });
+    } else {
+      showView('blog', { pushState: false });
+    }
+  } else {
+    showView('blog', { pushState: false });
+  }
+}
+
+window.addEventListener('popstate', handleRoute);
+
+// =====================
 // INIT
 // =====================
 async function init() {
@@ -900,6 +935,7 @@ async function init() {
   initEvents();
   initPasteUpload();
   await loadPosts();
+  await handleRoute();
 }
 
 init();
