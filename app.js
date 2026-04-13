@@ -139,7 +139,7 @@ function generateAsteroid() {
 
   const W = canvas.width  = window.innerWidth;
   const H = canvas.height = window.innerHeight;
-  const CELL = 40; // matches graph paper grid
+  const CELL = 10;
 
   const cols = Math.ceil(W / CELL) + 1;
   const rows = Math.ceil(H / CELL) + 1;
