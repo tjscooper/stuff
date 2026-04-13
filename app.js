@@ -430,6 +430,7 @@ function renderPostDetail(post) {
     + '<span class="post-share-label">// SHARE</span>'
     + '<button class="share-btn" id="share-copy" title="Copy link">&#128279; Copy Link</button>'
     + '<a class="share-btn" href="https://x.com/intent/post?url=' + encodeURIComponent(postUrl) + '&text=' + encodeURIComponent(post.title) + '" target="_blank" rel="noopener">&#10006; Post on X</a>'
+    + '<a class="share-btn" href="https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent(postUrl) + '" target="_blank" rel="noopener">&#x1F426; Share on Facebook</a>'
     + '</div>';
 
   container.innerHTML = '<div class="post-nav"><button class="btn btn-ghost" id="back-to-blog">&larr; Back</button>' + adminHtml + '</div>'
