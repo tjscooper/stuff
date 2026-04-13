@@ -21,31 +21,28 @@
   --font-vt:    'VT323', monospace;
 }
 
-html { font-size: 16px; scroll-behavior: smooth; }
+html {
+  font-size: 16px;
+  scroll-behavior: smooth;
+  background: var(--bg); /* fallback before canvas renders */
+}
 
 body {
-  background: var(--bg);
+  background: transparent;
   color: var(--text);
   font-family: var(--font-vt);
   font-size: 26px;
   line-height: 1.5;
   min-height: 100vh;
   overflow-x: hidden;
-  background-image:
-    repeating-linear-gradient(
-      0deg,
-      transparent,
-      transparent 39px,
-      rgba(0,0,0,0.04) 39px,
-      rgba(0,0,0,0.04) 40px
-    ),
-    repeating-linear-gradient(
-      90deg,
-      transparent,
-      transparent 39px,
-      rgba(0,0,0,0.04) 39px,
-      rgba(0,0,0,0.04) 40px
-    );
+}
+
+#bg-canvas {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  display: block;
 }
 
 a { color: var(--cyan); text-decoration: none; }

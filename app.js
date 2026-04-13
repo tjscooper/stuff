@@ -120,6 +120,95 @@ function formatMinutes(mins) {
 }
 
 // =====================
+// ASTEROID BACKGROUND
+// =====================
+function seededRand(seed) {
+  let s = seed >>> 0;
+  return () => {
+    s ^= s << 13; s >>>= 0;
+    s ^= s >> 17;
+    s ^= s << 5;  s >>>= 0;
+    return s / 4294967296;
+  };
+}
+
+function generateAsteroid() {
+  const canvas = document.getElementById('bg-canvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+
+  const W = canvas.width  = window.innerWidth;
+  const H = canvas.height = window.innerHeight;
+  const CELL = 40; // matches graph paper grid
+
+  const cols = Math.ceil(W / CELL) + 1;
+  const rows = Math.ceil(H / CELL) + 1;
+
+  // Seed from today's date — same asteroid all day, new one tomorrow
+  const rand = seededRand(parseInt(todayDate().replace(/-/g, '')));
+
+  // Init grid ~48% rock, force border shell
+  let grid = Array.from({ length: rows }, (_, r) =>
+    Array.from({ length: cols }, (_, c) =>
+      (r === 0 || r === rows - 1 || c === 0 || c === cols - 1) ? 1
+      : rand() < 0.48 ? 1 : 0
+    )
+  );
+
+  // 4 CA smoothing passes (standard cave rule: ≥5 rock neighbors → rock)
+  for (let gen = 0; gen < 4; gen++) {
+    grid = grid.map((row, r) =>
+      row.map((_, c) => {
+        let n = 0;
+        for (let dr = -1; dr <= 1; dr++)
+          for (let dc = -1; dc <= 1; dc++) {
+            const nr = r + dr, nc = c + dc;
+            n += (nr < 0 || nr >= rows || nc < 0 || nc >= cols) ? 1 : grid[nr][nc];
+          }
+        return n >= 5 ? 1 : 0;
+      })
+    );
+  }
+
+  // Parchment base
+  ctx.fillStyle = '#f0eee8';
+  ctx.fillRect(0, 0, W, H);
+
+  // Rock cells — depth-shaded warm grey
+  for (let r = 0; r < rows; r++) {
+    for (let c = 0; c < cols; c++) {
+      if (!grid[r][c]) continue;
+      let n = 0;
+      for (let dr = -1; dr <= 1; dr++)
+        for (let dc = -1; dc <= 1; dc++) {
+          const nr = r + dr, nc = c + dc;
+          n += (nr < 0 || nr >= rows || nc < 0 || nc >= cols) ? 1 : grid[nr][nc];
+        }
+      const t = Math.min((n - 3) / 6, 1); // 0 = edge rock, 1 = deep rock
+      const v = Math.round(200 - t * 68);  // 200 → 132
+      ctx.fillStyle = `rgb(${v},${Math.round(v * 0.96)},${Math.round(v * 0.90)})`;
+      ctx.fillRect(c * CELL, r * CELL, CELL, CELL);
+    }
+  }
+
+  // Graph paper grid lines
+  ctx.strokeStyle = 'rgba(0,0,0,0.05)';
+  ctx.lineWidth = 1;
+  for (let x = 0; x <= W; x += CELL) {
+    ctx.beginPath(); ctx.moveTo(x + 0.5, 0); ctx.lineTo(x + 0.5, H); ctx.stroke();
+  }
+  for (let y = 0; y <= H; y += CELL) {
+    ctx.beginPath(); ctx.moveTo(0, y + 0.5); ctx.lineTo(W, y + 0.5); ctx.stroke();
+  }
+}
+
+let _asteroidResizeTimer;
+window.addEventListener('resize', () => {
+  clearTimeout(_asteroidResizeTimer);
+  _asteroidResizeTimer = setTimeout(generateAsteroid, 150);
+});
+
+// =====================
 // AUTH
 // =====================
 async function initAuth() {
@@ -799,6 +888,7 @@ function closeStats() {
 // INIT
 // =====================
 async function init() {
+  generateAsteroid();
   await initAuth();
   initEvents();
   initPasteUpload();
