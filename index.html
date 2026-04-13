@@ -1,412 +1,197 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>GAINZ QUEST</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Tim's Workshop</title>
 
-    <!-- PWA Manifest -->
-    <link rel="manifest" href="manifest.json">
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#f0eee8">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Tim's Workshop">
+  <link rel="apple-touch-icon" href="icon-192.png">
+  <meta name="description" content="Art, game dev, 3D printing, CNC, laser engraving — Tim's workshop.">
 
-    <!-- Theme Colors -->
-    <meta name="theme-color" content="#6366f1">
-    <meta name="msapplication-TileColor" content="#6366f1">
-
-    <!-- iOS Support -->
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="GAINZ QUEST">
-    <link rel="apple-touch-icon" href="icon-192.png">
-
-    <!-- Description -->
-    <meta name="description" content="24-level gamified workout program with RPG-style progression">
-
-    <link rel="stylesheet" href="styles.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <!-- Fixed Top Navigation (hidden until logged in) -->
-    <nav class="top-nav" id="top-nav" style="display: none;">
-        <div class="nav-left">
-            <span class="app-title">GAINZ QUEST</span>
-            <span class="version-badge">v2.7.0</span>
-        </div>
-        <div class="nav-right">
-            <div class="user-menu">
-                <span id="user-email" class="user-email-nav"></span>
-                <button class="user-avatar-btn logged-in" id="logout-btn">
-                    <span class="avatar-icon">👋</span>
-                    <span class="avatar-text">Logout</span>
-                </button>
-            </div>
-        </div>
-    </nav>
 
-    <!-- Auth Modal (shown by default if not logged in) -->
-    <div class="modal auth-wall" id="auth-modal">
-        <div class="modal-content modal-small">
-            <h2 id="auth-title">🔐 Login to GAINZ QUEST</h2>
-            <p class="auth-info">Sign in to access your workout program</p>
+  <!-- ===== NAV ===== -->
+  <nav class="top-nav">
+    <div class="nav-brand" id="nav-home"><img src="images/hypnochip_logo.png" alt="HYPNOCHIP" class="nav-logo"></div>
+    <div class="nav-links">
+      <a href="#" class="nav-link active" id="nav-blog-link">// CHRONICLES</a>
+      <a href="#" class="nav-link auth-only hidden" id="nav-habits-link">// MISSION LOG</a>
+    </div>
+    <div class="nav-actions">
+      <button class="btn btn-sm auth-only hidden" id="new-post-btn">&gt; NEW ENTRY</button>
+      <button class="btn btn-sm btn-outline" id="nav-login-btn">ENGAGE</button>
+      <button class="btn btn-sm btn-outline auth-only hidden" id="nav-logout-btn">LOGOUT</button>
+    </div>
+  </nav>
 
-            <div class="form-group">
-                <label for="auth-email">Email:</label>
-                <input type="email" id="auth-email" class="form-input" placeholder="your@email.com" required>
-            </div>
+  <!-- ===== AUTH MODAL ===== -->
+  <div class="modal-overlay hidden" id="auth-modal">
+    <div class="modal-box">
+      <h2>&gt; ACCESS TERMINAL_</h2>
+      <p class="modal-sub">ENTER CREDENTIALS TO PROCEED</p>
+      <div class="form-group">
+        <label>Email</label>
+        <input type="email" id="auth-email" class="form-input" placeholder="you@example.com" autocomplete="email">
+      </div>
+      <div class="form-group">
+        <label>Password</label>
+        <input type="password" id="auth-password" class="form-input" placeholder="••••••••" autocomplete="current-password">
+      </div>
+      <div class="form-error hidden" id="auth-error"></div>
+      <div class="modal-actions">
+        <button class="btn btn-primary" id="auth-submit">Login</button>
+        <button class="btn btn-ghost" id="auth-cancel">Cancel</button>
+      </div>
+    </div>
+  </div>
 
-            <div class="form-group">
-                <label for="auth-password">Password:</label>
-                <input type="password" id="auth-password" class="form-input" placeholder="••••••••" required>
-            </div>
+  <!-- ===== MAIN ===== -->
+  <main id="main">
 
-            <div id="auth-error" class="auth-error"></div>
-            <div id="auth-success" class="auth-success"></div>
-
-            <div class="modal-actions">
-                <button class="btn btn-primary" id="auth-submit">Login</button>
-                <button class="btn btn-secondary" id="auth-toggle">Need an account? Sign up</button>
-            </div>
-        </div>
+    <!-- BLOG VIEW -->
+    <div id="view-blog" class="view active">
+      <div class="category-tabs" id="category-tabs"></div>
+      <div class="posts-grid" id="posts-grid">
+        <div class="loading">Loading posts...</div>
+      </div>
     </div>
 
-    <!-- App Content (hidden until logged in) -->
-    <div class="app-content" id="app-content" style="display: none;">
-    <div class="container">
-        <!-- Header Section -->
-        <header>
-            <h1>🎮 GAINZ QUEST 🎮</h1>
-            <p class="subtitle">Level up your fitness, one quest at a time</p>
-        </header>
-
-        <!-- Stats Dashboard -->
-        <div class="stats-dashboard">
-            <div class="stat-card">
-                <div class="stat-icon">⭐</div>
-                <div class="stat-content">
-                    <div class="stat-label">Level</div>
-                    <div class="stat-value" id="level">1</div>
-                </div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-icon">💪</div>
-                <div class="stat-content">
-                    <div class="stat-label">Quests</div>
-                    <div class="stat-value">
-                        <span id="current-xp">0</span>/<span id="next-level-xp">7</span>
-                    </div>
-                </div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-icon">🔥</div>
-                <div class="stat-content">
-                    <div class="stat-label">Streak</div>
-                    <div class="stat-value"><span id="streak">0</span> days</div>
-                </div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-icon">✅</div>
-                <div class="stat-content">
-                    <div class="stat-label">Completed</div>
-                    <div class="stat-value"><span id="completed">0</span>/168</div>
-                </div>
-            </div>
-        </div>
-
-        <!-- XP Progress Bar -->
-        <div class="xp-bar-container">
-            <div class="xp-bar" id="xp-bar"></div>
-        </div>
-
-        <!-- Level Navigator -->
-        <div class="week-navigator">
-            <button class="nav-btn" id="prev-week" disabled>← Previous Level</button>
-            <div class="week-display">
-                <span class="week-label">Level</span>
-                <span class="week-number" id="current-week">1</span>
-                <span class="week-total">of 24</span>
-            </div>
-            <button class="nav-btn" id="next-week">Next Level →</button>
-        </div>
-
-        <!-- Current Week Info -->
-        <div class="week-info">
-            <h2 id="week-title">Week 1: Foundation Building</h2>
-            <p id="week-description">Welcome to your fitness journey! This week focuses on establishing proper form and building a solid foundation.</p>
-        </div>
-
-        <!-- Workouts Grid -->
-        <div class="workouts-grid" id="workouts-grid">
-            <!-- Workouts will be populated by JS -->
-        </div>
-
-        <!-- Achievements Section -->
-        <div class="achievements-section">
-            <h2>Achievements</h2>
-            <div class="achievements-grid" id="achievements-grid">
-                <!-- Achievements will be populated by JS -->
-            </div>
-        </div>
-
-        <!-- Body Weight Tracker -->
-        <div class="body-weight-section">
-            <h2 class="section-title">⚖️ WARRIOR STATS TRACKER</h2>
-            <div class="body-weight-card">
-                <div class="body-weight-current">
-                    <div class="weight-icon">🛡️</div>
-                    <div class="weight-info">
-                        <div class="weight-label">CURRENT HP</div>
-                        <div class="weight-value">
-                            <span id="current-body-weight">--</span>
-                            <span class="weight-unit">lbs</span>
-                        </div>
-                        <div class="weight-change" id="weight-change"></div>
-                    </div>
-                </div>
-                <div class="body-weight-input">
-                    <label for="weight-input">⚔️ LOG WARRIOR WEIGHT:</label>
-                    <div class="input-group">
-                        <input type="number" id="weight-input" placeholder="Enter weight" step="0.1" min="50" max="500">
-                        <span class="input-unit">lbs</span>
-                        <button class="btn btn-primary weight-log-btn" id="log-weight-btn">💾 LOG STATS</button>
-                        <button class="btn btn-graph weight-history-btn" id="view-weight-history-btn">📈 VIEW PROGRESS</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Settings Section -->
-        <div class="settings-section">
-            <h2>⚙️ SETTINGS</h2>
-            <div class="settings-card">
-                <div class="settings-info">
-                    <div class="settings-icon">🏋️</div>
-                    <div class="settings-text">
-                        <h3>Exercise Library</h3>
-                        <p>Customize your exercise list: add new exercises, rename existing ones, or mark them as bodyweight.</p>
-                    </div>
-                </div>
-                <div class="settings-actions">
-                    <button class="btn btn-primary" id="manage-exercises-btn">📋 MANAGE EXERCISES</button>
-                </div>
-            </div>
-        </div>
-
-        <!-- Workout Modal -->
-        <div class="modal" id="workout-modal">
-            <div class="modal-content">
-                <span class="close-btn" id="close-modal">&times;</span>
-                <h2 id="modal-day">Day 1</h2>
-
-                <!-- Rest Timer -->
-                <div class="timer-section" id="timer-section">
-                    <div class="timer-display">
-                        <div class="timer-label">⏱️ REST TIMER</div>
-                        <div class="timer-time" id="timer-display">00:00</div>
-                    </div>
-                    <div class="timer-controls">
-                        <button class="timer-btn preset-btn" data-seconds="45">45s</button>
-                        <button class="timer-btn preset-btn" data-seconds="60">60s</button>
-                        <button class="timer-btn preset-btn" data-seconds="90">90s</button>
-                        <button class="timer-btn preset-btn" data-seconds="120">120s</button>
-                        <button class="timer-btn" id="timer-start">▶ Start</button>
-                        <button class="timer-btn" id="timer-reset">↺ Reset</button>
-                    </div>
-                    <div class="timer-progress-bar">
-                        <div class="timer-progress-fill" id="timer-progress"></div>
-                    </div>
-                    <button class="scroll-nav-btn" id="scroll-to-exercises">⬇️ Jump to Exercises</button>
-                </div>
-
-                <!-- Workout Progress -->
-                <div class="workout-progress" id="workout-progress">
-                    <div class="progress-label">Quest Progress</div>
-                    <div class="progress-stats">
-                        <span id="completed-sets">0</span> / <span id="total-sets">0</span> sets completed
-                    </div>
-                </div>
-
-                <div id="modal-exercises">
-                    <!-- Exercises will be populated by JS -->
-                </div>
-
-                <div class="modal-actions">
-                    <button class="btn btn-secondary" id="cancel-workout">Cancel</button>
-                    <button class="btn btn-graph" id="edit-template-btn" style="display: none;">✏️ Edit Workout</button>
-                    <button class="btn btn-primary" id="complete-workout">⚔️ Complete Quest (+1 XP)</button>
-                </div>
-            </div>
-
-            <!-- Floating Timer Widget (outside modal-content to avoid clipping) -->
-            <div class="floating-timer-widget" id="floating-timer-widget">
-                <div class="floating-timer-header">⏱️ REST TIMER</div>
-                <div class="floating-timer-display" id="floating-timer-display">01:30</div>
-                <div class="floating-timer-progress-bar">
-                    <div class="floating-timer-progress" id="floating-timer-progress"></div>
-                </div>
-                <div class="floating-timer-controls">
-                    <button class="floating-timer-btn-small" id="floating-timer-start">▶</button>
-                    <button class="floating-timer-btn-small" id="floating-timer-reset">↺</button>
-                </div>
-                <div class="floating-timer-presets">
-                    <button class="floating-preset-btn" data-seconds="45">45s</button>
-                    <button class="floating-preset-btn" data-seconds="60">60s</button>
-                    <button class="floating-preset-btn" data-seconds="90">90s</button>
-                    <button class="floating-preset-btn" data-seconds="120">2m</button>
-                </div>
-            </div>
-        </div>
-
-        <!-- Level Up Notification -->
-        <div class="level-up-notification" id="level-up-notification">
-            <div class="level-up-content">
-                <h2>🎉 Level Up!</h2>
-                <p>You've reached <span id="new-level">2</span>!</p>
-                <button class="btn btn-primary" id="close-level-up">Continue</button>
-            </div>
-        </div>
-
-        <!-- Achievement Notification -->
-        <div class="achievement-notification" id="achievement-notification">
-            <div class="achievement-content">
-                <div class="achievement-icon" id="achievement-icon">🏆</div>
-                <div class="achievement-text">
-                    <h3>Achievement Unlocked!</h3>
-                    <p id="achievement-name">First Steps</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- Weight Progression Graph Modal -->
-        <div class="modal" id="graph-modal">
-            <div class="modal-content graph-modal-content">
-                <span class="close-btn" id="close-graph">&times;</span>
-                <h2 id="graph-title">📈 Weight Progression</h2>
-                <div class="graph-container">
-                    <canvas id="weight-graph"></canvas>
-                </div>
-                <div class="graph-stats" id="graph-stats">
-                    <!-- Stats will be populated by JS -->
-                </div>
-            </div>
-        </div>
-
-        <!-- Body Weight History Modal -->
-        <div class="modal" id="body-weight-modal">
-            <div class="modal-content graph-modal-content">
-                <span class="close-btn" id="close-body-weight">&times;</span>
-                <h2>⚖️ Body Weight History</h2>
-                <div class="graph-container">
-                    <canvas id="body-weight-graph"></canvas>
-                </div>
-                <div class="graph-stats" id="body-weight-stats">
-                    <!-- Stats will be populated by JS -->
-                </div>
-            </div>
-        </div>
-
-        <!-- Template Editor Modal -->
-        <div class="modal" id="template-editor-modal">
-            <div class="modal-content">
-                <span class="close-btn" id="close-template-editor">&times;</span>
-                <h2 id="template-editor-title">✏️ Edit Workout Template</h2>
-                <p class="template-editor-info">Changes apply to all levels using this workout (1.1, 2.1, 3.1, etc.)</p>
-
-                <div id="template-editor-content">
-                    <div class="exercise-list" id="exercise-editor-list">
-                        <!-- Exercise items will be populated by JS -->
-                    </div>
-
-                    <div class="editor-actions">
-                        <button class="btn btn-secondary" id="add-exercise-btn">➕ Add Exercise</button>
-                        <button class="btn btn-graph" id="reset-template-btn">🔄 Reset to Default</button>
-                    </div>
-                </div>
-
-                <div class="modal-actions">
-                    <button class="btn btn-secondary" id="cancel-template-edit">Cancel</button>
-                    <button class="btn btn-primary" id="save-template-btn">💾 Save Template</button>
-                </div>
-            </div>
-        </div>
-
-        <!-- Exercise Library Modal -->
-        <div class="modal" id="exercise-library-modal">
-            <div class="modal-content">
-                <span class="close-btn" id="close-exercise-library">&times;</span>
-                <h2>🏋️ Exercise Library Manager</h2>
-                <p class="template-editor-info">Add custom exercises or modify existing ones. Changes apply to all workout templates.</p>
-
-                <div class="library-search">
-                    <input type="text" id="exercise-search" placeholder="🔍 Search exercises..." class="search-input">
-                    <button class="btn btn-primary" id="add-new-exercise-btn">➕ Add New Exercise</button>
-                </div>
-
-                <div class="exercise-library-list" id="exercise-library-list">
-                    <!-- Exercise items will be populated by JS -->
-                </div>
-
-                <div class="modal-actions">
-                    <button class="btn btn-secondary" id="close-library-btn">Close</button>
-                </div>
-            </div>
-        </div>
-
-        <!-- Exercise Edit Modal (sub-modal for adding/editing) -->
-        <div class="modal" id="exercise-edit-modal">
-            <div class="modal-content modal-small">
-                <span class="close-btn" id="close-exercise-edit">&times;</span>
-                <h2 id="exercise-edit-title">➕ Add Exercise</h2>
-
-                <div class="form-group">
-                    <label for="exercise-id-input">Exercise ID (snake_case, no spaces):</label>
-                    <input type="text" id="exercise-id-input" placeholder="e.g., goblet_squats" class="form-input">
-                    <small class="form-hint">This is used internally. Use lowercase with underscores.</small>
-                </div>
-
-                <div class="form-group">
-                    <label for="exercise-name-input">Display Name:</label>
-                    <input type="text" id="exercise-name-input" placeholder="e.g., Goblet Squats" class="form-input">
-                </div>
-
-                <div class="form-group">
-                    <label class="checkbox-label">
-                        <input type="checkbox" id="exercise-bodyweight-input">
-                        <span>Bodyweight Exercise (no external weight tracking)</span>
-                    </label>
-                </div>
-
-                <div class="modal-actions">
-                    <button class="btn btn-secondary" id="cancel-exercise-edit">Cancel</button>
-                    <button class="btn btn-primary" id="save-exercise-btn">💾 Save Exercise</button>
-                </div>
-            </div>
-        </div>
+    <!-- POST DETAIL VIEW -->
+    <div id="view-post" class="view hidden">
+      <div class="post-detail" id="post-detail"></div>
     </div>
-    </div> <!-- End container -->
-    </div> <!-- End app-content -->
 
-    <!-- Supabase Client -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script>
-        // Initialize Supabase client
-        const SUPABASE_URL = 'https://wxfspjwixcysbqzhwvxp.supabase.co';
-        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind4ZnNwandpeGN5c2Jxemh3dnhwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI0MDc4MjEsImV4cCI6MjA3Nzk4MzgyMX0.ksgTb-1zuHEDsI46Z_Jq1thnS6XbGzD-0f1Hy3AQivk';
-        const { createClient } = supabase;
-        const supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-    </script>
-    <script src="app.js?v=2.7.0"></script>
+    <!-- HABITS VIEW -->
+    <div id="view-habits" class="view hidden">
+      <div class="habits-header">
+        <button class="btn btn-sm btn-ghost" id="habit-prev">← Prev</button>
+        <div class="habit-date-info">
+          <span id="habit-date-display"></span>
+        </div>
+        <button class="btn btn-sm btn-ghost" id="habit-next">Next →</button>
+        <button class="btn btn-sm btn-outline" id="habit-today">Today</button>
+      </div>
+      <div class="habits-grid">
+        <div class="habit-col" id="habit-col-chore">
+          <div class="habit-col-header">
+            <h3><img src="images/icons/tools.png" class="group-icon" alt=""> Chore</h3>
+            <span class="habit-time-total" id="habit-time-chore"></span>
+          </div>
+          <div class="habit-list" id="habit-list-Chore"></div>
+          <form class="habit-add-form" data-group="Chore">
+            <input type="text" class="habit-add-text" placeholder="Add task..." required>
+            <input type="number" class="habit-add-time" placeholder="min" min="1" max="480">
+            <button type="submit" class="btn btn-sm btn-primary">Add</button>
+          </form>
+        </div>
+        <div class="habit-col" id="habit-col-tim">
+          <div class="habit-col-header">
+            <h3><img src="images/icons/crown.png" class="group-icon" alt=""> Tim</h3>
+            <span class="habit-time-total" id="habit-time-tim"></span>
+          </div>
+          <div class="habit-list" id="habit-list-Tim"></div>
+          <form class="habit-add-form" data-group="Tim">
+            <input type="text" class="habit-add-text" placeholder="Add task..." required>
+            <input type="number" class="habit-add-time" placeholder="min" min="1" max="480">
+            <button type="submit" class="btn btn-sm btn-primary">Add</button>
+          </form>
+        </div>
+        <div class="habit-col" id="habit-col-work">
+          <div class="habit-col-header">
+            <h3><img src="images/icons/computer.png" class="group-icon" alt=""> Work</h3>
+            <span class="habit-time-total" id="habit-time-work"></span>
+          </div>
+          <div class="habit-list" id="habit-list-Work"></div>
+          <form class="habit-add-form" data-group="Work">
+            <input type="text" class="habit-add-text" placeholder="Add task..." required>
+            <input type="number" class="habit-add-time" placeholder="min" min="1" max="480">
+            <button type="submit" class="btn btn-sm btn-primary">Add</button>
+          </form>
+        </div>
+      </div>
+    </div>
 
-    <!-- Service Worker Registration -->
-    <script>
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('/stuff/service-worker.js')
-                    .then((registration) => {
-                        console.log('ServiceWorker registered:', registration.scope);
-                    })
-                    .catch((error) => {
-                        console.log('ServiceWorker registration failed:', error);
-                    });
-            });
-        }
-    </script>
+    <!-- POST EDITOR VIEW -->
+    <div id="view-editor" class="view hidden">
+      <div class="editor-container">
+        <div class="editor-header">
+          <h2 id="editor-title">New Post</h2>
+          <div class="editor-header-actions">
+            <button class="btn btn-ghost" id="editor-cancel">Cancel</button>
+            <button class="btn btn-outline" id="editor-save-draft">Save Draft</button>
+            <button class="btn btn-primary" id="editor-publish">Publish</button>
+          </div>
+        </div>
+        <form id="post-form">
+          <div class="form-group">
+            <label>Title</label>
+            <input type="text" id="post-title" class="form-input form-input-lg" placeholder="Post title..." required>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Slug <span class="form-hint">(auto-generated)</span></label>
+              <input type="text" id="post-slug" class="form-input" placeholder="post-slug">
+            </div>
+            <div class="form-group">
+              <label>Category</label>
+              <select id="post-category" class="form-input">
+                <option value="art">Art</option>
+                <option value="gamedev">Game Dev</option>
+                <option value="3dprint">3D Printing</option>
+                <option value="cnc">CNC</option>
+                <option value="laser">Laser Engraving</option>
+                <option value="other">Other</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Excerpt <span class="form-hint">(short summary shown on cards)</span></label>
+            <input type="text" id="post-excerpt" class="form-input" placeholder="One-line summary...">
+          </div>
+          <div class="form-group">
+            <label>Cover Image URL</label>
+            <input type="url" id="post-cover" class="form-input" placeholder="https://...">
+          </div>
+          <div class="form-group">
+            <label>Content <span class="form-hint">(Markdown supported)</span></label>
+            <textarea id="post-content" class="form-input form-textarea" placeholder="Write your post..."></textarea>
+          </div>
+          <div class="form-group">
+            <label>Additional Image URLs <span class="form-hint">(one per line)</span></label>
+            <textarea id="post-images" class="form-input form-textarea-sm" placeholder="https://image1.jpg&#10;https://image2.jpg"></textarea>
+          </div>
+        </form>
+      </div>
+    </div>
+
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <script>
+    const SUPABASE_URL = 'https://mjlmfevnmuysoilhqwiv.supabase.co';
+    const SUPABASE_KEY = 'sb_publishable_PFgmOxWh25Lh5mUo0GicYg_ZBWDqkU8';
+    const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+  </script>
+  <script src="app.js"></script>
+
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/stuff/service-worker.js')
+          .catch(err => console.log('SW registration failed:', err));
+      });
+    }
+  </script>
 </body>
 </html>

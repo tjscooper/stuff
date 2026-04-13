@@ -1,0 +1,5 @@
+node_modules/
+package.json
+package-lock.json
+.claude/
+images/bosskey_sheet.jpg

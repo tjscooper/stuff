@@ -1,11 +1,11 @@
 {
-  "name": "GAINZ QUEST - 24 Week Workout Program",
-  "short_name": "GAINZ QUEST",
-  "description": "24-level gamified workout program with RPG-style progression",
+  "name": "Tim's Workshop",
+  "short_name": "Workshop",
+  "description": "Tim's personal site — art, game dev, 3D printing, CNC, laser engraving, and daily habits.",
   "start_url": "/stuff/",
   "display": "standalone",
   "background_color": "#0f172a",
-  "theme_color": "#6366f1",
+  "theme_color": "#0f172a",
   "orientation": "portrait-primary",
   "icons": [
     {

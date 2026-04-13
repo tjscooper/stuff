@@ -1,4 +1,4 @@
-const CACHE_NAME = 'gainz-quest-v2.7.0';
+const CACHE_NAME = 'tims-workshop-v1.0.0';
 const urlsToCache = [
   '/stuff/',
   '/stuff/index.html',
