@@ -186,7 +186,7 @@ function generateAsteroid() {
         }
       // n = number of solid neighbors; low n = deep inside asteroid = darker
       const t = Math.max(0, 1 - n / 6); // 1 = deep interior, 0 = surface
-      const v = Math.round(232 - t * 18);
+      const v = Math.round(237 - t * 8);
       ctx.fillStyle = `rgb(${v},${Math.round(v * 0.97)},${Math.round(v * 0.93)})`;
       ctx.fillRect(c * CELL, r * CELL, CELL, CELL);
     }
