@@ -174,18 +174,19 @@ function generateAsteroid() {
   ctx.fillStyle = '#f0eee8';
   ctx.fillRect(0, 0, W, H);
 
-  // Rock cells — depth-shaded warm grey
+  // Asteroid cells — draw the empty (cave) regions as rock, leave solid as parchment
   for (let r = 0; r < rows; r++) {
     for (let c = 0; c < cols; c++) {
-      if (!grid[r][c]) continue;
+      if (grid[r][c]) continue; // skip background (solid CA cells)
       let n = 0;
       for (let dr = -1; dr <= 1; dr++)
         for (let dc = -1; dc <= 1; dc++) {
           const nr = r + dr, nc = c + dc;
           n += (nr < 0 || nr >= rows || nc < 0 || nc >= cols) ? 1 : grid[nr][nc];
         }
-      const t = Math.min((n - 3) / 6, 1); // 0 = edge rock, 1 = deep rock
-      const v = Math.round(232 - t * 18);  // 232 → 214 (subtle, close to parchment)
+      // n = number of solid neighbors; low n = deep inside asteroid = darker
+      const t = Math.max(0, 1 - n / 6); // 1 = deep interior, 0 = surface
+      const v = Math.round(232 - t * 18);
       ctx.fillStyle = `rgb(${v},${Math.round(v * 0.97)},${Math.round(v * 0.93)})`;
       ctx.fillRect(c * CELL, r * CELL, CELL, CELL);
     }
