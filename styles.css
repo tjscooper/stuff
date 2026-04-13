@@ -521,6 +521,16 @@ a:hover { text-decoration: underline; }
   font-family: var(--font-vt);
   font-size: 20px;
   color: var(--text-muted);
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.reading-time-icon {
+  width: 20px;
+  height: 20px;
+  image-rendering: pixelated;
+  vertical-align: middle;
 }
 
 .post-body {

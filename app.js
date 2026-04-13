@@ -441,7 +441,7 @@ function renderPostDetail(post) {
     + '<span class="cat-badge cat-' + post.category + '">' + (CATEGORY_LABELS[post.category] || post.category) + '</span>'
     + (!post.published ? '<span class="draft-badge">Draft</span>' : '')
     + '<span class="post-date">' + formatDate(post.created_at) + '</span>'
-    + '<span class="post-reading-time">&#9201; ' + readingTime(post.content) + '</span>'
+    + '<span class="post-reading-time"><img src="images/icons/hourglass.png" class="reading-time-icon" alt=""> ' + readingTime(post.content) + '</span>'
     + '</div>'
     + '<h1 class="post-title">' + post.title + '</h1>'
     + (post.excerpt ? '<p class="post-excerpt">' + post.excerpt + '</p>' : '')
