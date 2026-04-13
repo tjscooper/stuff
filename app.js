@@ -19,6 +19,11 @@ const HABIT_IDEAS = {
     'Wipe down counters', 'Clean bathroom', 'Water plants', 'Grocery shopping',
     'Meal prep', 'Organize a drawer', 'Wash dishes', 'Sweep porch',
     'Pay a bill', 'File paperwork', 'Change bed sheets', 'Clean fridge',
+    'Mop floors', 'Scrub toilets', 'Clean mirrors', 'Wipe light switches',
+    'Declutter a shelf', 'Donate old stuff', 'Clean out car', 'Wash windows',
+    'Take recycling out', 'Deep clean oven', 'Organize pantry', 'Fix something broken',
+    'Check smoke detectors', 'Clean dryer lint trap', 'Sharpen kitchen knives',
+    'Descale coffee maker', 'Wash throw blankets', 'Sanitize door handles',
   ],
   Tim: [
     'Sketch something', 'Work on pixel art', 'Try a new art technique',
@@ -26,6 +31,12 @@ const HABIT_IDEAS = {
     'Write in journal', 'Read a chapter', 'Learn a new tool',
     'Prototype a game idea', 'Record a timelapse', 'Experiment with shaders',
     'Plan a project', 'Go for a walk', 'Meditate 10 minutes', 'Listen to a podcast',
+    'Finish a 3D print', 'Design something for the CNC', 'Try a laser engraving',
+    'Paint or ink something', 'Make a short animation', 'Write a game design doc',
+    'Watch a tutorial', 'Build a prop or diorama', 'Post something to the blog',
+    'Photograph recent work', 'Organize project files', 'Back up creative work',
+    'Revisit an old project', 'Brainstorm 10 ideas', 'Find a new reference artist',
+    'Stretch or exercise', 'Cook something new', 'Call a friend or family member',
   ],
   Work: [
     'Clear email inbox', 'Update project status', 'Write documentation',
@@ -33,6 +44,12 @@ const HABIT_IDEAS = {
     'Fix a lingering bug', 'Write tests', 'Update dependencies',
     'Prep for a meeting', 'Research a topic', 'Draft a proposal',
     'Review open PRs', 'Update README', 'Set weekly goals', 'Follow up on blockers',
+    'Close stale tickets', 'Audit error logs', 'Improve a slow query',
+    'Write a post-mortem', 'Update your bio or portfolio', 'Learn a keyboard shortcut',
+    'Automate something repetitive', 'Improve CI pipeline', 'Add logging',
+    'Sketch a system diagram', 'Review recent deploys', 'Update team wiki',
+    'Write a status update', 'Read an industry article', 'Schedule a 1:1',
+    'Triage the backlog', 'Profile app performance', 'Document an API endpoint',
   ],
 };
 
