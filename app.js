@@ -635,6 +635,10 @@ function initEvents() {
     loadHabits();
   });
 
+  document.getElementById('stats-open-btn').addEventListener('click', openStats);
+  document.getElementById('stats-close-btn').addEventListener('click', closeStats);
+  document.getElementById('stats-overlay').addEventListener('click', closeStats);
+
   document.querySelectorAll('.habit-add-form').forEach(form => {
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
@@ -646,6 +650,147 @@ function initEvents() {
       form.querySelector('.habit-add-text').focus();
     });
   });
+}
+
+// =====================
+// STATS
+// =====================
+async function loadStats() {
+  const body = document.getElementById('stats-body');
+  body.innerHTML = '<div class="loading">Computing stats...</div>';
+
+  const { data, error } = await supabaseClient
+    .from('habit_items')
+    .select('date, group_name, completed, timebox_minutes');
+
+  if (error || !data) {
+    body.innerHTML = '<div class="stats-error">Failed to load stats.</div>';
+    return;
+  }
+
+  const total = data.length;
+  const done = data.filter(i => i.completed).length;
+  const rate = total > 0 ? Math.round((done / total) * 100) : 0;
+
+  const timeLogged = data
+    .filter(i => i.completed && i.timebox_minutes)
+    .reduce((sum, i) => sum + i.timebox_minutes, 0);
+
+  // Streak calculation
+  const completedDates = [...new Set(
+    data.filter(i => i.completed).map(i => i.date)
+  )].sort();
+
+  let currentStreak = 0, bestStreak = 0, streak = 0;
+  const today = todayDate();
+  const yesterday = offsetDate(today, -1);
+  for (let i = 0; i < completedDates.length; i++) {
+    if (i === 0) { streak = 1; }
+    else {
+      const prev = completedDates[i - 1];
+      const curr = completedDates[i];
+      streak = offsetDate(prev, 1) === curr ? streak + 1 : 1;
+    }
+    bestStreak = Math.max(bestStreak, streak);
+  }
+  const lastDay = completedDates[completedDates.length - 1];
+  currentStreak = (lastDay === today || lastDay === yesterday) ? streak : 0;
+
+  // Days with any activity
+  const activeDays = new Set(data.map(i => i.date)).size;
+
+  // Best day of week
+  const dayCounts = {};
+  completedDates.forEach(d => {
+    const dow = new Date(d + 'T12:00:00Z').toLocaleDateString('en-US', { weekday: 'long' });
+    dayCounts[dow] = (dayCounts[dow] || 0) + 1;
+  });
+  const bestDay = Object.entries(dayCounts).sort((a, b) => b[1] - a[1])[0];
+
+  // Per-group stats
+  const groupStats = GROUPS.map(g => {
+    const items = data.filter(i => i.group_name === g);
+    const gdone = items.filter(i => i.completed).length;
+    const gtime = items.filter(i => i.completed && i.timebox_minutes)
+      .reduce((s, i) => s + i.timebox_minutes, 0);
+    return { group: g, total: items.length, done: gdone, time: gtime };
+  });
+
+  // This week
+  const weekStart = offsetDate(today, -((new Date().getDay() + 6) % 7));
+  const thisWeekDone = data.filter(i => i.completed && i.date >= weekStart).length;
+
+  body.innerHTML = `
+    <div class="stats-section">
+      <div class="stats-section-label">// OVERVIEW</div>
+      <div class="stats-grid">
+        <div class="stat-block">
+          <div class="stat-value">${done}</div>
+          <div class="stat-label">Tasks Done</div>
+        </div>
+        <div class="stat-block">
+          <div class="stat-value">${rate}%</div>
+          <div class="stat-label">Completion Rate</div>
+        </div>
+        <div class="stat-block">
+          <div class="stat-value">${activeDays}</div>
+          <div class="stat-label">Days Active</div>
+        </div>
+        <div class="stat-block">
+          <div class="stat-value">${thisWeekDone}</div>
+          <div class="stat-label">Done This Week</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="stats-section">
+      <div class="stats-section-label">// STREAKS</div>
+      <div class="stats-grid">
+        <div class="stat-block stat-block--accent">
+          <div class="stat-value">${currentStreak}</div>
+          <div class="stat-label">Current Streak</div>
+        </div>
+        <div class="stat-block">
+          <div class="stat-value">${bestStreak}</div>
+          <div class="stat-label">Best Streak</div>
+        </div>
+        <div class="stat-block">
+          <div class="stat-value">${formatMinutes(timeLogged) || '—'}</div>
+          <div class="stat-label">Time Logged</div>
+        </div>
+        <div class="stat-block">
+          <div class="stat-value">${bestDay ? bestDay[0].slice(0, 3).toUpperCase() : '—'}</div>
+          <div class="stat-label">Best Day</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="stats-section">
+      <div class="stats-section-label">// BY GROUP</div>
+      ${groupStats.map(g => `
+        <div class="stat-group-row">
+          <img src="images/icons/${GROUP_ICONS[g.group]}.png" class="group-icon" alt="">
+          <span class="stat-group-name">${g.group}</span>
+          <div class="stat-group-bar-wrap">
+            <div class="stat-group-bar" style="width:${g.total > 0 ? Math.round((g.done/g.total)*100) : 0}%"></div>
+          </div>
+          <span class="stat-group-nums">${g.done}/${g.total}</span>
+          ${g.time ? `<span class="stat-group-time">${formatMinutes(g.time)}</span>` : ''}
+        </div>
+      `).join('')}
+    </div>
+  `;
+}
+
+function openStats() {
+  document.getElementById('stats-overlay').classList.remove('hidden');
+  document.getElementById('stats-drawer').classList.remove('hidden');
+  loadStats();
+}
+
+function closeStats() {
+  document.getElementById('stats-overlay').classList.add('hidden');
+  document.getElementById('stats-drawer').classList.add('hidden');
 }
 
 // =====================

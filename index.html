@@ -80,6 +80,7 @@
         </div>
         <button class="btn btn-sm btn-ghost" id="habit-next">Next →</button>
         <button class="btn btn-sm btn-outline" id="habit-today">Today</button>
+        <button class="btn btn-sm btn-outline" id="stats-open-btn">// STATS</button>
       </div>
       <div class="habits-grid">
         <div class="habit-col" id="habit-col-chore">
@@ -175,6 +176,18 @@
     </div>
 
   </main>
+
+  <!-- ===== STATS DRAWER ===== -->
+  <div class="drawer-overlay hidden" id="stats-overlay"></div>
+  <div class="stats-drawer hidden" id="stats-drawer">
+    <div class="stats-drawer-header">
+      <span class="stats-drawer-title">&gt; MISSION_STATS</span>
+      <button class="btn btn-ghost" id="stats-close-btn">&times;</button>
+    </div>
+    <div class="stats-body" id="stats-body">
+      <div class="loading">Computing stats...</div>
+    </div>
+  </div>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
